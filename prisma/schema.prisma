@@ -1,0 +1,73 @@
+// Prisma schema for URBAN ARABIAN store
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  nameEn      String?
+  tagline    String
+  description String
+  icon        String
+  accentColor String
+  createdAt   DateTime @default(now())
+  products    Product[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  price       Float
+  oldPrice    Float?
+  image       String
+  gallery     String
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  sizes       String
+  colors      String
+  rating      Float    @default(4.5)
+  reviewCount Int      @default(0)
+  stock       Int      @default(50)
+  featured    Boolean  @default(false)
+  badge       String?
+  tags        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  customerName  String
+  email         String
+  phone         String
+  address       String
+  city          String
+  country       String
+  total         Float
+  status        String      @default("pending")
+  itemsJson     String
+  createdAt     DateTime    @default(now())
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  productId String
+  name      String
+  price     Float
+  image     String
+  size      String
+  color     String
+  quantity  Int
+  sessionId String
+  createdAt DateTime @default(now())
+}
