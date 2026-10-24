@@ -1,12 +1,31 @@
-import { db } from '@/lib/db'
+import catalog from '@/lib/catalog.json'
+import type { Category, Product } from '@/lib/types'
+import type { OrderInput } from '@/lib/orders'
+
+// The storefront's curated catalog ships with every deployment.
+const categories: Category[] = catalog.categories.map((category) => ({
+  ...category,
+  id: category.slug,
+}))
+
+const products: Product[] = catalog.products.map((product) => ({
+  ...product,
+  id: product.slug,
+  categoryId: product.categorySlug,
+  category: categories.find((category) => category.slug === product.categorySlug),
+  oldPrice: null,
+  gallery: product.image,
+  sizes: product.sizes.split(',').map((size) => size.trim()),
+  colors: product.colors.split(',').map((color) => color.trim()),
+  tags: product.tags.split(',').map((tag) => tag.trim()),
+}))
 
 export async function getCategories() {
-  const cats = await db.category.findMany({ orderBy: { name: 'asc' } })
-  return cats
+  return [...categories].sort((a, b) => a.name.localeCompare(b.name, 'ar'))
 }
 
 export async function getCategoryBySlug(slug: string) {
-  return db.category.findUnique({ where: { slug } })
+  return categories.find((category) => category.slug === slug) || null
 }
 
 export async function getProducts(opts: {
@@ -17,117 +36,54 @@ export async function getProducts(opts: {
   limit?: number
 } = {}) {
   const { categorySlug, search, sort, featuredOnly, limit } = opts
+  const query = search?.trim().normalize('NFKC').toLocaleLowerCase()
 
-  const where: any = {}
-  if (categorySlug) {
-    where.category = { slug: categorySlug }
-  }
-  if (search) {
-    where.OR = [
-      { name: { contains: search } },
-      { description: { contains: search } },
-      { tags: { contains: search } },
-    ]
-  }
-  if (featuredOnly) {
-    where.featured = true
-  }
-
-  let orderBy: any = { createdAt: 'desc' }
-  switch (sort) {
-    case 'price-low':
-      orderBy = { price: 'asc' }
-      break
-    case 'price-high':
-      orderBy = { price: 'desc' }
-      break
-    case 'rating':
-      orderBy = { rating: 'desc' }
-      break
-    case 'featured':
-      orderBy = [{ featured: 'desc' }, { rating: 'desc' }]
-      break
-  }
-
-  const products = await db.product.findMany({
-    where,
-    orderBy,
-    take: limit,
-    include: { category: true },
+  let result = products.filter((product) => {
+    if (categorySlug && product.categoryId !== categorySlug) return false
+    if (featuredOnly && !product.featured) return false
+    if (query) {
+      const text = [product.name, product.description, ...product.tags]
+        .join(' ').normalize('NFKC').toLocaleLowerCase()
+      if (!text.includes(query)) return false
+    }
+    return true
   })
 
-  return products.map((p) => ({
-    ...p,
-    sizes: p.sizes.split(',').map((s) => s.trim()),
-    colors: p.colors.split(',').map((c) => c.trim()),
-    tags: p.tags.split(',').map((t) => t.trim()),
-    gallery: p.image,
-  }))
+  switch (sort) {
+    case 'price-low':
+      result.sort((a, b) => a.price - b.price)
+      break
+    case 'price-high':
+      result.sort((a, b) => b.price - a.price)
+      break
+    case 'rating':
+      result.sort((a, b) => b.rating - a.rating)
+      break
+    case 'featured':
+      result.sort((a, b) => Number(b.featured) - Number(a.featured) || b.rating - a.rating)
+      break
+    default:
+      result.reverse()
+  }
+
+  if (limit !== undefined && Number.isFinite(limit)) {
+    result = result.slice(0, Math.max(0, Math.min(100, Math.trunc(limit))))
+  }
+  return result
 }
 
 export async function getProductBySlug(slug: string) {
-  const p = await db.product.findUnique({
-    where: { slug },
-    include: { category: true },
-  })
-  if (!p) return null
-  return {
-    ...p,
-    sizes: p.sizes.split(',').map((s) => s.trim()),
-    colors: p.colors.split(',').map((c) => c.trim()),
-    tags: p.tags.split(',').map((t) => t.trim()),
-    gallery: p.image,
-  }
+  return products.find((product) => product.slug === slug) || null
 }
 
 export async function getRelatedProducts(slug: string, limit = 4) {
-  const product = await db.product.findUnique({ where: { slug } })
+  const product = await getProductBySlug(slug)
   if (!product) return []
-  const related = await db.product.findMany({
-    where: {
-      AND: [{ categoryId: product.categoryId }, { slug: { not: slug } }],
-    },
-    take: limit,
-    include: { category: true },
-  })
-  return related.map((p) => ({
-    ...p,
-    sizes: p.sizes.split(',').map((s) => s.trim()),
-    colors: p.colors.split(',').map((c) => c.trim()),
-    tags: p.tags.split(',').map((t) => t.trim()),
-    gallery: p.image,
-  }))
+  return products.filter((item) => item.categoryId === product.categoryId && item.slug !== slug)
+    .slice(0, limit)
 }
 
-export async function createOrder(data: {
-  customerName: string
-  email: string
-  phone: string
-  address: string
-  city: string
-  country: string
-  items: Array<{
-    productId: string
-    name: string
-    price: number
-    quantity: number
-    size: string
-    color: string
-  }>
-  total: number
-}) {
-  const order = await db.order.create({
-    data: {
-      customerName: data.customerName,
-      email: data.email,
-      phone: data.phone,
-      address: data.address,
-      city: data.city,
-      country: data.country,
-      total: data.total,
-      status: 'pending',
-      itemsJson: JSON.stringify(data.items),
-    },
-  })
-  return order
+export async function createOrder(data: OrderInput) {
+  const { saveOrder } = await import('@/lib/orders')
+  return saveOrder(data)
 }

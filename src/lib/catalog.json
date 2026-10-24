@@ -1,0 +1,163 @@
+{
+  "categories": [
+    {
+      "slug": "hoodies",
+      "name": "هوديات",
+      "nameEn": "Hoodies",
+      "tagline": "ستريت وير بجودة عالية",
+      "description": "هوديات NOXwear الأصلية بوزن ثقيل وطبعة فاخرة. مصممة لتعكس هويتك وأسلوبك.",
+      "icon": "Shirt",
+      "accentColor": "#f59e0b"
+    },
+    {
+      "slug": "anime",
+      "name": "أنمي",
+      "nameEn": "Anime",
+      "tagline": "هوديات بطبعة أنمي",
+      "description": "هوديات بطبعة شخصيات الأنمي الأسطورية. جودة عالية، طبعة لا تبهت، تفاصيل دقيقة.",
+      "icon": "Sparkles",
+      "accentColor": "#ec4899"
+    },
+    {
+      "slug": "sports",
+      "name": "رياضة",
+      "nameEn": "Sports",
+      "tagline": "هوديات بثقافة السيارات",
+      "description": "هوديات بطبعة سيارات رياضية وثقافة المحركات. للعشاق والمتحمسين.",
+      "icon": "Trophy",
+      "accentColor": "#10b981"
+    },
+    {
+      "slug": "arabic-art",
+      "name": "فن عربي",
+      "nameEn": "Arabic Art",
+      "tagline": "هوديات بهوية عربية",
+      "description": "هوديات بطبعة مستوحاة من التراث العربي والقضايا التي تهمنا. هويتك، رسالتك.",
+      "icon": "Palette",
+      "accentColor": "#eab308"
+    },
+    {
+      "slug": "limitless-drops",
+      "name": "دروب حصرية",
+      "nameEn": "Limitless Drops",
+      "tagline": "إصدارات محدودة مختارة",
+      "description": "إصدارات حصرية ومرقمة من NOXwear — ما إن تنفد حتى تختفي للأبد.",
+      "icon": "Flame",
+      "accentColor": "#ef4444"
+    }
+  ],
+  "products": [
+    {
+      "slug": "noxwear-horse-hoodie",
+      "name": "هودي نوكسوير الحصان",
+      "description": "هودي أسود أوفرسايز مع طبعة حصان بأسلوب الحبر الصيني. شعار كراون مطرز على الصدر. جودة نوكسوير الفاخرة — أكثر من مجرد هودي.",
+      "price": 250,
+      "image": "/products/noxwear-horse-hoodie.jpeg",
+      "categorySlug": "hoodies",
+      "sizes": "S,M,L,XL,XXL",
+      "colors": "أسود",
+      "rating": 4.9,
+      "reviewCount": 64,
+      "stock": 50,
+      "featured": true,
+      "badge": "حصري نوكسوير",
+      "tags": "noxwear,horse,ink,premium,black"
+    },
+    {
+      "slug": "noxwear-custom-print-hoodie",
+      "name": "هودي نوكسوير طبعة مخصصة",
+      "description": "صمم هودي الخاص بك! اطبع تصميمك الخاص على هودي نوكسوير الفاخر. جودة طباعة عالية، راحة مضمونة، وتوصيل لكل المغرب. أسلوبك، هويتك.",
+      "price": 250,
+      "image": "/products/noxwear-custom-hoodie.jpeg",
+      "categorySlug": "hoodies",
+      "sizes": "S,M,L,XL,XXL",
+      "colors": "أسود,بيج",
+      "rating": 4.8,
+      "reviewCount": 38,
+      "stock": 100,
+      "featured": true,
+      "badge": "طبعة مخصصة",
+      "tags": "noxwear,custom,personalized,print"
+    },
+    {
+      "slug": "zenin-toji-hoodie",
+      "name": "هودي زينين توجي",
+      "description": "هودي أسود بطبعة شخصية زينين توجي من أنمي جوجوتسو كايسن. كلمة ZENIN بخط مزخرف، سيف قصير، وبقع حبر أحمر على طراز الدم. تصميم جرئي بأسلوب الأنمي.",
+      "price": 250,
+      "image": "/products/zenin-toji-hoodie.jpeg",
+      "categorySlug": "anime",
+      "sizes": "S,M,L,XL,XXL",
+      "colors": "أسود",
+      "rating": 4.9,
+      "reviewCount": 78,
+      "stock": 60,
+      "featured": true,
+      "badge": "جوجوتسو كايسن",
+      "tags": "anime,jujutsu-kaisen,toji,zenin,black"
+    },
+    {
+      "slug": "inverted-spear-hoodie",
+      "name": "هودي تنكوكي (الرمح المقلوب)",
+      "description": "هودي أبيض بطبعة سوداء بأسلوب الحبر الصيني تظهر شخصية تحمل سلاحين: سيف طويل ورمح قصير بسلسلة، مع أفعى ملتفة حول الكتف. يحمل رمز \"天逆鉾\" (تنكوكي - الرمح المقلوب للسماء) من جوجوتسو كايسن.",
+      "price": 250,
+      "image": "/products/inverted-spear-hoodie.jpeg",
+      "categorySlug": "anime",
+      "sizes": "S,M,L,XL,XXL",
+      "colors": "أبيض",
+      "rating": 4.8,
+      "reviewCount": 51,
+      "stock": 45,
+      "featured": true,
+      "badge": "جوجوتسو كايسن",
+      "tags": "anime,jujutsu-kaisen,inverted-spear,white,ink"
+    },
+    {
+      "slug": "bmw-m4-motorsport-hoodie",
+      "name": "هودي BMW M4 موتورسبورت",
+      "description": "هودي أسود بطبعة BMW M4 موتورسبورت. شريط M ثلاثي الألوان (أزرق/بنفسجي/أحمر)، شعار BMW الأبيض، شعار \"THE ULTIMATE DRIVING MACHINE\"، رسم سيارة BMW M4 الكوبيه، وعلم ألمانيا. قطعة ثقافة سيارات للمحبين.",
+      "price": 250,
+      "image": "/products/bmw-m4-hoodie.jpeg",
+      "categorySlug": "sports",
+      "sizes": "S,M,L,XL,XXL",
+      "colors": "أسود",
+      "rating": 4.9,
+      "reviewCount": 92,
+      "stock": 70,
+      "featured": true,
+      "badge": "BMW M",
+      "tags": "bmw,m4,motorsport,car,german"
+    },
+    {
+      "slug": "palestine-keffiyeh-hoodie",
+      "name": "هودي فلسطين - من النهر إلى البحر",
+      "description": "هودي أبيض بطبعة كوفية فلسطينية بنمط V على الكتفين مع شراشيب سوداء. النص الأسود الجريء \"FROM THE RIVER TO THE SEA\" أسفل الطبعة. قطعة تضامن مع فلسطين، تصريح بالهوية.",
+      "price": 250,
+      "image": "/products/palestine-keffiyeh-hoodie.jpeg",
+      "categorySlug": "arabic-art",
+      "sizes": "S,M,L,XL,XXL",
+      "colors": "أبيض",
+      "rating": 5,
+      "reviewCount": 187,
+      "stock": 40,
+      "featured": true,
+      "badge": "تضامن فلسطين",
+      "tags": "palestine,keffiyeh,solidarity,arabic,white"
+    },
+    {
+      "slug": "noxwear-horse-premium-hoodie",
+      "name": "هودي نوكسوير الحصان - نسخة بريميوم",
+      "description": "النسخة البريميوم من هودي نوكسوير الحصان. تفاصيل مطرزة فاخرة، خيوط معدنية بالكراون، وطبعة الحصان الأصلية بأسلوب الحبر الصيني. نسخة محدودة مرقمة — ما إن تنفد حتى تختفي للأبد.",
+      "price": 250,
+      "image": "/products/noxwear-horse-premium.jpeg",
+      "categorySlug": "limitless-drops",
+      "sizes": "S,M,L,XL,XXL",
+      "colors": "أسود",
+      "rating": 5,
+      "reviewCount": 22,
+      "stock": 30,
+      "featured": true,
+      "badge": "نسخة محدودة",
+      "tags": "noxwear,horse,premium,limited,numbered"
+    }
+  ]
+}
