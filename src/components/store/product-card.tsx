@@ -33,6 +33,7 @@ export function ProductCard({ product }: ProductCardProps) {
       slug: product.slug,
       name: product.name,
       price: product.price,
+      productType: product.productType,
       image: product.image,
       size: product.sizes[0] || 'مقاس واحد',
       color: product.colors[0] || 'افتراضي',

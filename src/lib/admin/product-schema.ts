@@ -8,6 +8,7 @@ const choices = z.array(z.string().trim().min(1).max(40)).min(1).max(20)
 
 export const productInputSchema = z.object({
   name: z.string().trim().min(2, 'دخل اسم المنتج').max(150),
+  productType: z.enum(['hoodie', 'other']).default('hoodie'),
   description: z.string().trim().max(3000),
   price: z.number().finite().positive('الثمن خاصو يكون أكبر من صفر').max(100000),
   categorySlug: z.string().refine((value) => categorySlugs.has(value), 'اختار القسم'),
@@ -50,6 +51,7 @@ export function initialCatalog(): CatalogDocument {
     version: 1,
     products: seed.products.map((product) => ({
       slug: product.slug,
+      productType: 'hoodie' as const,
       name: product.name,
       description: product.description,
       price: product.price,

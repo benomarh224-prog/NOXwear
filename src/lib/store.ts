@@ -10,6 +10,7 @@ export interface CartLine {
   slug: string
   name: string
   price: number
+  productType?: 'hoodie' | 'other'
   image: string
   size: string
   color: string
@@ -57,6 +58,7 @@ export const useCart = create<CartState>()(
                 slug: item.slug,
                 name: item.name,
                 price: item.price,
+                productType: item.productType,
                 image: item.image,
                 size: item.size,
                 color: item.color,
@@ -83,9 +85,9 @@ export const useCart = create<CartState>()(
             const product = catalog.get(item.productId)
             if (!product || product.stock <= 0 || !product.sizes.includes(item.size) || !product.colors.includes(item.color)) { changed = true; return [] }
             const quantity = Math.min(item.quantity, product.stock)
-            if (item.price === product.price && item.name === product.name && item.image === product.image && item.quantity === quantity) return [item]
+            if (item.price === product.price && item.name === product.name && item.image === product.image && item.quantity === quantity && item.productType === product.productType) return [item]
             changed = true
-            return [{ ...item, price: product.price, name: product.name, image: product.image, quantity }]
+            return [{ ...item, price: product.price, name: product.name, image: product.image, productType: product.productType, quantity }]
           })
           return changed ? { items } : state
         })

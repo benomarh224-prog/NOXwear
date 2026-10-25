@@ -43,6 +43,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
       slug: product.slug,
       name: product.name,
       price: product.price,
+      productType: product.productType,
       image: product.image,
       size: selectedSize,
       color: selectedColor,

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createOrder, getProducts } from '@/lib/data'
-import { computeShipping } from '@/lib/format'
+import { calculateOrderPricing, type PricingLine } from '@/lib/pricing'
 import { OrderStorageUnavailableError } from '@/lib/orders'
 import { z } from 'zod'
 
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       )
     }
     const currentProducts = new Map((await getProducts()).map((product) => [product.id, product]))
-    let subtotal = 0
+    const pricingItems: PricingLine[] = []
     const quantities = new Map<string, number>()
     for (const item of parsed.data.items) {
       const product = currentProducts.get(item.productId)
@@ -43,12 +43,13 @@ export async function POST(req: Request) {
       }
       quantities.set(item.productId, quantity)
       item.name = product.name
-      subtotal += product.price * item.quantity
+      pricingItems.push({ price: product.price, quantity: item.quantity, productType: product.productType })
     }
-    const expectedTotal = subtotal + computeShipping(parsed.data.country, subtotal)
+    const pricing = calculateOrderPricing(pricingItems, parsed.data.country)
+    const expectedTotal = pricing.grandTotal
     if (Math.abs(expectedTotal - parsed.data.total) > 0.01) return NextResponse.json({ error: 'مجموع الطلب تبدل. حدّث الصفحة وراجع السلة.' }, { status: 409 })
-    const order = await createOrder({ ...parsed.data, total: expectedTotal })
-    return NextResponse.json({ order }, { status: 201 })
+    const order = await createOrder({ ...parsed.data, total: expectedTotal, pricing })
+    return NextResponse.json({ order, pricing }, { status: 201 })
   } catch (err: unknown) {
     console.error('Order creation failed:', err)
     return NextResponse.json(

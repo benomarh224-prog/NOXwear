@@ -7,17 +7,15 @@ import { Button } from '@/components/ui/button'
 import { Minus, Plus, ShoppingBag, ArrowLeft, Trash2, MessageCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatPrice } from '@/lib/format'
+import { calculateOrderPricing } from '@/lib/pricing'
 import { OptimizedImage } from './optimized-image'
 
 export function CartDrawer() {
-  const { items, isOpen, setOpen, updateQuantity, removeItem, total } = useCart()
+  const { items, isOpen, setOpen, updateQuantity, removeItem } = useCart()
   const setView = useUI((s) => s.setView)
 
-  const subtotal = total()
-  // Morocco: always free shipping for all cities
-  // Cart drawer assumes Morocco (default). International is computed at checkout.
-  const shipping = 0
-  const grandTotal = subtotal + shipping
+  const pricing = calculateOrderPricing(items)
+  const { subtotal, discount, grandTotal } = pricing
 
   const handleCheckout = () => {
     setOpen(false)
@@ -131,6 +129,8 @@ export function CartDrawer() {
                 <span className="font-semibold">{formatPrice(subtotal)}</span>
                 <span className="text-muted-foreground">المجموع الفرعي</span>
               </div>
+              {discount > 0 && <div className="flex justify-between text-sm text-emerald-400 flex-row-reverse"><span className="font-bold">−{formatPrice(discount)}</span><span>تخفيض كل جوج هوديات</span></div>}
+              {pricing.hoodieCount % 2 === 1 && <p className="rounded-lg border border-amber-400/20 bg-amber-400/10 p-2 text-right text-xs text-amber-300">زيد هودي آخر واستافد من عرض جوج هوديات.</p>}
               <div className="flex justify-between text-sm flex-row-reverse">
                 <span className="font-semibold">
                   <span className="text-gold">مجاني</span>

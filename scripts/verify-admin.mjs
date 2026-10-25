@@ -8,6 +8,7 @@ const catalogFile = join(process.cwd(), '.codex/store/catalog/products-v1.json')
 const original = await readFile(catalogFile).catch((error) => { if (error.code === 'ENOENT') return null; throw error })
 const { password } = JSON.parse(await readFile('.codex/admin-access.json', 'utf8'))
 const cookies = new Map()
+const createdOrders = []
 function remember(response) {
   for (const header of response.headers.getSetCookie()) {
     const [part] = header.split(';'); const equals = part.indexOf('=')
@@ -81,6 +82,18 @@ try {
   const publicProduct = (await (await request('/api/products/' + slug, {}, false)).json()).product
   assert.equal(publicProduct.price, 275.5); assert.equal(publicProduct.gallery.split(',').length, 2)
   assert.match(await (await request('/', {}, false)).text(), /منتج تجربة الإدارة/)
+  const orderPayload = { customerName: 'Pricing integration test', email: 'test@example.invalid', phone: '0000000000', address: 'Test', city: 'Test', country: 'المغرب', total: 501,
+    items: [{ productId: slug, name: changed.name, price: 275.5, quantity: 2, size: 'L', color: 'أسود' }] }
+  const orderResponse = await request('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderPayload) }, false)
+  assert.equal(orderResponse.status, 201)
+  const savedOrder = await orderResponse.json(); createdOrders.push(savedOrder.order.id)
+  assert.equal(savedOrder.pricing.subtotal, 551); assert.equal(savedOrder.pricing.discount, 50); assert.equal(savedOrder.pricing.grandTotal, 501)
+  assert.equal(savedOrder.pricing.remainingToPay, 451)
+  const storedOrder = JSON.parse(await readFile(join(process.cwd(), '.codex/store/orders', savedOrder.order.id + '.json'), 'utf8'))
+  assert.equal(storedOrder.total, 501); assert.deepEqual(storedOrder.pricing, savedOrder.pricing)
+  const undiscounted = await request('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...orderPayload, total: 551 }) }, false)
+  assert.equal(undiscounted.status, 409, 'The server must enforce the automatic promotion')
+
   const stalePriceOrder = await request('/api/orders', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
       customerName: 'Integration test', email: 'test@example.invalid', phone: '0000000000', address: 'Test', city: 'Test', country: 'المغرب', total: 1,
@@ -116,8 +129,9 @@ try {
   const csrf = await (await request('/api/auth/csrf')).json()
   await request('/api/auth/signout', { method: 'POST', headers: { Origin: base, 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ csrfToken: csrf.csrfToken, json: 'true' }) })
   assert.equal((await request('/api/admin/products')).status, 401, 'Logout did not revoke browser session')
-  console.log('PASS: authentication, logout, origin protection, validation, image upload, create/edit, gallery, storefront publication, hide, delete/restore/republish, concurrent saves')
+  console.log('PASS: authentication, logout, origin protection, validation, image upload, create/edit, gallery, storefront publication, hide, delete/restore/republish, discounted order persistence, concurrent saves')
 } finally {
+  for (const id of createdOrders) await unlink(join(process.cwd(), '.codex/store/orders', id + '.json'))
   if (original) await writeFile(catalogFile, original)
   else await unlink(catalogFile).catch((error) => { if (error.code !== 'ENOENT') throw error })
 }

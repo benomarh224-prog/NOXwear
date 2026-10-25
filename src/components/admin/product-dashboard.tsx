@@ -203,7 +203,7 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
       await onSave({
         name: String(values.get('name')).trim(), description: String(values.get('description')).trim(),
         price: Number(values.get('price')), stock: Number(values.get('stock')),
-        categorySlug: String(values.get('categorySlug')), badge: String(values.get('badge')).trim(),
+        categorySlug: String(values.get('categorySlug')), productType: values.get('productType') === 'other' ? 'other' : 'hoodie', badge: String(values.get('badge')).trim(),
         sizes, colors, images, active: values.get('active') === 'on', featured: values.get('featured') === 'on',
       })
     } catch (failure) {
@@ -226,6 +226,7 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="اسم المنتج" id="product-name"><Input id="product-name" name="name" required minLength={2} maxLength={150} defaultValue={product?.name || ''} placeholder="مثلاً: هودي NOXwear أسود" /></Field>
           <Field label="القسم" id="product-category"><select id="product-category" name="categorySlug" defaultValue={product?.categorySlug || 'anime'} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">{categories.map((category) => <option key={category.slug} value={category.slug}>{category.name}</option>)}</select></Field>
+          <Field label="نوع القطعة" id="product-type"><select id="product-type" name="productType" defaultValue={product?.productType || 'hoodie'} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"><option value="hoodie">هودي — كيشملو العرض</option><option value="other">قطعة أخرى — بدون العرض</option></select></Field>
           <Field label="الثمن بالدرهم" id="product-price"><Input id="product-price" name="price" type="number" inputMode="decimal" required min="0.01" max="100000" step="0.01" defaultValue={product?.price ?? 250} /></Field>
           <Field label="الكمية المتوفرة" id="product-stock"><Input id="product-stock" name="stock" type="number" inputMode="numeric" required min="0" max="100000" step="1" defaultValue={product?.stock ?? 50} /></Field>
         </div>

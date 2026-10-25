@@ -57,3 +57,11 @@ afterward. It refuses to run mutation tests against a remote deployment.
 For the legacy local SQLite order fallback, retain `DATABASE_URL` from
 `.env.example`. Do not run `scripts/seed.js` against valuable data: it recreates
 the old database catalog and clears orders.
+
+## Automatic hoodie promotion
+
+Every pair of hoodie units receives 50 MAD off, including mixed designs, colors
+and sizes. Other product types are excluded. Cart, checkout, WhatsApp and server
+validation share `src/lib/pricing.ts`; shipping, deposit and balance use the net
+amount. The order stores the computed pricing breakdown. Run `npm run test:pricing`
+for quantity, mixed-product, rounding, cart-state and message-summary checks.

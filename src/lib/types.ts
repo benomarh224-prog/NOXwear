@@ -16,6 +16,7 @@ export interface Product {
   name: string
   description: string
   price: number
+  productType: 'hoodie' | 'other'
   oldPrice: number | null
   image: string
   gallery: string

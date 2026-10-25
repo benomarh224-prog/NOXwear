@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
-import { formatPrice, computeShipping, ADVANCE_DEPOSIT, FREE_SHIPPING_THRESHOLD_INTL, meetsMinimumOrder } from '@/lib/format'
+import { formatPrice, FREE_SHIPPING_THRESHOLD_INTL, meetsMinimumOrder } from '@/lib/format'
+import { calculateOrderPricing, pricingMessageLines } from '@/lib/pricing'
 import { OptimizedImage } from './optimized-image'
 
 const WHATSAPP_NUMBER = '212645900763' // +212 645-900763
@@ -18,7 +19,7 @@ const WHATSAPP_NUMBER = '212645900763' // +212 645-900763
 export function CheckoutView() {
   const back = useUI((s) => s.back)
   const setView = useUI((s) => s.setView)
-  const { items, total, clear, setOpen } = useCart()
+  const { items, clear, setOpen } = useCart()
   const [loading, setLoading] = useState(false)
 
   const [form, setForm] = useState({
@@ -30,13 +31,10 @@ export function CheckoutView() {
     notes: '',
   })
 
-  const subtotal = total()
+  const pricing = calculateOrderPricing(items, form.country)
+  const { subtotal, discount, discountedSubtotal, shipping, advance, grandTotal, remainingToPay } = pricing
   const isMorocco = form.country === 'المغرب' || form.country === 'Morocco'
-  const shipping = computeShipping(form.country, subtotal)
-  const advance = ADVANCE_DEPOSIT // 50 dh تسبيق احتياطي
-  const grandTotal = subtotal + shipping
-  const remainingToPay = grandTotal - advance
-  const meetsMinimum = meetsMinimumOrder(form.country, subtotal)
+  const meetsMinimum = meetsMinimumOrder(form.country, discountedSubtotal)
 
   const buildWhatsAppMessage = () => {
     const lines: string[] = []
@@ -59,17 +57,7 @@ export function CheckoutView() {
       lines.push(`   • الكمية: ${item.quantity} × ${item.price} د.م = ${item.price * item.quantity} د.م`)
     })
     lines.push('')
-    lines.push('💰 *ملخص الطلب:*')
-    lines.push(`المجموع الفرعي: ${subtotal} د.م`)
-    if (isMorocco) {
-      lines.push(`رسوم التوصيل: مجاني (جميع مدن المغرب)`)
-    } else {
-      lines.push(`رسوم التوصيل: ${shipping === 0 ? 'مجاني' : shipping + ' د.م'}`)
-    }
-    lines.push(`الإجمالي: ${grandTotal} د.م`)
-    lines.push('')
-    lines.push(`✅ تسبيق احتياطي: ${advance} د.م`)
-    lines.push(`⏳ المتبقي عند التوصيل: ${remainingToPay} د.م`)
+    lines.push(...pricingMessageLines(pricing, form.country))
     lines.push('')
     lines.push('🙏 شكراً لطلبكم!')
 
@@ -377,6 +365,7 @@ export function CheckoutView() {
                   <span className="font-semibold">{formatPrice(subtotal)}</span>
                   <span className="text-muted-foreground">المجموع الفرعي</span>
                 </div>
+                {discount > 0 && <div className="flex justify-between text-emerald-400 flex-row-reverse"><span className="font-bold">−{formatPrice(discount)}</span><span>تخفيض كل جوج هوديات</span></div>}
                 <div className="flex justify-between flex-row-reverse">
                   <span className="font-semibold">
                     {shipping === 0 ? (
@@ -393,7 +382,7 @@ export function CheckoutView() {
                   </div>
                 ) : shipping > 0 ? (
                   <div className="text-[10px] text-amber-400 pr-2 border-r-2 border-amber-500/30 text-right">
-                    أضف {formatPrice(FREE_SHIPPING_THRESHOLD_INTL - subtotal)} أخرى للحصول على توصيل مجاني دولي
+                    أضف {formatPrice(FREE_SHIPPING_THRESHOLD_INTL - discountedSubtotal)} أخرى للحصول على توصيل مجاني دولي
                   </div>
                 ) : (
                   <div className="text-[10px] text-emerald-400 pr-2 border-r-2 border-emerald-500/40 text-right">
