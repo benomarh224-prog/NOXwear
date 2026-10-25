@@ -10,11 +10,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
-import { formatPrice, FREE_SHIPPING_THRESHOLD_INTL, meetsMinimumOrder } from '@/lib/format'
+import { formatPrice } from '@/lib/format'
 import { calculateOrderPricing, pricingMessageLines } from '@/lib/pricing'
 import { OptimizedImage } from './optimized-image'
 
 const WHATSAPP_NUMBER = '212645900763' // +212 645-900763
+const DELIVERY_COUNTRY = 'المغرب'
 
 export function CheckoutView() {
   const back = useUI((s) => s.back)
@@ -27,14 +28,11 @@ export function CheckoutView() {
     phone: '',
     address: '',
     city: '',
-    country: 'المغرب',
     notes: '',
   })
 
-  const pricing = calculateOrderPricing(items, form.country)
-  const { subtotal, discount, discountedSubtotal, shipping, advance, grandTotal, remainingToPay } = pricing
-  const isMorocco = form.country === 'المغرب' || form.country === 'Morocco'
-  const meetsMinimum = meetsMinimumOrder(form.country, discountedSubtotal)
+  const pricing = calculateOrderPricing(items, DELIVERY_COUNTRY)
+  const { subtotal, discount, shipping, advance, grandTotal, remainingToPay } = pricing
 
   const buildWhatsAppMessage = () => {
     const lines: string[] = []
@@ -45,7 +43,7 @@ export function CheckoutView() {
     lines.push(`الهاتف: ${form.phone}`)
     lines.push(`العنوان: ${form.address}`)
     lines.push(`المدينة: ${form.city}`)
-    lines.push(`الدولة: ${form.country}`)
+    lines.push(`الدولة: ${DELIVERY_COUNTRY}`)
     if (form.notes) lines.push(`ملاحظات: ${form.notes}`)
     lines.push('')
     lines.push('📦 *المنتجات:*')
@@ -57,7 +55,7 @@ export function CheckoutView() {
       lines.push(`   • الكمية: ${item.quantity} × ${item.price} د.م = ${item.price * item.quantity} د.م`)
     })
     lines.push('')
-    lines.push(...pricingMessageLines(pricing, form.country))
+    lines.push(...pricingMessageLines(pricing, DELIVERY_COUNTRY))
     lines.push('')
     lines.push('🙏 شكراً لطلبكم!')
 
@@ -77,11 +75,6 @@ export function CheckoutView() {
       return
     }
 
-    if (!meetsMinimum) {
-      toast.error(`الحد الأدنى للطلب الدولي هو ${FREE_SHIPPING_THRESHOLD_INTL} د.م`)
-      return
-    }
-
     // Opening the tab in the submit gesture keeps Safari from blocking WhatsApp.
     const whatsappTab = window.open('about:blank', '_blank')
     setLoading(true)
@@ -97,7 +90,7 @@ export function CheckoutView() {
           phone: form.phone,
           address: form.address,
           city: form.city,
-          country: form.country,
+          country: DELIVERY_COUNTRY,
           total: grandTotal,
           items: items.map((i) => ({
             productId: i.productId,
@@ -212,7 +205,6 @@ export function CheckoutView() {
                     required
                     value={form.customerName}
                     onChange={(e) => setForm({ ...form, customerName: e.target.value })}
-                    placeholder="ياسين بنعلي"
                     className="bg-background text-right pr-9"
                     dir="rtl"
                   />
@@ -223,7 +215,6 @@ export function CheckoutView() {
                     type="tel"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="+212 6XX XXX XXX"
                     className="bg-background text-right pr-9"
                     dir="rtl"
                   />
@@ -243,38 +234,23 @@ export function CheckoutView() {
                     required
                     value={form.address}
                     onChange={(e) => setForm({ ...form, address: e.target.value })}
-                    placeholder="123 شارع محمد الخامس"
                     className="bg-background text-right pr-9"
                     dir="rtl"
                   />
                 </Field>
-                <Field label="المدينة" required>
+                <Field label="المدينة" required className="sm:col-span-2">
                   <Input
                     required
                     value={form.city}
                     onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    placeholder="الدار البيضاء"
                     className="bg-background text-right"
                     dir="rtl"
                   />
-                </Field>
-                <Field label="الدولة" required>
-                  <select
-                    required
-                    value={form.country}
-                    onChange={(e) => setForm({ ...form, country: e.target.value })}
-                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                  >
-                    {['المغرب', 'السعودية', 'الإمارات', 'قطر', 'مصر', 'تونس', 'الجزائر', 'فرنسا', 'إسبانيا', 'ألمانيا', 'بريطانيا', 'أمريكا'].map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
                 </Field>
                 <Field label="ملاحظات (اختياري)" className="sm:col-span-2">
                   <textarea
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    placeholder="أي تفاصيل إضافية للطلب أو التوصيل..."
                     rows={3}
                     className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring text-right"
                     dir="rtl"
@@ -376,19 +352,9 @@ export function CheckoutView() {
                   </span>
                   <span className="text-muted-foreground">رسوم التوصيل</span>
                 </div>
-                {isMorocco ? (
-                  <div className="text-[10px] text-emerald-400 pr-2 border-r-2 border-emerald-500/40 text-right">
-                    ✦ توصيل مجاني لجميع مدن المغرب
-                  </div>
-                ) : shipping > 0 ? (
-                  <div className="text-[10px] text-amber-400 pr-2 border-r-2 border-amber-500/30 text-right">
-                    أضف {formatPrice(FREE_SHIPPING_THRESHOLD_INTL - discountedSubtotal)} أخرى للحصول على توصيل مجاني دولي
-                  </div>
-                ) : (
-                  <div className="text-[10px] text-emerald-400 pr-2 border-r-2 border-emerald-500/40 text-right">
-                    ✦ توصيل مجاني دولي
-                  </div>
-                )}
+                <div className="text-[10px] text-emerald-400 pr-2 border-r-2 border-emerald-500/40 text-right">
+                  ✦ توصيل مجاني لجميع مدن المغرب
+                </div>
               </div>
 
               <Separator className="my-4" />
@@ -438,8 +404,7 @@ export function CheckoutView() {
             <div className="rounded-xl border border-border bg-card p-4 text-xs text-right">
               <p className="font-semibold mb-2">التوصيل المتوقع</p>
               <p className="text-muted-foreground">
-                <span className="text-foreground">3-5 أيام عمل</span> للمغرب،
-                <span className="text-foreground"> 7-14 يوم</span> دولياً.
+                <span className="text-foreground">24–48 ساعة</span> بعد تأكيد الطلب، لجميع مدن المغرب.
               </p>
               <p className="text-muted-foreground mt-2">
                 إرجاع مجاني خلال 30 يوم. نتواصل معك عبر واتساب بخصوص طلبك.
