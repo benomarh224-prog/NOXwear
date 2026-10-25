@@ -30,17 +30,17 @@ const ACCENTS: Record<string, { gradient: string; text: string; border: string }
     border: 'border-pink-500/40',
   },
   sports: {
-    gradient: 'from-emerald-950/90 via-emerald-950/60 to-transparent',
+    gradient: 'from-black/95 via-black/50 to-transparent',
     text: 'text-emerald-400',
     border: 'border-emerald-500/40',
   },
   'arabic-art': {
-    gradient: 'from-yellow-950/90 via-yellow-950/60 to-transparent',
+    gradient: 'from-black/95 via-black/50 to-transparent',
     text: 'text-yellow-400',
     border: 'border-yellow-500/40',
   },
   'limitless-drops': {
-    gradient: 'from-red-950/90 via-red-950/60 to-transparent',
+    gradient: 'from-black/95 via-black/50 to-transparent',
     text: 'text-red-400',
     border: 'border-red-500/40',
   },
