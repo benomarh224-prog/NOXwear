@@ -38,9 +38,8 @@ export default async function Home() {
     }
   }
 
-  const heroProduct = featured.find((p) => p.slug === 'noxwear-horse-hoodie') || featured[0]
-  const heroImage = heroProduct?.image || '/products/noxwear-horse-hoodie.jpeg'
-  const accentImage = '/products/noxwear-samurai-feature.jpg'
+  const heroImage = '/hero/noxwear-horse-card-v2.png'
+  const accentImage = '/hero/noxwear-samurai-card-v2.png'
 
   return (
     <StoreApp

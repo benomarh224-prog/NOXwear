@@ -84,13 +84,13 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
 
           {/* Image collage */}
           <div
-            className="relative h-[400px] sm:h-[500px] lg:h-[600px]"
+            className="relative mx-auto aspect-[9/10] w-full max-w-[540px]"
           >
             {/* Main image */}
             <div className="absolute top-0 left-0 w-3/4 h-3/4 rounded-2xl overflow-hidden border border-border shadow-2xl shadow-primary/10">
               <OptimizedImage
                 src={featuredImage}
-                alt="المنتج المميز"
+                alt="هودي الحصان الأسود بلوغو واسم NOXwear"
                 className="object-cover"
                 sizes="(max-width: 1023px) 75vw, 38vw"
                 preload
@@ -102,7 +102,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
             <div className="absolute bottom-0 right-0 w-1/2 h-1/2 rounded-2xl overflow-hidden border border-gold/30 shadow-2xl shadow-primary/20">
               <OptimizedImage
                 src={accentImage}
-                alt="هودي أسود بتصميم ساموراي أحمر"
+                alt="هودي ساموراي أسود وأحمر بلوغو واسم NOXwear"
                 className="object-cover"
                 sizes="(max-width: 1023px) 50vw, 25vw"
                 loading="eager"
@@ -112,7 +112,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
 
             {/* Floating rating badge */}
             <div
-              className="absolute top-1/2 right-0 sm:right-4 glass border border-border rounded-xl p-3 shadow-xl"
+              className="absolute bottom-4 left-0 sm:left-4 glass border border-border rounded-xl p-3 shadow-xl"
             >
               <div className="flex items-center gap-2">
                 <div className="flex">
@@ -132,7 +132,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
 
             {/* Floating drops badge */}
             <div
-              className="absolute bottom-4 left-4 glass border border-gold/30 rounded-xl p-3 shadow-xl"
+              className="absolute top-4 right-0 sm:right-4 glass border border-gold/30 rounded-xl p-3 shadow-xl"
             >
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 دروب محدود
