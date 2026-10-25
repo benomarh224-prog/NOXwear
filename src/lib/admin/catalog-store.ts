@@ -20,7 +20,7 @@ export async function saveProduct(input: ProductInput, expectedRevision: string,
     // Creating appends to the latest catalog; only edits can overwrite existing data.
     if (slug && normalizeRevision(revision) !== normalizeRevision(expectedRevision)) throw new StorageConflictError('Catalog changed')
     const existing = slug ? document.products.find((product) => product.slug === slug) : undefined
-    if (slug && !existing) return null
+    if (slug && (!existing || existing.deletedAt)) return null
     if (!existing && document.products.length >= 1000) throw new Error('Catalog capacity reached')
     const product: AdminProduct = {
       ...input,
@@ -30,7 +30,7 @@ export async function saveProduct(input: ProductInput, expectedRevision: string,
       oldPrice: existing?.oldPrice ?? null,
       rating: existing?.rating ?? 0, reviewCount: existing?.reviewCount ?? 0,
       tags: existing?.tags ?? [],
-      createdAt: existing?.createdAt ?? now, updatedAt: now,
+      createdAt: existing?.createdAt ?? now, updatedAt: now, deletedAt: null,
     }
     const products = existing
       ? document.products.map((item) => item.slug === product.slug ? product : item)
@@ -44,4 +44,18 @@ export async function saveProduct(input: ProductInput, expectedRevision: string,
     }
   }
   throw new StorageConflictError('Catalog is busy')
+}
+
+
+export async function setProductDeleted(slug: string, expectedRevision: string, deleted: boolean) {
+  const { document, revision } = await readCatalog()
+  if (normalizeRevision(revision) !== normalizeRevision(expectedRevision)) throw new StorageConflictError('Catalog changed')
+  const existing = document.products.find((product) => product.slug === slug)
+  if (!existing) return null
+  if (Boolean(existing.deletedAt) === deleted) return { products: document.products, revision, product: existing }
+  const now = new Date().toISOString()
+  const product: AdminProduct = { ...existing, active: false, deletedAt: deleted ? now : null, updatedAt: now }
+  const next = catalogDocumentSchema.parse({ version: 1, products: document.products.map((item) => item.slug === slug ? product : item) })
+  const nextRevision = await writeJson(CATALOG_PATH, next, revision === 'seed' ? null : revision)
+  return { products: next.products, revision: nextRevision, product }
 }

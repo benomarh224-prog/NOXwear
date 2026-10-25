@@ -9,6 +9,8 @@ and editing products, prices, descriptions, categories, stock, sizes, colors,
 featured status and visibility. Upload up to six photos and choose the primary
 image. Additional photos appear in the product detail gallery. Hiding a product
 removes it from the storefront while keeping it available in administration.
+Delete moves a product to Trash; restoring returns it as hidden until explicitly
+published again. Deleted records and their photos are retained for recovery.
 
 The initial catalog is `src/lib/catalog.json`. Once the first admin save occurs,
 the canonical catalog is the private Blob document `catalog/products-v1.json`.

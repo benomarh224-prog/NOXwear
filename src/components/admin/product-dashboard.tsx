@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { formatPrice } from '@/lib/format'
 import type { AdminProduct, ProductInput } from '@/lib/admin/product-schema'
 
@@ -30,18 +31,36 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
   const [category, setCategory] = useState('all')
   const [editing, setEditing] = useState<AdminProduct | null | undefined>(undefined)
   const [refreshing, setRefreshing] = useState(false)
+  const [showTrash, setShowTrash] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<AdminProduct | null>(null)
+  const [mutating, setMutating] = useState(false)
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
   const filtered = useMemo(() => snapshot.products.filter((product) =>
-    (category === 'all' || product.categorySlug === category) && product.name.toLocaleLowerCase().includes(query.toLocaleLowerCase().trim()),
-  ), [snapshot.products, category, query])
-  const active = snapshot.products.filter((product) => product.active).length
+    Boolean(product.deletedAt) === showTrash && (category === 'all' || product.categorySlug === category) && product.name.toLocaleLowerCase().includes(query.toLocaleLowerCase().trim()),
+  ), [snapshot.products, category, query, showTrash])
+  const currentProducts = snapshot.products.filter((product) => !product.deletedAt)
+  const active = currentProducts.filter((product) => product.active).length
+  const trashCount = snapshot.products.length - currentProducts.length
 
   async function refresh() {
     setRefreshing(true); setError('')
     try { setSnapshot(await requestJson('/api/admin/products')); setNotice('تحدّثات لائحة المنتجات') }
     catch (failure) { setError((failure as Error).message) }
     finally { setRefreshing(false) }
+  }
+
+  async function changeTrash(product: AdminProduct, deleted: boolean) {
+    setMutating(true); setError('')
+    try {
+      const result: Snapshot = await requestJson('/api/admin/products/' + product.slug, {
+        method: deleted ? 'DELETE' : 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ revision: snapshot.revision }),
+      })
+      setSnapshot(result); setDeleteTarget(null)
+      setNotice(deleted ? 'تحذف المنتج. تقدر ترجعو من المحذوفة.' : 'ترجع المنتج كمخفي. تقدر تعدلو وتنشرو من جديد.')
+    } catch (failure) { setError((failure as Error).message) }
+    finally { setMutating(false) }
   }
 
   async function save(product: ProductInput) {
@@ -68,12 +87,16 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
           <Button onClick={() => { setError(''); setEditing(null) }} className="h-12 gap-2 bg-amber-400 px-5 font-bold text-black hover:bg-amber-300"><Plus size={18} /> إضافة منتج</Button>
         </div>
         <div className="mb-8 grid grid-cols-3 gap-3 sm:gap-5">
-          <Summary label="جميع المنتجات" value={snapshot.products.length} />
+          <Summary label="جميع المنتجات" value={currentProducts.length} />
           <Summary label="ظاهرة فالمتجر" value={active} />
-          <Summary label="مخفية" value={snapshot.products.length - active} />
+          <Summary label="مخفية" value={currentProducts.length - active} />
         </div>
         {notice && <div role="status" className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-300">{notice}<button type="button" onClick={() => setNotice('')} aria-label="إغلاق الإشعار"><X size={16} /></button></div>}
         {error && <p role="alert" className="mb-5 rounded-xl bg-red-500/10 p-4 text-sm text-red-300">{error}</p>}
+        <div className="mb-4 flex flex-wrap gap-2" aria-label="عرض المنتجات أو المحذوفة">
+          <Button variant={showTrash ? 'outline' : 'secondary'} aria-pressed={!showTrash} onClick={() => setShowTrash(false)}>المنتجات ({currentProducts.length})</Button>
+          <Button variant={showTrash ? 'secondary' : 'outline'} aria-pressed={showTrash} onClick={() => setShowTrash(true)}><Trash2 size={15} /> المحذوفة ({trashCount})</Button>
+        </div>
         <div className="mb-6 flex flex-wrap gap-3">
           <div className="relative min-w-48 flex-1"><Search className="absolute right-3 top-3.5 text-muted-foreground" size={17} /><Input aria-label="البحث فالمنتجات" placeholder="قلّب على منتج..." value={query} onChange={(event) => setQuery(event.target.value)} className="h-11 bg-[#141416] pr-10" /></div>
           <select aria-label="تصفية حسب القسم" value={category} onChange={(event) => setCategory(event.target.value)} className="h-11 max-w-full rounded-lg border border-input bg-[#141416] px-3 text-sm"><option value="all">جميع الأقسام</option>{categories.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}</select>
@@ -87,12 +110,30 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
                   <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-black/30"><Image src={product.images[0]} alt={product.name} fill unoptimized className="object-cover" /></div>
                   <div className="min-w-0 flex-1"><p className="mb-2 truncate text-xs text-amber-400">{categories.find((item) => item.slug === product.categorySlug)?.name}</p><h2 className="line-clamp-2 text-sm font-semibold leading-6">{product.name}</h2><p className="mt-2 font-bold">{formatPrice(product.price)}</p><p className="mt-1 text-xs text-muted-foreground">المخزون: {product.stock}</p></div>
                 </div>
-                <div className="flex items-center justify-between gap-3 border-t border-white/5 px-4 py-3"><span className={`inline-flex items-center gap-1.5 text-xs ${product.active ? 'text-emerald-400' : 'text-muted-foreground'}`}>{product.active ? <Eye size={14} /> : <EyeOff size={14} />}{product.active ? 'ظاهر فالمتجر' : 'مخفي'}</span><Button variant="outline" size="sm" onClick={() => setEditing(product)}><Pencil size={14} /> تعديل</Button></div>
+                <div className="flex items-center justify-between gap-2 border-t border-white/5 px-4 py-3">
+                  <span className={'inline-flex items-center gap-1.5 text-xs ' + (product.active && !product.deletedAt ? 'text-emerald-400' : 'text-muted-foreground')}>
+                    {product.deletedAt ? <Trash2 size={14} /> : product.active ? <Eye size={14} /> : <EyeOff size={14} />}
+                    {product.deletedAt ? 'فالمحذوفة' : product.active ? 'ظاهر فالمتجر' : 'مخفي'}
+                  </span>
+                  {product.deletedAt ? <Button variant="outline" size="sm" disabled={mutating} onClick={() => changeTrash(product, false)}><RefreshCw size={14} /> استرجاع</Button> : (
+                    <div className="flex items-center gap-1.5">
+                      <Button variant="outline" size="sm" disabled={mutating} onClick={() => setEditing(product)}><Pencil size={14} /> تعديل</Button>
+                      <Button variant="ghost" size="sm" disabled={mutating} className="text-red-400 hover:bg-red-500/10 hover:text-red-300" onClick={() => { setError(''); setDeleteTarget(product) }}><Trash2 size={14} /> حذف</Button>
+                    </div>
+                  )}
+                </div>
               </article>
             ))}
           </div>
         )}
       </div>
+      <AlertDialog open={deleteTarget !== null} onOpenChange={(open) => { if (!open && !mutating) setDeleteTarget(null) }}>
+        <AlertDialogContent dir="rtl" className="rounded-2xl border-white/10 bg-[#141416]">
+          <AlertDialogHeader className="text-right sm:text-right"><AlertDialogTitle>حذف المنتج؟</AlertDialogTitle><AlertDialogDescription className="leading-7">غادي يتحيد «{deleteTarget?.name}» من المتجر واللائحة الرئيسية. تقدر ترجعو من «المحذوفة».</AlertDialogDescription></AlertDialogHeader>
+          {error && <p role="alert" className="text-sm leading-6 text-red-300">{error}</p>}
+          <AlertDialogFooter><AlertDialogCancel disabled={mutating}>إلغاء</AlertDialogCancel><AlertDialogAction disabled={mutating} className="bg-red-600 text-white hover:bg-red-500" onClick={(event) => { event.preventDefault(); if (deleteTarget) void changeTrash(deleteTarget, true) }}>{mutating ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}{mutating ? 'كيتم الحذف...' : 'حذف المنتج'}</AlertDialogAction></AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <Dialog open={editing !== undefined} onOpenChange={(open) => { if (!open) setEditing(undefined) }}>
         <DialogContent className="max-h-[94dvh] w-[calc(100%_-_1.5rem)] overflow-y-auto rounded-2xl border-white/10 bg-[#141416] p-5 sm:max-w-3xl sm:p-7 [&>button]:left-4 [&>button]:right-auto" dir="rtl">
           <DialogHeader className="text-right sm:text-right"><DialogTitle className="text-2xl">{editing ? 'تعديل المنتج' : 'منتج جديد'}</DialogTitle><DialogDescription>دخل المعلومات وزيد التصاور، ومن بعد اضغط على حفظ.</DialogDescription></DialogHeader>

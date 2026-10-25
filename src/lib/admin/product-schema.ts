@@ -28,6 +28,7 @@ export const productRecordSchema = productInputSchema.extend({
   tags: z.array(z.string().max(100)).max(30),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  deletedAt: z.string().datetime().nullable().default(null),
 })
 
 export const catalogDocumentSchema = z.object({
@@ -64,6 +65,7 @@ export function initialCatalog(): CatalogDocument {
       badge: product.badge || '',
       tags: product.tags.split(',').map((tag) => tag.trim()),
       active: true,
+      deletedAt: null,
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
     })),
