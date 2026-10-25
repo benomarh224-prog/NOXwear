@@ -6,6 +6,7 @@ import { useUI } from '@/lib/ui-store'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useState } from 'react'
+import { BrandLogo } from './brand-logo'
 
 const NAV = [
   { slug: 'hoodies', label: 'هوديات' },
@@ -27,22 +28,10 @@ export function Header() {
         {/* Logo */}
         <button
           onClick={() => setView({ kind: 'home' })}
-          className="flex items-center gap-2 group shrink-0"
+          className="flex min-h-11 items-center group shrink-0"
+          aria-label="العودة إلى الصفحة الرئيسية"
         >
-          <div className="relative">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md gradient-gold text-primary-foreground font-black text-lg shadow-lg shadow-primary/20">
-              N
-            </div>
-            <div className="absolute inset-0 rounded-md gradient-gold opacity-0 blur-md group-hover:opacity-50 transition-opacity" />
-          </div>
-          <div className="hidden sm:flex flex-col leading-none">
-            <span className="font-black text-base tracking-tight">
-              NOX<span className="text-gold">wear</span>
-            </span>
-            <span className="text-[10px] text-muted-foreground tracking-[0.2em] uppercase">
-              Style • Identity
-            </span>
-          </div>
+          <BrandLogo showTagline className="transition-opacity group-hover:opacity-80" />
         </button>
 
         {/* Desktop Nav */}

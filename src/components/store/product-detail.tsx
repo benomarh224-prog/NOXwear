@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useState } from 'react'
 import {
   Star, Heart, ShoppingBag, Minus, Plus, ChevronLeft, ChevronRight,
-  Truck, Shield, RefreshCw, Loader2,
+  Truck, Shield, RefreshCw,
 } from 'lucide-react'
 import { useUI } from '@/lib/ui-store'
 import { useCart } from '@/lib/store'
@@ -15,67 +14,21 @@ import { toast } from 'sonner'
 import { formatPrice } from '@/lib/format'
 import { ProductCard } from './product-card'
 import type { Product } from '@/lib/types'
+import { OptimizedImage } from './optimized-image'
 
 interface ProductDetailProps {
-  slug: string
+  product: Product
+  related: Product[]
 }
 
-export function ProductDetail({ slug }: ProductDetailProps) {
+export function ProductDetail({ product, related }: ProductDetailProps) {
   const back = useUI((s) => s.back)
   const setView = useUI((s) => s.setView)
   const addItem = useCart((s) => s.addItem)
-  const [product, setProduct] = useState<Product | null>(null)
-  const [related, setRelated] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selectedSize, setSelectedSize] = useState<string>('')
-  const [selectedColor, setSelectedColor] = useState<string>('')
+  const [selectedSize, setSelectedSize] = useState(() => product.sizes[0] || '')
+  const [selectedColor, setSelectedColor] = useState(() => product.colors[0] || '')
   const [quantity, setQuantity] = useState(1)
   const [wishlist, setWishlist] = useState(false)
-
-  useEffect(() => {
-    let mounted = true
-    fetch(`/api/products/${slug}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (!mounted) return
-        if (data.product) {
-          setProduct(data.product)
-          setSelectedSize(data.product.sizes[0] || '')
-          setSelectedColor(data.product.colors[0] || '')
-          setRelated(data.related || [])
-        }
-      })
-      .finally(() => mounted && setLoading(false))
-    return () => {
-      mounted = false
-    }
-  }, [slug])
-
-  if (loading) {
-    return (
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid lg:grid-cols-2 gap-12">
-          <div className="aspect-square rounded-2xl bg-muted shimmer" />
-          <div className="space-y-4">
-            <div className="h-4 bg-muted rounded shimmer w-1/3" />
-            <div className="h-8 bg-muted rounded shimmer w-2/3" />
-            <div className="h-6 bg-muted rounded shimmer w-1/4" />
-            <div className="h-20 bg-muted rounded shimmer w-full" />
-            <div className="h-12 bg-muted rounded shimmer w-1/2" />
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!product) {
-    return (
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <p className="font-semibold">المنتج غير موجود</p>
-        <Button onClick={back} className="mt-4">رجوع</Button>
-      </div>
-    )
-  }
 
   const discount = product.oldPrice
     ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
@@ -128,17 +81,16 @@ export function ProductDetail({ slug }: ProductDetailProps) {
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4 }}
+          <div
             className="relative"
           >
             <div className="relative aspect-square rounded-2xl overflow-hidden border border-border bg-muted">
-              <img
+              <OptimizedImage
                 src={product.image}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="object-cover"
+                sizes="(max-width: 1023px) 100vw, 50vw"
+                preload
               />
               {/* Badges */}
               <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
@@ -168,13 +120,10 @@ export function ProductDetail({ slug }: ProductDetailProps) {
               <Perk icon={Shield} label="أصلي مضمون" />
               <Perk icon={RefreshCw} label="إرجاع 30 يوم" />
             </div>
-          </motion.div>
+          </div>
 
           {/* Info */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
+          <div
             className="flex flex-col text-right"
           >
             {/* Rating */}
@@ -317,7 +266,7 @@ export function ProductDetail({ slug }: ProductDetailProps) {
                 ))}
               </div>
             )}
-          </motion.div>
+          </div>
         </div>
 
         {/* Related products */}

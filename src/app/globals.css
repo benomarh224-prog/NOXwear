@@ -171,6 +171,7 @@
   }
   .animate-marquee {
     animation: marquee 30s linear infinite;
+    will-change: transform;
   }
   @keyframes marquee {
     0% { transform: translateX(0); }
@@ -191,5 +192,47 @@
   @keyframes shimmer {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
+  }
+}
+
+.brand-wordmark img {
+  filter: invert(1) brightness(180) invert(1);
+  mix-blend-mode: multiply;
+}
+
+.dark .brand-wordmark img {
+  filter: invert(1) brightness(180);
+  mix-blend-mode: screen;
+}
+
+@media (max-width: 767px) {
+  .glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .dark .glass {
+    background: rgba(18, 17, 16, 0.96);
+  }
+
+  .backdrop-blur {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .hero-glow {
+    animation: none;
+    filter: blur(32px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

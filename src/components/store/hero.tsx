@@ -1,9 +1,9 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { ArrowLeft, Sparkles, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useUI } from '@/lib/ui-store'
+import { OptimizedImage } from './optimized-image'
 
 interface HeroProps {
   featuredImage: string
@@ -20,16 +20,13 @@ export function Hero({ featuredImage, accentImage }: HeroProps) {
       <div className="absolute inset-0 bg-gradient-to-bl from-background via-background to-primary/5" />
 
       {/* Floating decorative elements */}
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-primary/10 blur-3xl animate-float" />
-      <div className="absolute bottom-1/4 right-1/4 w-48 h-48 rounded-full bg-primary/5 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+      <div className="hero-glow absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-primary/10 blur-3xl animate-float" />
+      <div className="hero-glow absolute bottom-1/4 right-1/4 w-48 h-48 rounded-full bg-primary/5 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Right side (in LTR) — but with RTL, this is now Left: copy */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <div
             className="text-center lg:text-right"
           >
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-medium mb-6">
@@ -76,42 +73,38 @@ export function Hero({ featuredImage, accentImage }: HeroProps) {
               <Stat value="7" label="منتجات حصرية" />
               <Stat value="4.9★" label="متوسط التقييم" />
             </div>
-          </motion.div>
+          </div>
 
           {/* Image collage */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+          <div
             className="relative h-[400px] sm:h-[500px] lg:h-[600px]"
           >
             {/* Main image */}
             <div className="absolute top-0 left-0 w-3/4 h-3/4 rounded-2xl overflow-hidden border border-border shadow-2xl shadow-primary/10">
-              <img
+              <OptimizedImage
                 src={featuredImage}
                 alt="المنتج المميز"
-                className="w-full h-full object-cover"
-                loading="eager"
+                className="object-cover"
+                sizes="(max-width: 1023px) 75vw, 38vw"
+                preload
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent" />
             </div>
 
             {/* Accent image */}
             <div className="absolute bottom-0 right-0 w-1/2 h-1/2 rounded-2xl overflow-hidden border border-gold/30 shadow-2xl shadow-primary/20">
-              <img
+              <OptimizedImage
                 src={accentImage}
                 alt="منتج إضافي"
-                className="w-full h-full object-cover"
+                className="object-cover"
+                sizes="(max-width: 1023px) 50vw, 25vw"
                 loading="eager"
               />
               <div className="absolute inset-0 bg-gradient-to-tl from-primary/30 to-transparent" />
             </div>
 
             {/* Floating rating badge */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
+            <div
               className="absolute top-1/2 right-0 sm:right-4 glass border border-border rounded-xl p-3 shadow-xl"
             >
               <div className="flex items-center gap-2">
@@ -128,21 +121,18 @@ export function Hero({ featuredImage, accentImage }: HeroProps) {
               <p className="text-[10px] text-muted-foreground mt-1">
                 بناء على +2400 تقييم
               </p>
-            </motion.div>
+            </div>
 
             {/* Floating drops badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 1 }}
+            <div
               className="absolute bottom-4 left-4 glass border border-gold/30 rounded-xl p-3 shadow-xl"
             >
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 دروب محدود
               </p>
               <p className="text-sm font-bold text-gold">بقية 3 فقط</p>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useUI } from '@/lib/ui-store'
 import { toast } from 'sonner'
+import { BrandLogo } from './brand-logo'
 
 const FOOTER_LINKS = [
   {
@@ -86,18 +87,8 @@ export function Footer() {
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Brand + newsletter */}
           <div className="col-span-2 text-right">
-            <div className="flex items-center gap-2 mb-4 flex-row-reverse justify-end">
-              <div className="flex flex-col leading-none">
-                <span className="font-black text-base tracking-tight">
-                  NOX<span className="text-gold">wear</span>
-                </span>
-                <span className="text-[10px] text-muted-foreground tracking-[0.15em] uppercase">
-                  Style • Identity • 2018
-                </span>
-              </div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-md gradient-gold text-primary-foreground font-black text-lg">
-                N
-              </div>
+            <div className="mb-4 flex justify-end">
+              <BrandLogo showTagline />
             </div>
 
             <p className="text-sm text-muted-foreground mb-6 max-w-xs mr-0 ml-auto">

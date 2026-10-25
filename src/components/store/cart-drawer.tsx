@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Minus, Plus, ShoppingBag, ArrowLeft, Trash2, MessageCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatPrice } from '@/lib/format'
+import { OptimizedImage } from './optimized-image'
 
 export function CartDrawer() {
   const { items, isOpen, setOpen, updateQuantity, removeItem, total } = useCart()
@@ -70,10 +71,11 @@ export function CartDrawer() {
                     className="flex gap-3 p-2 rounded-lg hover:bg-accent/30 transition-colors flex-row-reverse"
                   >
                     <div className="relative h-20 w-20 shrink-0 rounded-md overflow-hidden bg-muted">
-                      <img
+                      <OptimizedImage
                         src={item.image}
                         alt={item.name}
-                        className="w-full h-full object-cover"
+                        className="object-cover"
+                        sizes="80px"
                       />
                     </div>
 

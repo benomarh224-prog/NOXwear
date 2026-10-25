@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { Star, Plus, Heart, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -9,13 +8,14 @@ import { useCart } from '@/lib/store'
 import { formatPrice } from '@/lib/format'
 import { toast } from 'sonner'
 import type { Product } from '@/lib/types'
+import { OptimizedImage } from './optimized-image'
 
 interface ProductCardProps {
   product: Product
   index?: number
 }
 
-export function ProductCard({ product, index = 0 }: ProductCardProps) {
+export function ProductCard({ product }: ProductCardProps) {
   const setView = useUI((s) => s.setView)
   const addItem = useCart((s) => s.addItem)
 
@@ -42,20 +42,22 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const goToProduct = () => setView({ kind: 'product', slug: product.slug })
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-30px' }}
-      transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.3) }}
+    <div
+      role="link"
+      tabIndex={0}
       className="group relative flex flex-col rounded-xl border border-border bg-card overflow-hidden hover:border-gold/40 hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer"
       onClick={goToProduct}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter') goToProduct()
+      }}
     >
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-muted">
-        <img
+        <OptimizedImage
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-cover transition-transform duration-300 md:group-hover:scale-105"
+          sizes="(max-width: 1023px) 50vw, 25vw"
           loading="lazy"
         />
 
@@ -173,6 +175,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           </Button>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }

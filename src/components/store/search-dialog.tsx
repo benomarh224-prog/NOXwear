@@ -1,40 +1,28 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Search, X, Loader2 } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { useUI } from '@/lib/ui-store'
 import { formatPrice } from '@/lib/format'
 import type { Product } from '@/lib/types'
+import { OptimizedImage } from './optimized-image'
 
-export function SearchDialog() {
+export function SearchDialog({ products }: { products: Product[] }) {
   const { searchOpen, setSearchOpen, setView } = useUI()
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<Product[]>([])
-  const [loading, setLoading] = useState(false)
-
-  const performSearch = useCallback(async (q: string) => {
-    if (!q.trim()) {
-      setResults([])
-      return
-    }
-    setLoading(true)
-    try {
-      const res = await fetch(`/api/products?search=${encodeURIComponent(q)}&limit=8`)
-      const data = await res.json()
-      setResults(data.products || [])
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    const t = setTimeout(() => performSearch(query), 250)
-    return () => clearTimeout(t)
-  }, [query, performSearch])
+  const results = useMemo(() => {
+    const normalizedQuery = query.trim().normalize('NFKC').toLocaleLowerCase()
+    if (!normalizedQuery) return []
+    return products.filter((product) =>
+      [product.name, product.description, ...product.tags]
+        .join(' ')
+        .normalize('NFKC')
+        .toLocaleLowerCase()
+        .includes(normalizedQuery),
+    ).slice(0, 8)
+  }, [products, query])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,17 +71,12 @@ export function SearchDialog() {
         </form>
 
         <div className="max-h-80 overflow-y-auto scrollbar-thin">
-          {loading && (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
-          )}
-          {!loading && query && results.length === 0 && (
+          {query && results.length === 0 && (
             <div className="p-8 text-center text-sm text-muted-foreground">
               لا توجد منتجات لـ &quot;{query}&quot;
             </div>
           )}
-          {!loading && results.length > 0 && (
+          {results.length > 0 && (
             <ul className="divide-y divide-border">
               {results.map((p) => (
                 <li key={p.id}>
@@ -101,8 +84,8 @@ export function SearchDialog() {
                     onClick={() => pickProduct(p.slug)}
                     className="w-full flex items-center gap-3 p-3 hover:bg-accent/30 transition-colors text-right flex-row-reverse"
                   >
-                    <div className="h-14 w-14 rounded-md overflow-hidden bg-muted shrink-0">
-                      <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                    <div className="relative h-14 w-14 rounded-md overflow-hidden bg-muted shrink-0">
+                      <OptimizedImage src={p.image} alt={p.name} className="object-cover" sizes="56px" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate">{p.name}</p>
@@ -123,7 +106,7 @@ export function SearchDialog() {
               ))}
             </ul>
           )}
-          {!loading && !query && (
+          {!query && (
             <div className="p-8 text-center">
               <p className="text-xs text-muted-foreground mb-3">عمليات بحث شائعة</p>
               <div className="flex flex-wrap gap-2 justify-center">

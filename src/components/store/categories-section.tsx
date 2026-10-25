@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import {
   Shirt, Sparkles, Trophy, Palette, Flame, ArrowLeft,
 } from 'lucide-react'
@@ -8,6 +7,7 @@ import { useUI } from '@/lib/ui-store'
 import { Badge } from '@/components/ui/badge'
 import type { Category } from '@/lib/types'
 import { CATEGORY_IMAGES } from '@/lib/category-images'
+import { OptimizedImage } from './optimized-image'
 
 const ICONS: Record<string, any> = {
   Shirt,
@@ -68,18 +68,14 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {categories.map((cat, idx) => {
+          {categories.map((cat) => {
             const Icon = ICONS[cat.icon] || Shirt
             const accent = ACCENTS[cat.slug] || ACCENTS.hoodies
             const isHot = cat.slug === 'limitless-drops'
 
             return (
-              <motion.button
+              <button
                 key={cat.id}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.4, delay: idx * 0.08 }}
                 onClick={() => setView({ kind: 'category', slug: cat.slug })}
                 className={`group relative text-right rounded-2xl border border-border overflow-hidden hover:${accent.border} transition-all hover:shadow-2xl hover:shadow-primary/10 min-h-[260px] flex flex-col justify-end p-6 sm:p-8 ${
                   cat.slug === 'limitless-drops' ? 'sm:col-span-2 lg:col-span-1' : ''
@@ -87,10 +83,11 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
               >
                 {/* Background image */}
                 <div className="absolute inset-0">
-                  <img
+                  <OptimizedImage
                     src={CATEGORY_IMAGES[cat.slug] || CATEGORY_IMAGES.hoodies}
                     alt={cat.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="object-cover transition-transform duration-500 md:group-hover:scale-105"
+                    sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
                     loading="lazy"
                   />
                   {/* Gradient overlay for text readability */}
@@ -131,16 +128,12 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
                   استكشف المجموعة
                   <ArrowLeft className="h-3 w-3" />
                 </div>
-              </motion.button>
+              </button>
             )
           })}
 
           {/* Bonus: brand story card (NOXwear) */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.4, delay: 0.4 }}
+          <div
             className="group relative rounded-2xl border border-gold/30 overflow-hidden gradient-gold min-h-[260px] flex flex-col justify-end p-6 sm:p-8"
           >
             <div className="absolute inset-0 pattern-arabic opacity-20" />
@@ -158,7 +151,7 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
                 ثماني سنوات من الثقافة المختارة
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

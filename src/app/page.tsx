@@ -2,13 +2,14 @@ import { getCategories, getProducts } from '@/lib/data'
 import { StoreApp } from '@/components/store/store-app'
 import type { Product } from '@/lib/types'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 export default async function Home() {
-  const [categories, featured] = await Promise.all([
+  const [categories, products] = await Promise.all([
     getCategories(),
-    getProducts({ featuredOnly: true, limit: 12, sort: 'featured' }),
+    getProducts({ sort: 'featured' }),
   ])
+  const featured = products.filter((product) => product.featured).slice(0, 12)
 
   // Build a highlights map: pick the featured product of each category
   // Each category has exactly 1 product, so highlights = the products themselves
@@ -47,6 +48,7 @@ export default async function Home() {
   return (
     <StoreApp
       categories={categories}
+      products={products}
       featured={featured}
       highlights={highlights}
       heroImage={heroImage}

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Search, Loader2, ChevronRight, PackageX } from 'lucide-react'
+import { useMemo } from 'react'
+import { Search, ChevronRight, PackageX } from 'lucide-react'
 import { useUI } from '@/lib/ui-store'
 import { Badge } from '@/components/ui/badge'
 import { ProductCard } from './product-card'
@@ -9,23 +9,21 @@ import type { Product } from '@/lib/types'
 
 interface SearchViewProps {
   query: string
+  products: Product[]
 }
 
-export function SearchView({ query }: SearchViewProps) {
+export function SearchView({ query, products: catalogProducts }: SearchViewProps) {
   const back = useUI((s) => s.back)
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    let mounted = true
-    fetch(`/api/products?search=${encodeURIComponent(query)}`)
-      .then((r) => r.json())
-      .then((data) => mounted && setProducts(data.products || []))
-      .finally(() => mounted && setLoading(false))
-    return () => {
-      mounted = false
-    }
-  }, [query])
+  const products = useMemo(() => {
+    const normalizedQuery = query.trim().normalize('NFKC').toLocaleLowerCase()
+    return catalogProducts.filter((product) =>
+      [product.name, product.description, ...product.tags]
+        .join(' ')
+        .normalize('NFKC')
+        .toLocaleLowerCase()
+        .includes(normalizedQuery),
+    )
+  }, [catalogProducts, query])
 
   return (
     <div className="flex-1">
@@ -46,25 +44,13 @@ export function SearchView({ query }: SearchViewProps) {
             &quot;{query}&quot;
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            {loading ? 'جاري البحث...' : `${products.length} نتيجة`}
+            {products.length} نتيجة
           </p>
         </div>
       </section>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-xl border border-border bg-card overflow-hidden">
-                <div className="aspect-square bg-muted shimmer" />
-                <div className="p-4 space-y-2">
-                  <div className="h-3 bg-muted rounded shimmer w-1/3" />
-                  <div className="h-4 bg-muted rounded shimmer w-3/4" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : products.length === 0 ? (
+        {products.length === 0 ? (
           <div className="text-center py-16">
             <PackageX className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
             <p className="font-semibold">لا توجد منتجات</p>

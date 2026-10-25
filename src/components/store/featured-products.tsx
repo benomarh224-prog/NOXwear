@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { ArrowLeft, Flame } from 'lucide-react'
 import { useUI } from '@/lib/ui-store'
 import { Button } from '@/components/ui/button'

@@ -1,12 +1,12 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { ArrowLeft, Crown } from 'lucide-react'
 import { useUI } from '@/lib/ui-store'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { formatPrice } from '@/lib/format'
 import type { Category, Product } from '@/lib/types'
+import { OptimizedImage } from './optimized-image'
 
 interface CategoryHighlightProps {
   categories: Category[]
@@ -74,27 +74,29 @@ export function CategoryHighlight({ categories, highlights }: CategoryHighlightP
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map(({ cat, product }, idx) => {
+          {items.map(({ cat, product }) => {
             const accent = ACCENTS[cat.slug] || ACCENTS.hoodies
             const p = product!
 
             return (
-              <motion.div
+              <div
                 key={cat.id}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.4, delay: idx * 0.08 }}
+                role="link"
+                tabIndex={0}
                 className={`group relative rounded-2xl border border-border overflow-hidden hover:border-gold/40 hover:shadow-2xl ${accent.glow} transition-all cursor-pointer bg-gradient-to-bl ${accent.gradient}`}
                 onClick={() => setView({ kind: 'product', slug: p.slug })}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') setView({ kind: 'product', slug: p.slug })
+                }}
               >
                 <div className="grid grid-cols-[120px_1fr] sm:grid-cols-[140px_1fr] h-44 sm:h-52">
                   {/* Image */}
                   <div className="relative overflow-hidden bg-muted">
-                    <img
+                    <OptimizedImage
                       src={p.image}
                       alt={p.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover transition-transform duration-300 md:group-hover:scale-105"
+                      sizes="(max-width: 639px) 120px, 140px"
                       loading="lazy"
                     />
                     {p.badge && (
@@ -146,17 +148,18 @@ export function CategoryHighlight({ categories, highlights }: CategoryHighlightP
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )
           })}
 
           {/* Bonus CTA card */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.4, delay: items.length * 0.08 }}
+          <div
+            role="link"
+            tabIndex={0}
             onClick={() => setView({ kind: 'category', slug: 'limitless-drops' })}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') setView({ kind: 'category', slug: 'limitless-drops' })
+            }}
             className="group relative rounded-2xl border border-gold/30 overflow-hidden gradient-gold cursor-pointer hover:shadow-2xl hover:shadow-primary/30 transition-all"
           >
             <div className="absolute inset-0 pattern-arabic opacity-20" />
@@ -177,7 +180,7 @@ export function CategoryHighlight({ categories, highlights }: CategoryHighlightP
                 <ArrowLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" />
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

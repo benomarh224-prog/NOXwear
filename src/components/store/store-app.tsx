@@ -22,6 +22,7 @@ import type { Category, Product } from '@/lib/types'
 
 interface StoreAppProps {
   categories: Category[]
+  products: Product[]
   featured: Product[]
   highlights: Record<string, Product>
   heroImage: string
@@ -30,6 +31,7 @@ interface StoreAppProps {
 
 export function StoreApp({
   categories,
+  products,
   featured,
   highlights,
   heroImage,
@@ -54,12 +56,18 @@ export function StoreApp({
       case 'category': {
         const cat = categories.find((c) => c.slug === view.slug)
         if (!cat) return <NotFound />
-        return <CategoryView key={cat.slug} category={cat} />
+        return <CategoryView key={cat.slug} category={cat} products={products} />
       }
-      case 'product':
-        return <ProductDetail key={view.slug} slug={view.slug} />
+      case 'product': {
+        const product = products.find((item) => item.slug === view.slug)
+        if (!product) return <NotFound />
+        const related = products
+          .filter((item) => item.categoryId === product.categoryId && item.slug !== product.slug)
+          .slice(0, 4)
+        return <ProductDetail key={view.slug} product={product} related={related} />
+      }
       case 'search':
-        return <SearchView key={view.query} query={view.query} />
+        return <SearchView key={view.query} query={view.query} products={products} />
       case 'checkout':
         return <CheckoutView />
       case 'success':
@@ -76,7 +84,7 @@ export function StoreApp({
       <main className="flex-1 flex flex-col">{renderView()}</main>
       <Footer />
       <CartDrawer />
-      <SearchDialog />
+      <SearchDialog products={products} />
       <WhatsAppFab />
     </div>
   )

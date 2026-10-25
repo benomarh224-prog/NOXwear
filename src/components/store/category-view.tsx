@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { motion } from 'framer-motion'
-import { SlidersHorizontal, Loader2, ChevronRight, PackageX } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { SlidersHorizontal, ChevronRight, PackageX } from 'lucide-react'
 import { useUI } from '@/lib/ui-store'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -12,9 +11,11 @@ import {
 import { ProductCard } from './product-card'
 import type { Category, Product } from '@/lib/types'
 import { CATEGORY_IMAGES } from '@/lib/category-images'
+import { OptimizedImage } from './optimized-image'
 
 interface CategoryViewProps {
   category: Category
+  products: Product[]
 }
 
 const SORTS = [
@@ -33,30 +34,28 @@ const ACCENTS: Record<string, string> = {
   'limitless-drops': 'from-red-500/20 to-red-500/5 text-red-400',
 }
 
-export function CategoryView({ category }: CategoryViewProps) {
+export function CategoryView({ category, products: catalogProducts }: CategoryViewProps) {
   const setView = useUI((s) => s.setView)
   const back = useUI((s) => s.back)
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
   const [sort, setSort] = useState('featured')
 
-  const fetchProducts = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `/api/products?category=${category.slug}&sort=${sort}`,
-      )
-      const data = await res.json()
-      setProducts(data.products || [])
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
+  const products = useMemo(() => {
+    const nextProducts = catalogProducts.filter((product) => product.categoryId === category.slug)
+    switch (sort) {
+      case 'price-low':
+        return [...nextProducts].sort((a, b) => a.price - b.price)
+      case 'price-high':
+        return [...nextProducts].sort((a, b) => b.price - a.price)
+      case 'rating':
+        return [...nextProducts].sort((a, b) => b.rating - a.rating)
+      case 'newest':
+        return [...nextProducts].reverse()
+      default:
+        return [...nextProducts].sort(
+          (a, b) => Number(b.featured) - Number(a.featured) || b.rating - a.rating,
+        )
     }
-  }, [category.slug, sort])
-
-  useEffect(() => {
-    fetchProducts()
-  }, [fetchProducts])
+  }, [catalogProducts, category.slug, sort])
 
   const accent = ACCENTS[category.slug] || ACCENTS.hoodies
 
@@ -64,11 +63,13 @@ export function CategoryView({ category }: CategoryViewProps) {
     <div className="flex-1">
       {/* Hero */}
       <section className={`relative overflow-hidden border-b border-border bg-gradient-to-b ${accent}`}>
-        <img
+        <OptimizedImage
           src={CATEGORY_IMAGES[category.slug] || CATEGORY_IMAGES.hoodies}
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          className="object-cover object-center"
+          sizes="100vw"
+          preload
         />
         <div className="absolute inset-0 bg-gradient-to-l from-background/95 via-background/80 to-background/45" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent" />
@@ -122,20 +123,7 @@ export function CategoryView({ category }: CategoryViewProps) {
 
       {/* Products */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-xl border border-border bg-card overflow-hidden">
-                <div className="aspect-square bg-muted shimmer" />
-                <div className="p-4 space-y-2">
-                  <div className="h-3 bg-muted rounded shimmer w-1/3" />
-                  <div className="h-4 bg-muted rounded shimmer w-3/4" />
-                  <div className="h-4 bg-muted rounded shimmer w-1/2" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : products.length === 0 ? (
+        {products.length === 0 ? (
           <div className="text-center py-16">
             <PackageX className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
             <p className="font-semibold">لا توجد منتجات</p>
@@ -144,14 +132,11 @@ export function CategoryView({ category }: CategoryViewProps) {
             </p>
           </div>
         ) : (
-          <motion.div
-            layout
-            className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
-          >
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {products.map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} />
             ))}
-          </motion.div>
+          </div>
         )}
       </div>
     </div>

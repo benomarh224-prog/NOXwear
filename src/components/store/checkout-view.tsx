@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { formatPrice, computeShipping, ADVANCE_DEPOSIT, FREE_SHIPPING_THRESHOLD_INTL, meetsMinimumOrder } from '@/lib/format'
+import { OptimizedImage } from './optimized-image'
 
 const WHATSAPP_NUMBER = '212645900763' // +212 645-900763
 
@@ -351,7 +352,7 @@ export function CheckoutView() {
                 {items.map((item) => (
                   <div key={item.id} className="flex gap-3 flex-row-reverse">
                     <div className="relative h-16 w-16 shrink-0 rounded-md overflow-hidden bg-muted">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      <OptimizedImage src={item.image} alt={item.name} className="object-cover" sizes="64px" />
                       <span className="absolute -top-1 -left-1 h-5 min-w-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center border-2 border-card">
                         {item.quantity}
                       </span>
