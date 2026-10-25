@@ -1,10 +1,10 @@
 'use client'
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { useCart } from '@/lib/store'
 import { useUI } from '@/lib/ui-store'
 import { Button } from '@/components/ui/button'
-import { Minus, Plus, ShoppingBag, ArrowLeft, Trash2, MessageCircle } from 'lucide-react'
+import { Minus, Plus, ShoppingBag, ArrowLeft, Trash2, MessageCircle, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatPrice } from '@/lib/format'
 import { calculateOrderPricing } from '@/lib/pricing'
@@ -24,19 +24,29 @@ export function CartDrawer() {
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
-      <SheetContent className="w-full sm:max-w-md flex flex-col p-0 gap-0" side="left">
-        <SheetHeader className="px-5 py-4 border-b border-border">
-          <SheetTitle className="flex items-center gap-2 text-base">
-            <ShoppingBag className="h-5 w-5 text-gold" />
-            سلتك
-            <span className="text-sm font-normal text-muted-foreground">
-              ({items.length})
-            </span>
-          </SheetTitle>
+      <SheetContent className="w-full sm:max-w-md flex flex-col p-0 gap-0 overflow-hidden" side="left" showCloseButton={false} dir="rtl">
+        <SheetHeader className="flex-row items-center justify-between gap-4 px-5 py-3 shrink-0 border-b border-border">
+          <div className="min-w-0">
+            <SheetTitle className="flex items-center gap-2 text-base">
+              <ShoppingBag className="h-5 w-5 shrink-0 text-gold" aria-hidden="true" />
+              سلتك
+              <span className="text-sm font-normal text-muted-foreground">
+                ({items.length})
+              </span>
+            </SheetTitle>
+            <SheetDescription className="sr-only">
+              راجع المنتجات الموجودة في سلتك وأكمل الطلب.
+            </SheetDescription>
+          </div>
+          <SheetClose asChild>
+            <Button type="button" variant="ghost" size="icon" className="h-11 w-11 shrink-0 rounded-full" aria-label="إغلاق السلة">
+              <X className="h-5 w-5" aria-hidden="true" />
+            </Button>
+          </SheetClose>
         </SheetHeader>
 
         {items.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center gap-4 p-8 text-center">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
               <ShoppingBag className="h-10 w-10 text-muted-foreground" />
             </div>
@@ -57,7 +67,7 @@ export function CartDrawer() {
         ) : (
           <>
             {/* Items */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin px-3 py-3">
+            <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-3 py-3">
               <AnimatePresence>
                 {items.map((item) => (
                   <motion.div
