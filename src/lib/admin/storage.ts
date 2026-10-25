@@ -2,9 +2,14 @@ import 'server-only'
 import { createHash, randomUUID } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
-import { BlobPreconditionFailedError, get, put } from '@vercel/blob'
+import { BlobPreconditionFailedError, get, head, put } from '@vercel/blob'
 
 export class StorageConflictError extends Error {}
+
+// HTTP compression can weaken a delivery ETag; writes require the original strong tag.
+export function normalizeRevision(revision: string) {
+  return revision.replace(/^W\//i, '')
+}
 const localRoot = join(process.cwd(), '.codex', 'store')
 const localLocks = new Map<string, Promise<void>>()
 
@@ -27,9 +32,22 @@ function fileRevision(contents: string) {
 
 export async function readJson<T>(path: string): Promise<{ value: T; revision: string } | null> {
   if (cloudStorageEnabled()) {
-    const result = await get(path, { access: 'private', useCache: false })
-    if (!result || result.statusCode !== 200) return null
-    return { value: await new Response(result.stream).json() as T, revision: result.blob.etag }
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const result = await get(path, { access: 'private', useCache: false, headers: { 'Accept-Encoding': 'identity' } })
+      if (!result || result.statusCode !== 200) return null
+      let revision = result.blob.etag
+      if (/^W\//i.test(revision)) {
+        const metadata = await head(path)
+        if (normalizeRevision(metadata.etag) !== normalizeRevision(revision)) {
+          await result.stream.cancel()
+          continue
+        }
+        revision = metadata.etag
+      }
+      if (!revision) throw new Error('Storage did not return a revision')
+      return { value: await new Response(result.stream).json() as T, revision: normalizeRevision(revision) }
+    }
+    throw new StorageConflictError('The file changed while reading')
   }
   try {
     const contents = await readFile(localPath(path), 'utf8')
@@ -46,9 +64,9 @@ export async function writeJson(path: string, value: unknown, revision: string |
     try {
       const result = await put(path, contents, {
         access: 'private', contentType: 'application/json', addRandomSuffix: false,
-        ...(revision ? { ifMatch: revision } : { allowOverwrite: false }),
+        ...(revision ? { ifMatch: normalizeRevision(revision) } : { allowOverwrite: false }),
       })
-      return result.etag
+      return normalizeRevision(result.etag)
     } catch (error) {
       if (error instanceof BlobPreconditionFailedError || /already exists/i.test(String(error))) {
         throw new StorageConflictError('The data has changed. Reload before saving.')

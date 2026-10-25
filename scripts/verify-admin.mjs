@@ -68,7 +68,11 @@ try {
   let latest = await created.json()
   const slug = latest.product.slug
   assert.equal((await request('/api/products/' + slug, {}, false)).status, 404, 'Hidden product leaked')
-  assert.equal((await save(null, newProduct, snapshot.revision)).status, 409, 'Stale revision accepted')
+  assert.equal((await save(slug, newProduct, snapshot.revision)).status, 409, 'Stale edit accepted')
+  const staleCreate = await save(null, { ...newProduct, name: 'تجربة إضافة من لائحة قديمة' }, snapshot.revision)
+  assert.equal(staleCreate.status, 201, 'New products should merge with the latest catalog')
+  latest = await staleCreate.json()
+  assert.ok(latest.products.some((item) => item.slug === slug), 'Appending lost a prior product')
   const changed = { ...newProduct, active: true, price: 275.5 }
   const updated = await save(slug, changed, latest.revision)
   assert.equal(updated.status, 200); latest = await updated.json()
