@@ -85,7 +85,7 @@ export function StoreApp({
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div data-storefront className="flex min-h-screen flex-col">
       <Marquee />
       <Header />
       <main className="flex-1 flex flex-col">{renderView()}</main>

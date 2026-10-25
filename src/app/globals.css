@@ -236,3 +236,69 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Storefront motion: short entrances and feedback, without layout changes. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-copy-enter {
+    animation: store-hero-enter 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero-accent-enter {
+    animation: store-accent-enter 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  [data-storefront] [data-slot="button"] {
+    transition-property: transform, color, background-color, border-color, box-shadow, opacity;
+    transition-duration: 200ms;
+  }
+
+  [data-storefront] [data-slot="button"]:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  .store-cta {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .store-cta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent 20%, rgb(255 255 255 / 30%) 50%, transparent 80%);
+    transform: translateX(120%);
+    transition: transform 650ms ease;
+  }
+
+  .store-cta:is(:hover, :focus-visible)::after {
+    transform: translateX(-120%);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .store-card {
+    transition-property: transform, border-color, box-shadow;
+    transition-duration: 250ms;
+  }
+
+  .store-card:hover {
+    transform: translateY(-5px);
+  }
+}
+
+.store-card:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+@keyframes store-hero-enter {
+  from { transform: translateY(14px); }
+  to { transform: translateY(0); }
+}
+
+@keyframes store-accent-enter {
+  from { transform: translateY(18px) rotate(2deg); }
+  to { transform: translateY(0) rotate(0); }
+}

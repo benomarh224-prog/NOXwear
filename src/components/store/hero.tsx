@@ -30,7 +30,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Right side (in LTR) — but with RTL, this is now Left: copy */}
           <div
-            className="text-center lg:text-right"
+            className="hero-copy-enter text-center lg:text-right"
           >
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-medium mb-6">
               <Sparkles className="h-3 w-3 text-gold" />
@@ -56,7 +56,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
               <Button
                 size="lg"
                 onClick={() => setView({ kind: 'search', query: '' })}
-                className="gradient-gold text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:opacity-90 group"
+                className="store-cta gradient-gold text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:opacity-90 group"
               >
                 تسوق المنتجات
                 <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
@@ -99,7 +99,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
             </div>
 
             {/* Accent image */}
-            <div className="absolute bottom-0 right-0 w-1/2 h-1/2 rounded-2xl overflow-hidden border border-gold/30 shadow-2xl shadow-primary/20">
+            <div className="hero-accent-enter absolute bottom-0 right-0 w-1/2 h-1/2 rounded-2xl overflow-hidden border border-gold/30 shadow-2xl shadow-primary/20">
               <OptimizedImage
                 src={accentImage}
                 alt="هودي ساموراي أسود وأحمر بلوغو واسم NOXwear"

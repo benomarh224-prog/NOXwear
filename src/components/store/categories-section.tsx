@@ -1,15 +1,16 @@
 'use client'
 
 import {
-  Shirt, Sparkles, Trophy, Palette, Flame, ArrowLeft,
+  Shirt, Sparkles, Trophy, Palette, Flame, ArrowLeft, type LucideIcon,
 } from 'lucide-react'
 import { useUI } from '@/lib/ui-store'
 import { Badge } from '@/components/ui/badge'
 import type { Category } from '@/lib/types'
 import { CATEGORY_IMAGES } from '@/lib/category-images'
 import { OptimizedImage } from './optimized-image'
+import { Reveal } from './reveal'
 
-const ICONS: Record<string, any> = {
+const ICONS: Record<string, LucideIcon> = {
   Shirt,
   Sparkles,
   Trophy,
@@ -68,67 +69,70 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {categories.map((cat) => {
+          {categories.map((cat, index) => {
             const Icon = ICONS[cat.icon] || Shirt
             const accent = ACCENTS[cat.slug] || ACCENTS.hoodies
             const isHot = cat.slug === 'limitless-drops'
 
             return (
-              <button
+              <Reveal
                 key={cat.id}
-                onClick={() => setView({ kind: 'category', slug: cat.slug })}
-                className={`group relative text-right rounded-2xl border border-border overflow-hidden hover:${accent.border} transition-all hover:shadow-2xl hover:shadow-primary/10 min-h-[260px] flex flex-col justify-end p-6 sm:p-8 ${
-                  cat.slug === 'limitless-drops' ? 'sm:col-span-2 lg:col-span-1' : ''
-                }`}
+                delay={(index % 3) * 60}
+                className={cat.slug === 'limitless-drops' ? 'sm:col-span-2 lg:col-span-1' : ''}
               >
-                {/* Background image */}
-                <div className="absolute inset-0">
-                  <OptimizedImage
-                    src={CATEGORY_IMAGES[cat.slug] || CATEGORY_IMAGES.hoodies}
-                    alt={cat.name}
-                    className="object-cover transition-transform duration-500 md:group-hover:scale-105"
-                    sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
-                    loading="lazy"
-                  />
-                  {/* Gradient overlay for text readability */}
-                  <div className={`absolute inset-0 bg-gradient-to-t ${accent.gradient}`} />
-                  {/* Pattern overlay */}
-                  <div className="absolute inset-0 pattern-arabic opacity-30" />
-                </div>
-
-                {/* Content */}
-                <div className="relative">
-                  <div className="flex items-start justify-between mb-4 flex-row-reverse">
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-black/40 backdrop-blur ${accent.text} border ${accent.border}`}>
-                      <Icon className="h-6 w-6" />
-                    </div>
-                    {isHot ? (
-                      <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-red-400 bg-black/40 backdrop-blur px-2 py-1 rounded-full">
-                        <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                        دروب مباشر
-                      </div>
-                    ) : (
-                      <ArrowLeft className="h-5 w-5 text-white/60 group-hover:text-gold group-hover:-translate-x-1 transition-all" />
-                    )}
+                <button
+                  onClick={() => setView({ kind: 'category', slug: cat.slug })}
+                  className={`store-card w-full h-full group relative text-right rounded-2xl border border-border overflow-hidden hover:${accent.border} transition-all hover:shadow-2xl hover:shadow-primary/10 min-h-[260px] flex flex-col justify-end p-6 sm:p-8`}
+                >
+                  {/* Background image */}
+                  <div className="absolute inset-0">
+                    <OptimizedImage
+                      src={CATEGORY_IMAGES[cat.slug] || CATEGORY_IMAGES.hoodies}
+                      alt={cat.name}
+                      className="object-cover transition-transform duration-500 md:group-hover:scale-105"
+                      sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                      loading="lazy"
+                    />
+                    {/* Gradient overlay for text readability */}
+                    <div className={`absolute inset-0 bg-gradient-to-t ${accent.gradient}`} />
+                    {/* Pattern overlay */}
+                    <div className="absolute inset-0 pattern-arabic opacity-30" />
                   </div>
 
-                  <h3 className="text-3xl font-black mb-1 text-white drop-shadow-lg">
-                    {cat.name}
-                  </h3>
-                  <p className={`text-sm font-medium mb-3 ${accent.text}`}>
-                    {cat.tagline}
-                  </p>
-                  <p className="text-sm text-white/80 line-clamp-2 drop-shadow">
-                    {cat.description}
-                  </p>
-                </div>
+                  {/* Content */}
+                  <div className="relative">
+                    <div className="flex items-start justify-between mb-4 flex-row-reverse">
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-black/40 backdrop-blur ${accent.text} border ${accent.border}`}>
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      {isHot ? (
+                        <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-red-400 bg-black/40 backdrop-blur px-2 py-1 rounded-full">
+                          <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+                          دروب مباشر
+                        </div>
+                      ) : (
+                        <ArrowLeft className="h-5 w-5 text-white/60 group-hover:text-gold group-hover:-translate-x-1 transition-all" />
+                      )}
+                    </div>
 
-                {/* Hover indicator */}
-                <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-gold opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all relative">
-                  استكشف المجموعة
-                  <ArrowLeft className="h-3 w-3" />
-                </div>
-              </button>
+                    <h3 className="text-3xl font-black mb-1 text-white drop-shadow-lg">
+                      {cat.name}
+                    </h3>
+                    <p className={`text-sm font-medium mb-3 ${accent.text}`}>
+                      {cat.tagline}
+                    </p>
+                    <p className="text-sm text-white/80 line-clamp-2 drop-shadow">
+                      {cat.description}
+                    </p>
+                  </div>
+
+                  {/* Hover indicator */}
+                  <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-gold opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all relative">
+                    استكشف المجموعة
+                    <ArrowLeft className="h-3 w-3" />
+                  </div>
+                </button>
+              </Reveal>
             )
           })}
 
