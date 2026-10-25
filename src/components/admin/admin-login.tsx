@@ -42,7 +42,7 @@ export function AdminLogin({ configured }: { configured: boolean }) {
             </form>
           )}
         </div>
-        <p className="mt-6 text-center text-xs text-muted-foreground">حساب خاص بمالك المتجر</p>
+        <p className="mt-6 text-center text-xs text-muted-foreground">من إنشاء <bdi dir="ltr" className="font-medium text-amber-400">WebHBdev</bdi></p>
       </div>
     </main>
   )
