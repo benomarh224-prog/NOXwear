@@ -102,7 +102,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
             <div className="absolute bottom-0 right-0 w-1/2 h-1/2 rounded-2xl overflow-hidden border border-gold/30 shadow-2xl shadow-primary/20">
               <OptimizedImage
                 src={accentImage}
-                alt="هوديات NOXwear باللون العنابي بطبعة الحصان"
+                alt="هودي أسود بتصميم ساموراي أحمر"
                 className="object-cover"
                 sizes="(max-width: 1023px) 50vw, 25vw"
                 loading="eager"

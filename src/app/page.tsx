@@ -38,8 +38,9 @@ export default async function Home() {
     }
   }
 
-  const heroImage = '/products/noxwear-samurai-feature.jpg'
-  const accentImage = '/products/noxwear-couple-hoodies.jpg'
+  const heroProduct = featured.find((p) => p.slug === 'noxwear-horse-hoodie') || featured[0]
+  const heroImage = heroProduct?.image || '/products/noxwear-horse-hoodie.jpeg'
+  const accentImage = '/products/noxwear-samurai-feature.jpg'
 
   return (
     <StoreApp
