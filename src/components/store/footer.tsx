@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Instagram, Twitter, Youtube, Mail, MapPin, ArrowLeft, Shield, Truck, RefreshCw, HeadphonesIcon } from 'lucide-react'
+import { useState, type ComponentType, type SVGProps } from 'react'
+import { Instagram, Facebook, MapPin, ArrowLeft, Shield, Truck, RefreshCw, HeadphonesIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useUI } from '@/lib/ui-store'
@@ -113,11 +113,10 @@ export function Footer() {
               </div>
             </form>
 
-            <div className="flex items-center gap-2 mt-6 flex-row-reverse justify-end">
-              <SocialIcon icon={Instagram} href="#" />
-              <SocialIcon icon={Twitter} href="#" />
-              <SocialIcon icon={Youtube} href="#" />
-              <SocialIcon icon={Mail} href="#" />
+            <div className="mt-6 flex flex-wrap items-center gap-2" aria-label="تابع NOXwear">
+              <SocialIcon icon={Instagram} label="إنستغرام" href="https://www.instagram.com/noxwear_morocco?dlrf=aXBxY3NmOTQ0M3pq" />
+              <SocialIcon icon={Facebook} label="فيسبوك" href="https://www.facebook.com/share/1FTN9j8XnP/?mibextid=wwXIfr" />
+              <SocialIcon icon={TikTokIcon} label="تيك توك" href="https://www.tiktok.com/@noxewear_morocco?_r=1&_t=ZS-9ArJjwxVX5Z" />
             </div>
           </div>
 
@@ -173,14 +172,21 @@ export function Footer() {
   )
 }
 
-function SocialIcon({ icon: Icon, href }: { icon: any; href: string }) {
+function SocialIcon({ icon: Icon, href, label }: { icon: ComponentType<SVGProps<SVGSVGElement>>; href: string; label: string }) {
   return (
     <a
       href={href}
-      className="flex h-9 w-9 items-center justify-center rounded-lg border border-border hover:border-gold hover:text-gold transition-colors"
-      aria-label="رابط اجتماعي"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border px-3 text-xs hover:border-gold hover:text-gold transition-colors"
+      aria-label={label}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-4 w-4" aria-hidden="true" />
+      <span>{label}</span>
     </a>
   )
+}
+
+function TikTokIcon(props: SVGProps<SVGSVGElement>) {
+  return <svg viewBox="0 0 24 24" fill="currentColor" {...props}><path d="M16.7 2h-3.4v13.2a2.8 2.8 0 1 1-2.4-2.8V8.9a6.2 6.2 0 1 0 5.8 6.2V8.4a8.2 8.2 0 0 0 4.8 1.5V6.5A4.8 4.8 0 0 1 16.7 2Z" /></svg>
 }
