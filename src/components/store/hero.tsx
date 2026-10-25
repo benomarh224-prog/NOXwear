@@ -69,7 +69,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
               >
                 <span className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-                  دروب محدودة
+                  خارج المألوف
                 </span>
               </Button>
             </div>

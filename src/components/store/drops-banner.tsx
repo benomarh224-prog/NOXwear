@@ -36,7 +36,7 @@ export function DropsBanner() {
                 onClick={() => setView({ kind: 'category', slug: 'limitless-drops' })}
                 className="bg-black text-white hover:bg-black/90 font-semibold group"
               >
-                تسوق الدروب الحالية
+                تسوق خارج المألوف
                 <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
               </Button>
               <Button

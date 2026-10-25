@@ -169,7 +169,7 @@ export function CategoryHighlight({ categories, highlights }: CategoryHighlightP
                   إصدار محدود
                 </p>
                 <h3 className="font-black text-xl leading-tight">
-                  كل الدروب في مكان واحد
+                  اكتشف خارج المألوف
                 </h3>
                 <p className="text-xs opacity-80 mt-2">
                   تصفح كل الإصدارات المحدودة قبل ما تنفد.

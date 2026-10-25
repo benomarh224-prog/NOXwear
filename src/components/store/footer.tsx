@@ -13,9 +13,9 @@ const FOOTER_LINKS = [
     title: 'تسوق',
     links: [
       { label: 'أنمي', slug: 'anime' },
-      { label: 'رياضة', slug: 'sports' },
-      { label: 'فن عربي', slug: 'arabic-art' },
-      { label: 'دروب محدودة', slug: 'limitless-drops' },
+      { label: 'عالم الشغف', slug: 'sports' },
+      { label: 'حبر ومعنى', slug: 'arabic-art' },
+      { label: 'خارج المألوف', slug: 'limitless-drops' },
     ],
   },
   {
@@ -91,7 +91,7 @@ export function Footer() {
             </div>
 
             <p className="text-sm text-muted-foreground mb-6 max-w-xs mr-0 ml-auto">
-              ستريت وير، أنمي، رياضة، وفن عربي مختار — لمن يرفضون العادي.
+              ستريت وير، أنمي، عالم الشغف، وحبر ومعنى — لمن يرفضون العادي.
             </p>
 
             <form onSubmit={subscribe} className="space-y-2 max-w-sm mr-0 ml-auto">

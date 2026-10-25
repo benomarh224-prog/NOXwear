@@ -10,9 +10,9 @@ import { BrandLogo } from './brand-logo'
 
 const NAV = [
   { slug: 'anime', label: 'أنمي' },
-  { slug: 'sports', label: 'رياضة' },
-  { slug: 'arabic-art', label: 'فن عربي' },
-  { slug: 'limitless-drops', label: 'دروب', hot: true },
+  { slug: 'sports', label: 'عالم الشغف' },
+  { slug: 'arabic-art', label: 'حبر ومعنى' },
+  { slug: 'limitless-drops', label: 'خارج المألوف', hot: true },
 ]
 
 export function Header() {
