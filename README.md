@@ -1,39 +1,57 @@
 # NOXwear
 
-Arabic storefront built with Next.js, TypeScript, Tailwind CSS, and WhatsApp checkout.
+Arabic storefront built with Next.js, TypeScript, Tailwind CSS and WhatsApp checkout.
 
-## Catalog
+## Product administration
 
-The five collections and seven products are maintained in `src/lib/catalog.json`.
-The storefront and product APIs read that file directly, so browsing does not need
-a database connection or a local SQLite file on Vercel.
+Open `/admin` and sign in with the owner's password. The dashboard supports adding
+and editing products, prices, descriptions, categories, stock, sizes, colors,
+featured status and visibility. Upload up to six photos and choose the primary
+image. Additional photos appear in the product detail gallery. Hiding a product
+removes it from the storefront while keeping it available in administration.
 
-## Vercel deployment
+The initial catalog is `src/lib/catalog.json`. Once the first admin save occurs,
+the canonical catalog is the private Blob document `catalog/products-v1.json`.
+The storefront reads it at request time, so changes require no GitHub push or
+redeployment. Catalog writes use an ETag precondition to reject concurrent stale
+saves instead of silently overwriting another edit.
 
-Use the Next.js framework preset and `npm run build`.
+Product images are normalized to WebP and stored separately under
+`catalog/media/`. `/api/media/<uuid>.webp` serves only these product images;
+catalog documents, authentication data and orders remain private.
 
-Orders must be saved before checkout opens WhatsApp. Connect a **private** Vercel
-Blob store to this project for Production and Preview. The connection supplies
-`BLOB_READ_WRITE_TOKEN`, or `BLOB_STORE_ID` together with Vercel's short-lived OIDC
-runtime credentials. Both authentication methods are supported.
+## Vercel configuration
 
-Each order is stored as a private JSON document under `orders/`. Customer details
-are not public, and the checkout response only returns the order ID. No
-`DATABASE_URL` is required on Vercel. Checkout reports an error if order storage is
-not configured, preserving the customer's cart.
+Use the Next.js preset and `npm run build`. Keep the existing **private** Vercel
+Blob connection (`BLOB_READ_WRITE_TOKEN`, or `BLOB_STORE_ID` with OIDC).
 
-## Local development
+Production admin authentication requires these server-only variables:
 
-Use Node.js 22 or later:
+- `ADMIN_PASSWORD_HASH`: random salt and scrypt hash, encoded `salt:hexHash`.
+- `NEXTAUTH_SECRET`: a cryptographically random session encryption key.
+- `NEXTAUTH_URL`: the canonical HTTPS origin.
 
-```sh
-npm ci
-npm run dev
-```
+Only the configured owner can sign in. There is no public registration. Sessions
+expire after eight hours. Login attempts are throttled in persistent private
+storage; mutation routes require both an owner session and the same Origin.
+Never commit passwords, `.env` files, or `.codex/admin-access.*` files.
 
-Open http://localhost:3000. To use the existing local SQLite order storage, copy
-`.env.example` to `.env`, then run `npx prisma db push`. The local database and
-environment files are ignored by Git. The optional `node scripts/seed.js` command
-recreates the local database's catalog and clears its existing orders.
+Orders continue to be stored privately under `orders/`. No production SQLite
+file or database migration is needed.
 
-To edit the public catalog, update `src/lib/catalog.json` and redeploy.
+## Local development and verification
+
+Use Node.js 22 or later, `npm ci`, then `npm run dev`.
+Local catalog and image data live under ignored `.codex/store/` when Blob is not
+configured. `NOX_ADMIN_LOCAL_STORAGE=1` forces local storage off Vercel, for
+isolated tests; the flag is ignored on Vercel.
+
+`npm run test:smoke` checks public catalog, images and endpoint protection against
+`BASE_URL`. `npm run test:admin` checks owner login, validation, upload,
+create/edit/publish/hide and concurrent saves against localhost:3100. It reads
+the ignored `.codex/admin-access.json` fixture and restores the local catalog
+afterward. It refuses to run mutation tests against a remote deployment.
+
+For the legacy local SQLite order fallback, retain `DATABASE_URL` from
+`.env.example`. Do not run `scripts/seed.js` against valuable data: it recreates
+the old database catalog and clears orders.

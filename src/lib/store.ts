@@ -2,6 +2,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import type { Product } from './types'
 
 export interface CartLine {
   id: string
@@ -21,6 +22,7 @@ interface CartState {
   addItem: (item: Omit<CartLine, 'id' | 'quantity'> & { quantity?: number }) => void
   removeItem: (id: string) => void
   updateQuantity: (id: string, qty: number) => void
+  syncCatalog: (products: Product[]) => void
   clear: () => void
   setOpen: (open: boolean) => void
   total: () => number
@@ -73,6 +75,21 @@ export const useCart = create<CartState>()(
             i.id === id ? { ...i, quantity: Math.max(1, qty) } : i,
           ),
         })),
+      syncCatalog: (products) => {
+        const catalog = new Map(products.map((product) => [product.id, product]))
+        set((state) => {
+          let changed = false
+          const items = state.items.flatMap((item) => {
+            const product = catalog.get(item.productId)
+            if (!product || product.stock <= 0 || !product.sizes.includes(item.size) || !product.colors.includes(item.color)) { changed = true; return [] }
+            const quantity = Math.min(item.quantity, product.stock)
+            if (item.price === product.price && item.name === product.name && item.image === product.image && item.quantity === quantity) return [item]
+            changed = true
+            return [{ ...item, price: product.price, name: product.name, image: product.image, quantity }]
+          })
+          return changed ? { items } : state
+        })
+      },
       clear: () => set({ items: [] }),
       setOpen: (open) => set({ isOpen: open }),
       total: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),

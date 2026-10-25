@@ -27,6 +27,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation()
+    if (product.stock <= 0) return
     addItem({
       productId: product.id,
       slug: product.slug,
@@ -105,6 +106,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <Button
               size="sm"
               onClick={handleQuickAdd}
+              disabled={product.stock <= 0}
               className="gradient-gold text-primary-foreground"
               aria-label="أضف للسلة"
             >

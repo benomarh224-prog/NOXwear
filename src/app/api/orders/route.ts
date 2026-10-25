@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createOrder } from '@/lib/data'
+import { createOrder, getProducts } from '@/lib/data'
+import { computeShipping } from '@/lib/format'
 import { OrderStorageUnavailableError } from '@/lib/orders'
 import { z } from 'zod'
 
@@ -31,7 +32,22 @@ export async function POST(req: Request) {
         { status: 400 },
       )
     }
-    const order = await createOrder(parsed.data)
+    const currentProducts = new Map((await getProducts()).map((product) => [product.id, product]))
+    let subtotal = 0
+    const quantities = new Map<string, number>()
+    for (const item of parsed.data.items) {
+      const product = currentProducts.get(item.productId)
+      const quantity = (quantities.get(item.productId) || 0) + item.quantity
+      if (!product || quantity > product.stock || !product.sizes.includes(item.size) || !product.colors.includes(item.color) || Math.abs(product.price - item.price) > 0.001) {
+        return NextResponse.json({ error: 'تبدل ثمن أو توفر واحد من المنتجات. حدّث الصفحة وراجع السلة قبل تأكيد الطلب.' }, { status: 409 })
+      }
+      quantities.set(item.productId, quantity)
+      item.name = product.name
+      subtotal += product.price * item.quantity
+    }
+    const expectedTotal = subtotal + computeShipping(parsed.data.country, subtotal)
+    if (Math.abs(expectedTotal - parsed.data.total) > 0.01) return NextResponse.json({ error: 'مجموع الطلب تبدل. حدّث الصفحة وراجع السلة.' }, { status: 409 })
+    const order = await createOrder({ ...parsed.data, total: expectedTotal })
     return NextResponse.json({ order }, { status: 201 })
   } catch (err: unknown) {
     console.error('Order creation failed:', err)

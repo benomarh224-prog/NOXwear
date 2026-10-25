@@ -27,6 +27,8 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
   const addItem = useCart((s) => s.addItem)
   const [selectedSize, setSelectedSize] = useState(() => product.sizes[0] || '')
   const [selectedColor, setSelectedColor] = useState(() => product.colors[0] || '')
+  const productImages = [...new Set([product.image, ...product.gallery.split(',').filter(Boolean)])]
+  const [selectedImage, setSelectedImage] = useState(product.image)
   const [quantity, setQuantity] = useState(1)
   const [wishlist, setWishlist] = useState(false)
 
@@ -35,6 +37,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
     : 0
 
   const handleAddToCart = () => {
+    if (product.stock <= 0) return
     addItem({
       productId: product.id,
       slug: product.slug,
@@ -90,7 +93,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
           >
             <div className="relative aspect-square rounded-2xl overflow-hidden border border-border bg-muted">
               <OptimizedImage
-                src={product.image}
+                src={selectedImage}
                 alt={product.name}
                 className="object-cover"
                 sizes="(max-width: 1023px) 100vw, 50vw"
@@ -117,6 +120,16 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
                 <Heart className={`h-5 w-5 ${wishlist ? 'fill-red-500 text-red-500' : ''}`} />
               </button>
             </div>
+
+            {productImages.length > 1 && (
+              <div className="mt-3 flex flex-wrap gap-2" aria-label="صور المنتج">
+                {productImages.map((image, index) => (
+                  <button key={image} type="button" onClick={() => setSelectedImage(image)} aria-label={`عرض الصورة ${index + 1}`} aria-pressed={selectedImage === image} className={`relative h-16 w-16 overflow-hidden rounded-lg border-2 ${selectedImage === image ? 'border-gold' : 'border-border'}`}>
+                    <OptimizedImage src={image} alt="" className="object-cover" sizes="64px" />
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Perks */}
             <div className="mt-4 grid grid-cols-3 gap-2">
@@ -226,15 +239,17 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
             <div className="flex items-center gap-3 mb-4 flex-row-reverse justify-end">
               <Button
                 onClick={handleAddToCart}
+                disabled={product.stock <= 0}
                 size="lg"
                 className="flex-1 gradient-gold text-primary-foreground font-semibold group"
               >
                 <ShoppingBag className="ml-2 h-5 w-5" />
-                أضف للسلة — {formatPrice(product.price * quantity)}
+                {product.stock > 0 ? `أضف للسلة — ${formatPrice(product.price * quantity)}` : 'نفد المخزون'}
               </Button>
               <div className="flex items-center border border-border rounded-md">
                 <button
                   onClick={() => setQuantity(quantity + 1)}
+                  disabled={quantity >= product.stock}
                   className="h-11 w-11 flex items-center justify-center hover:bg-accent transition-colors"
                   aria-label="زيادة"
                 >

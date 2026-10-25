@@ -1,0 +1,97 @@
+import assert from 'node:assert/strict'
+import { readFile, writeFile, unlink } from 'node:fs/promises'
+import { join } from 'node:path'
+
+const base = process.env.BASE_URL || 'http://localhost:3100'
+assert.ok(['localhost', '127.0.0.1'].includes(new URL(base).hostname), 'Mutation tests run against local storage only')
+const catalogFile = join(process.cwd(), '.codex/store/catalog/products-v1.json')
+const original = await readFile(catalogFile).catch((error) => { if (error.code === 'ENOENT') return null; throw error })
+const { password } = JSON.parse(await readFile('.codex/admin-access.json', 'utf8'))
+const cookies = new Map()
+function remember(response) {
+  for (const header of response.headers.getSetCookie()) {
+    const [part] = header.split(';'); const equals = part.indexOf('=')
+    cookies.set(part.slice(0, equals), part.slice(equals + 1))
+  }
+}
+async function request(path, options = {}, authenticated = true) {
+  const headers = new Headers(options.headers)
+  if (authenticated) headers.set('cookie', [...cookies].map(([key, value]) => `${key}=${value}`).join('; '))
+  const response = await fetch(new URL(path, base), { ...options, headers, redirect: 'manual' })
+  if (authenticated) remember(response)
+  return response
+}
+async function login(value) {
+  const csrf = await (await request('/api/auth/csrf')).json()
+  return request('/api/auth/callback/credentials', {
+    method: 'POST', headers: { Origin: base, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ csrfToken: csrf.csrfToken, password: value, json: 'true', callbackUrl: `${base}/admin` }),
+  })
+}
+async function save(slug, product, revision, origin = base) {
+  return request(`/api/admin/products${slug ? '/' + slug : ''}`, {
+    method: slug ? 'PUT' : 'POST', headers: { Origin: origin, 'Content-Type': 'application/json' }, body: JSON.stringify({ product, revision }),
+  })
+}
+try {
+  const unauthenticated = await request('/api/admin/products', {}, false)
+  assert.equal(unauthenticated.status, 401)
+  assert.equal((await request('/admin', {}, false)).status, 307)
+  assert.equal((await request('/api/admin/upload', { method: 'POST' }, false)).status, 401)
+  const wrong = await (await login('incorrect-password')).json()
+  assert.match(wrong.url, /error=/)
+  const signedIn = await (await login(password)).json()
+  assert.ok(!signedIn.url.includes('error='), 'Owner login failed')
+  assert.equal((await request('/admin')).status, 200)
+  const snapshot = await (await request('/api/admin/products')).json()
+  assert.equal(snapshot.products.length, 7)
+  const newProduct = {
+    name: 'منتج تجربة الإدارة', description: 'اختبار حفظ منتج وصور وأثمنة', price: 250, categorySlug: 'anime',
+    images: [snapshot.products[0].images[0]], sizes: ['L'], colors: ['أسود', 'أبيض'], stock: 8,
+    featured: true, active: false, badge: '',
+  }
+  assert.equal((await save(null, newProduct, snapshot.revision, 'https://untrusted.example')).status, 403)
+  assert.equal((await save(null, { ...newProduct, price: -1 }, snapshot.revision)).status, 400)
+  assert.equal((await save(null, { ...newProduct, images: [] }, snapshot.revision)).status, 400)
+  const invalidImage = new FormData(); invalidImage.append('file', new Blob(['<svg/>'], { type: 'image/png' }), 'fake.png')
+  assert.equal((await request('/api/admin/upload', { method: 'POST', headers: { Origin: base }, body: invalidImage })).status, 400)
+  const imageBytes = await readFile(join(process.cwd(), 'public', snapshot.products[0].images[0]))
+  const form = new FormData(); form.append('file', new Blob([imageBytes], { type: 'image/jpeg' }), 'hoodie.jpg')
+  const upload = await request('/api/admin/upload', { method: 'POST', headers: { Origin: base }, body: form })
+  assert.equal(upload.status, 201)
+  const { url } = await upload.json()
+  const media = await request(url, {}, false)
+  assert.equal(media.status, 200); assert.equal(media.headers.get('content-type'), 'image/webp')
+  newProduct.images = [url, newProduct.images[0]]
+  const created = await save(null, newProduct, snapshot.revision)
+  assert.equal(created.status, 201)
+  let latest = await created.json()
+  const slug = latest.product.slug
+  assert.equal((await request('/api/products/' + slug, {}, false)).status, 404, 'Hidden product leaked')
+  assert.equal((await save(null, newProduct, snapshot.revision)).status, 409, 'Stale revision accepted')
+  const changed = { ...newProduct, active: true, price: 275.5 }
+  const updated = await save(slug, changed, latest.revision)
+  assert.equal(updated.status, 200); latest = await updated.json()
+  const publicProduct = (await (await request('/api/products/' + slug, {}, false)).json()).product
+  assert.equal(publicProduct.price, 275.5); assert.equal(publicProduct.gallery.split(',').length, 2)
+  assert.match(await (await request('/', {}, false)).text(), /منتج تجربة الإدارة/)
+  const stalePriceOrder = await request('/api/orders', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      customerName: 'Integration test', email: 'test@example.invalid', phone: '0000000000', address: 'Test', city: 'Test', country: 'المغرب', total: 1,
+      items: [{ productId: slug, name: changed.name, price: 1, quantity: 1, size: 'L', color: 'أسود' }],
+    }),
+  }, false)
+  assert.equal(stalePriceOrder.status, 409, 'An outdated price was accepted at checkout')
+  const concurrent = await Promise.all([save(slug, { ...changed, price: 280 }, latest.revision), save(slug, { ...changed, price: 290 }, latest.revision)])
+  assert.deepEqual(concurrent.map((response) => response.status).sort(), [200, 409], 'Concurrent update lost data')
+  latest = await (await request('/api/admin/products')).json()
+  assert.equal((await save(slug, { ...changed, active: false }, latest.revision)).status, 200)
+  assert.equal((await request('/api/products/' + slug, {}, false)).status, 404)
+  const csrf = await (await request('/api/auth/csrf')).json()
+  await request('/api/auth/signout', { method: 'POST', headers: { Origin: base, 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ csrfToken: csrf.csrfToken, json: 'true' }) })
+  assert.equal((await request('/api/admin/products')).status, 401, 'Logout did not revoke browser session')
+  console.log('PASS: authentication, logout, origin protection, validation, image upload, create/edit, gallery, storefront publication, hide, concurrent saves')
+} finally {
+  if (original) await writeFile(catalogFile, original)
+  else await unlink(catalogFile).catch((error) => { if (error.code !== 'ENOENT') throw error })
+}

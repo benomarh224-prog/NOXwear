@@ -2,7 +2,7 @@ import { getCategories, getProducts } from '@/lib/data'
 import { StoreApp } from '@/components/store/store-app'
 import type { Product } from '@/lib/types'
 
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   const [categories, products] = await Promise.all([

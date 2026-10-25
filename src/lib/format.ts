@@ -1,14 +1,12 @@
 // Currency formatting in Moroccan Dirham (DH / درهم)
 
 export function formatPrice(amount: number): string {
-  // Round to nearest integer for display, add DH suffix
-  const rounded = Math.round(amount)
-  return `${rounded.toLocaleString('ar-MA')} د.م`
+  return `${amount.toLocaleString('ar-MA', { maximumFractionDigits: 2 })} د.م`
 }
 
 export function formatPriceShort(amount: number): string {
   // Short version without the suffix, for compact UI
-  return Math.round(amount).toLocaleString('ar-MA')
+  return amount.toLocaleString('ar-MA', { maximumFractionDigits: 2 })
 }
 
 // Shipping policy:

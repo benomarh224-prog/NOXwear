@@ -14,12 +14,11 @@ const { categories } = await (await get('/api/categories')).json()
 const { products } = await (await get('/api/products')).json()
 assert.equal(categories.length, 4)
 assert.ok(categories.every((category) => category.slug !== 'hoodies'))
-assert.equal(products.length, 7)
+assert.ok(Array.isArray(products))
 
 await Promise.all(categories.map(async (category) => {
   const response = await get(`/api/products?category=${category.slug}`)
   const { products: items } = await response.json()
-  assert.ok(items.length > 0, `Empty collection: ${category.slug}`)
   assert.ok(items.every((product) => product.category.slug === category.slug))
 }))
 
@@ -29,9 +28,12 @@ await Promise.all(products.map(async (product) => {
   await get(product.image)
 }))
 
-const search = await (await get('/api/products?search=BMW')).json()
-assert.equal(search.products.length, 1)
-assert.equal(search.products[0].slug, 'bmw-m4-motorsport-hoodie')
+if (products.length) {
+  const search = await (await get('/api/products?search=' + encodeURIComponent(products[0].name))).json()
+  assert.ok(search.products.some((product) => product.slug === products[0].slug))
+}
+await get('/api/admin/products', 401)
+await get('/admin/login')
 await get('/api/products/does-not-exist', 404)
 
 const invalidOrder = await fetch(new URL('/api/orders', baseUrl), {
@@ -41,4 +43,4 @@ const invalidOrder = await fetch(new URL('/api/orders', baseUrl), {
 })
 assert.equal(invalidOrder.status, 400)
 
-console.log('PASS: home, 4 collections, 7 products, images, search, 404, order validation')
+console.log('PASS: home, collections, ' + products.length + ' products, images, search, admin protection, order validation')

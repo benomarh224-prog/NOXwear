@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { initializeNavigation, useUI } from '@/lib/ui-store'
+import { useCart } from '@/lib/store'
 import { Header } from './header'
 import { Marquee } from './marquee'
 import { Hero } from './hero'
@@ -40,6 +41,7 @@ export function StoreApp({
   const view = useUI((s) => s.view)
 
   useEffect(() => initializeNavigation(), [])
+  useEffect(() => { useCart.getState().syncCatalog(products) }, [products])
 
   const renderView = () => {
     switch (view.kind) {
