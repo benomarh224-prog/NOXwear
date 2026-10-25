@@ -22,10 +22,10 @@ const ACCENTS: Record<string, { gradient: string; text: string; border: string; 
     glow: 'shadow-amber-500/20',
   },
   anime: {
-    gradient: 'from-pink-500/20 via-pink-500/5 to-transparent',
-    text: 'text-pink-400',
-    border: 'border-pink-500/30',
-    glow: 'shadow-pink-500/20',
+    gradient: 'from-red-500/20 via-red-500/5 to-transparent',
+    text: 'text-red-400',
+    border: 'border-red-500/30',
+    glow: 'shadow-red-500/20',
   },
   sports: {
     gradient: 'from-emerald-500/20 via-emerald-500/5 to-transparent',

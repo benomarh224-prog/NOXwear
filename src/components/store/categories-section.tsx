@@ -25,9 +25,9 @@ const ACCENTS: Record<string, { gradient: string; text: string; border: string }
     border: 'border-amber-500/40',
   },
   anime: {
-    gradient: 'from-pink-950/90 via-pink-950/60 to-transparent',
-    text: 'text-pink-400',
-    border: 'border-pink-500/40',
+    gradient: 'from-red-950/90 via-red-950/60 to-transparent',
+    text: 'text-red-400',
+    border: 'border-red-500/40',
   },
   sports: {
     gradient: 'from-black/95 via-black/50 to-transparent',
