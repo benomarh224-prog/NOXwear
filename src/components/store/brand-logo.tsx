@@ -3,12 +3,13 @@ import Image from 'next/image'
 interface BrandLogoProps {
   className?: string
   showTagline?: boolean
+  size?: 'header' | 'hero'
 }
 
-export function BrandLogo({ className = '', showTagline = false }: BrandLogoProps) {
+export function BrandLogo({ className = '', showTagline = false, size = 'header' }: BrandLogoProps) {
   return (
     <span className={`inline-flex flex-col items-start leading-none ${className}`} dir="ltr">
-      <span className="brand-wordmark relative block h-7 w-36 overflow-hidden">
+      <span className={`brand-wordmark relative block overflow-hidden ${size === 'hero' ? 'h-14 w-72' : 'h-7 w-36'}`}>
         <Image
           src="/noxwear-wordmark.jpg"
           alt="NOXWear"

@@ -57,13 +57,17 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-2 text-xs flex-row-reverse justify-end">
           <span className="text-foreground font-medium truncate">{product.name}</span>
           <ChevronLeft className="h-3 w-3 text-muted-foreground" />
-          <button
-            onClick={() => product.category && setView({ kind: 'category', slug: product.category.slug })}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            {product.category?.name}
-          </button>
-          <ChevronLeft className="h-3 w-3 text-muted-foreground" />
+          {product.category ? (
+            <>
+              <button
+                onClick={() => product.category && setView({ kind: 'category', slug: product.category.slug })}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                {product.category.name}
+              </button>
+              <ChevronLeft className="h-3 w-3 text-muted-foreground" />
+            </>
+          ) : null}
           <button onClick={() => setView({ kind: 'home' })} className="text-muted-foreground hover:text-foreground">
             الرئيسية
           </button>

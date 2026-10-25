@@ -3,7 +3,7 @@ import type { Category, Product } from '@/lib/types'
 import type { OrderInput } from '@/lib/orders'
 
 // The storefront's curated catalog ships with every deployment.
-const categories: Category[] = catalog.categories.map((category) => ({
+const categories: Category[] = catalog.categories.filter((category) => category.slug !== 'hoodies').map((category) => ({
   ...category,
   id: category.slug,
 }))

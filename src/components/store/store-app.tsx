@@ -46,7 +46,12 @@ export function StoreApp({
       case 'home':
         return (
           <>
-            <Hero featuredImage={heroImage} accentImage={accentImage} />
+            <Hero
+              featuredImage={heroImage}
+              accentImage={accentImage}
+              categoryCount={categories.length}
+              productCount={products.length}
+            />
             <CategoriesSection categories={categories} />
             <CategoryHighlight categories={categories} highlights={highlights} />
             <FeaturedProducts products={featured} />

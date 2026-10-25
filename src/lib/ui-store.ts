@@ -38,7 +38,7 @@ function viewFromUrl(): View {
 
   if (collection) return { kind: 'category', slug: collection }
   if (product) return { kind: 'product', slug: product }
-  if (search) return { kind: 'search', query: search }
+  if (params.has('search')) return { kind: 'search', query: search || '' }
   if (params.has('checkout')) return { kind: 'checkout' }
   if (params.has('success')) {
     const saved = historyData().noxView

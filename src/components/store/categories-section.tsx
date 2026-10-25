@@ -58,7 +58,7 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
               تصفح حسب القسم
             </Badge>
             <h2 className="text-3xl sm:text-5xl font-black tracking-tight">
-              خمسة عوالم.<br />
+              أربعة عوالم.<br />
               <span className="gradient-text-gold">هوية واحدة.</span>
             </h2>
           </div>

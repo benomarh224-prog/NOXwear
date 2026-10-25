@@ -25,15 +25,15 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
               المنتجات <span className="gradient-text-gold">المميزة</span>
             </h2>
             <p className="text-sm text-muted-foreground mt-3 max-w-md">
-              أفضل اختيارات محررينا في كل الأقسام الخمسة — يتم تحديثها أسبوعياً.
+              أفضل اختيارات محررينا من مختلف الأقسام — يتم تحديثها أسبوعياً.
             </p>
           </div>
           <Button
             variant="outline"
-            onClick={() => setView({ kind: 'category', slug: 'hoodies' })}
+            onClick={() => setView({ kind: 'search', query: '' })}
             className="group self-start sm:self-end"
           >
-            عرض الهوديات
+            عرض جميع المنتجات
             <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
           </Button>
         </div>

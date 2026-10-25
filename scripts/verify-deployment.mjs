@@ -12,7 +12,8 @@ assert.match(await home.text(), /NOXwear/)
 
 const { categories } = await (await get('/api/categories')).json()
 const { products } = await (await get('/api/products')).json()
-assert.equal(categories.length, 5)
+assert.equal(categories.length, 4)
+assert.ok(categories.every((category) => category.slug !== 'hoodies'))
 assert.equal(products.length, 7)
 
 await Promise.all(categories.map(async (category) => {
@@ -40,4 +41,4 @@ const invalidOrder = await fetch(new URL('/api/orders', baseUrl), {
 })
 assert.equal(invalidOrder.status, 400)
 
-console.log('PASS: home, 5 collections, 7 products, images, search, 404, order validation')
+console.log('PASS: home, 4 collections, 7 products, images, search, 404, order validation')

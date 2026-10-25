@@ -9,7 +9,6 @@ import { useState } from 'react'
 import { BrandLogo } from './brand-logo'
 
 const NAV = [
-  { slug: 'hoodies', label: 'هوديات' },
   { slug: 'anime', label: 'أنمي' },
   { slug: 'sports', label: 'رياضة' },
   { slug: 'arabic-art', label: 'فن عربي' },

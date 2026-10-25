@@ -4,13 +4,16 @@ import { ArrowLeft, Sparkles, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useUI } from '@/lib/ui-store'
 import { OptimizedImage } from './optimized-image'
+import { BrandLogo } from './brand-logo'
 
 interface HeroProps {
   featuredImage: string
   accentImage: string
+  categoryCount: number
+  productCount: number
 }
 
-export function Hero({ featuredImage, accentImage }: HeroProps) {
+export function Hero({ featuredImage, accentImage, categoryCount, productCount }: HeroProps) {
   const setView = useUI((s) => s.setView)
 
   return (
@@ -34,6 +37,10 @@ export function Hero({ featuredImage, accentImage }: HeroProps) {
               <span className="text-gold">مجموعة خريف / شتاء 2026</span>
             </div>
 
+            <div className="mb-6 flex justify-center lg:justify-start">
+              <BrandLogo size="hero" />
+            </div>
+
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[0.95]">
               ارتدِ <br />
               <span className="gradient-text-gold">هويتك</span>
@@ -48,10 +55,10 @@ export function Hero({ featuredImage, accentImage }: HeroProps) {
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <Button
                 size="lg"
-                onClick={() => setView({ kind: 'category', slug: 'hoodies' })}
+                onClick={() => setView({ kind: 'search', query: '' })}
                 className="gradient-gold text-primary-foreground font-semibold shadow-lg shadow-primary/20 hover:opacity-90 group"
               >
-                تسوق المجموعة
+                تسوق المنتجات
                 <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
               </Button>
               <Button
@@ -69,8 +76,8 @@ export function Hero({ featuredImage, accentImage }: HeroProps) {
 
             {/* Stats */}
             <div className="mt-10 grid grid-cols-3 gap-4 max-w-md mx-auto lg:mr-0 lg:ml-auto">
-              <Stat value="5" label="أقسام" />
-              <Stat value="7" label="منتجات حصرية" />
+              <Stat value={String(categoryCount)} label="أقسام" />
+              <Stat value={String(productCount)} label="منتجات حصرية" />
               <Stat value="4.9★" label="متوسط التقييم" />
             </div>
           </div>
@@ -95,7 +102,7 @@ export function Hero({ featuredImage, accentImage }: HeroProps) {
             <div className="absolute bottom-0 right-0 w-1/2 h-1/2 rounded-2xl overflow-hidden border border-gold/30 shadow-2xl shadow-primary/20">
               <OptimizedImage
                 src={accentImage}
-                alt="منتج إضافي"
+                alt="هوديات NOXwear باللون العنابي بطبعة الحصان"
                 className="object-cover"
                 sizes="(max-width: 1023px) 50vw, 25vw"
                 loading="eager"

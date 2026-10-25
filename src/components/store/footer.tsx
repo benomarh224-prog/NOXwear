@@ -12,7 +12,6 @@ const FOOTER_LINKS = [
   {
     title: 'تسوق',
     links: [
-      { label: 'هوديات', slug: 'hoodies' },
       { label: 'أنمي', slug: 'anime' },
       { label: 'رياضة', slug: 'sports' },
       { label: 'فن عربي', slug: 'arabic-art' },

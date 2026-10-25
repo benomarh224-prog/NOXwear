@@ -38,10 +38,10 @@ export function SearchView({ query, products: catalogProducts }: SearchViewProps
           </button>
           <Badge variant="outline" className="mb-3 border-gold/30 text-gold">
             <Search className="h-3 w-3 ml-1" />
-            نتائج البحث
+            {query.trim() ? 'نتائج البحث' : 'المتجر'}
           </Badge>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
-            &quot;{query}&quot;
+            {query.trim() ? <> &quot;{query}&quot; </> : 'جميع المنتجات'}
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
             {products.length} نتيجة

@@ -40,10 +40,9 @@ export default async function Home() {
 
   // Pick hero images: prefer the Noxwear Horse hoodie as the main hero image
   const heroProduct = featured.find((p) => p.slug === 'noxwear-horse-hoodie') || featured[0]
-  const accentProduct = featured.find((p) => p.slug === 'palestine-keffiyeh-hoodie') || featured[1]
 
   const heroImage = heroProduct?.image || 'https://picsum.photos/seed/hero/800/800'
-  const accentImage = accentProduct?.image || 'https://picsum.photos/seed/accent/800/800'
+  const accentImage = '/products/noxwear-couple-hoodies.jpg'
 
   return (
     <StoreApp
