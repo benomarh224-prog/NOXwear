@@ -53,6 +53,8 @@ export function CheckoutView() {
       )
       lines.push(`   • المقاس: ${item.size} | اللون: ${item.color}`)
       lines.push(`   • الكمية: ${item.quantity} × ${item.price} د.م = ${item.price * item.quantity} د.م`)
+      const imageUrl = new URL(item.image, window.location.origin).href
+      lines.push(`   📷 صورة المنتج: ${imageUrl}`)
     })
     lines.push('')
     lines.push(...pricingMessageLines(pricing, DELIVERY_COUNTRY))
