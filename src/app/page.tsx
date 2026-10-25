@@ -38,10 +38,7 @@ export default async function Home() {
     }
   }
 
-  // Pick hero images: prefer the Noxwear Horse hoodie as the main hero image
-  const heroProduct = featured.find((p) => p.slug === 'noxwear-horse-hoodie') || featured[0]
-
-  const heroImage = heroProduct?.image || 'https://picsum.photos/seed/hero/800/800'
+  const heroImage = '/products/noxwear-samurai-feature.jpg'
   const accentImage = '/products/noxwear-couple-hoodies.jpg'
 
   return (
