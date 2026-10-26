@@ -14,7 +14,8 @@
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
     "test:admin": "node scripts/verify-admin.mjs",
-    "test:pricing": "node scripts/verify-pricing.mjs"
+    "test:pricing": "node scripts/verify-pricing.mjs",
+    "test:custom-print": "node scripts/verify-custom-print.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

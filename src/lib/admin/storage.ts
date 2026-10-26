@@ -119,3 +119,29 @@ export async function readMedia(filename: string) {
     throw error
   }
 }
+
+// Customer designs use a separate namespace from the product catalogue.
+export async function saveDesignMedia(id: string, bytes: Buffer, extension: 'png' | 'jpg' | 'webp', contentType: string) {
+  const path = `custom-designs/media/${id}.${extension}`
+  if (cloudStorageEnabled()) {
+    await put(path, bytes, { access: 'private', contentType, addRandomSuffix: false, allowOverwrite: false })
+  } else {
+    const target = localPath(path)
+    await mkdir(dirname(target), { recursive: true })
+    await writeFile(target, bytes, { flag: 'wx' })
+  }
+  return `/api/custom-designs/${id}.${extension}`
+}
+
+export async function readDesignMedia(filename: string) {
+  const path = `custom-designs/media/${filename}`
+  if (cloudStorageEnabled()) {
+    const result = await get(path, { access: 'private' })
+    return result?.statusCode === 200 ? result.stream : null
+  }
+  try { return new Uint8Array(await readFile(localPath(path))) }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
+    throw error
+  }
+}

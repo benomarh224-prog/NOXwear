@@ -8,6 +8,7 @@ export type View =
   | { kind: 'product'; slug: string }
   | { kind: 'search'; query: string }
   | { kind: 'checkout' }
+  | { kind: 'custom-print' }
   | { kind: 'success'; orderId: string; total: number; whatsappUrl: string }
 
 interface UIState {
@@ -18,7 +19,7 @@ interface UIState {
   setSearchOpen: (b: boolean) => void
 }
 
-const VIEW_PARAMS = ['collection', 'product', 'search', 'checkout', 'success'] as const
+const VIEW_PARAMS = ['collection', 'product', 'search', 'checkout', 'success', 'custom'] as const
 
 function historyData() {
   const state = window.history.state
@@ -39,6 +40,7 @@ function viewFromUrl(): View {
   if (collection) return { kind: 'category', slug: collection }
   if (product) return { kind: 'product', slug: product }
   if (params.has('search')) return { kind: 'search', query: search || '' }
+  if (params.has('custom')) return { kind: 'custom-print' }
   if (params.has('checkout')) return { kind: 'checkout' }
   if (params.has('success')) {
     const saved = historyData().noxView
@@ -60,6 +62,9 @@ function urlForView(view: View) {
       break
     case 'search':
       url.searchParams.set('search', view.query)
+      break
+    case 'custom-print':
+      url.searchParams.set('custom', '1')
       break
     case 'checkout':
       url.searchParams.set('checkout', '1')

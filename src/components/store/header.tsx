@@ -34,7 +34,7 @@ export function Header() {
         </button>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-1">
           {NAV.map((item) => (
             <button
               key={item.slug}
@@ -50,6 +50,7 @@ export function Header() {
               <span className="absolute bottom-0 left-3 right-3 h-px bg-gold scale-x-0 group-hover:scale-x-100 transition-transform" />
             </button>
           ))}
+          <button onClick={() => setView({ kind: 'custom-print' })} className="min-h-11 rounded-lg border border-gold/30 px-3 py-2 text-sm font-semibold text-gold hover:bg-primary/10">اطلب طبعة خاصة</button>
         </nav>
 
         {/* Actions */}
@@ -81,7 +82,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="lg:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="القائمة"
           >
@@ -92,7 +93,7 @@ export function Header() {
 
       {/* Mobile Nav */}
       {mobileOpen && (
-        <nav className="md:hidden border-t border-border/40 bg-card">
+        <nav className="lg:hidden border-t border-border/40 bg-card">
           <div className="flex flex-col p-2">
             {NAV.map((item) => (
               <button
@@ -109,6 +110,7 @@ export function Header() {
                 </span>
               </button>
             ))}
+            <button onClick={() => { setView({ kind: 'custom-print' }); setMobileOpen(false) }} className="min-h-11 rounded-md border border-gold/25 px-3 py-3 text-right text-sm font-semibold text-gold hover:bg-primary/10">اطلب طبعة خاصة</button>
           </div>
         </nav>
       )}

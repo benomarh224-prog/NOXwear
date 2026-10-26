@@ -6,6 +6,7 @@ import { useCart } from '@/lib/store'
 import { Header } from './header'
 import { Marquee } from './marquee'
 import { Hero } from './hero'
+import { CustomPrintBanner, CustomPrintView } from './custom-print-view'
 import { CategoriesSection } from './categories-section'
 import { CategoryHighlight } from './category-highlight'
 import { FeaturedProducts } from './featured-products'
@@ -55,6 +56,7 @@ export function StoreApp({
               productCount={products.length}
             />
             <CategoriesSection categories={categories} />
+            <CustomPrintBanner />
             <CategoryHighlight categories={categories} highlights={highlights} />
             <FeaturedProducts products={featured} />
             <DropsBanner />
@@ -75,6 +77,8 @@ export function StoreApp({
       }
       case 'search':
         return <SearchView key={view.query} query={view.query} products={products} />
+      case 'custom-print':
+        return <CustomPrintView />
       case 'checkout':
         return <CheckoutView />
       case 'success':
