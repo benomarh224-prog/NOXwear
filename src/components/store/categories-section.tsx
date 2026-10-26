@@ -9,6 +9,7 @@ import type { Category } from '@/lib/types'
 import { CATEGORY_IMAGES } from '@/lib/category-images'
 import { OptimizedImage } from './optimized-image'
 import { Reveal } from './reveal'
+import { CustomPrintButton } from './custom-print-view'
 
 const ICONS: Record<string, LucideIcon> = {
   Shirt,
@@ -78,11 +79,11 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
               <Reveal
                 key={cat.id}
                 delay={(index % 3) * 60}
-                className={cat.slug === 'limitless-drops' ? 'sm:col-span-2 lg:col-span-1' : ''}
+                className={cat.slug === 'limitless-drops' ? 'sm:col-span-2 lg:col-span-1' : cat.slug === 'sports' ? 'flex flex-col gap-3' : ''}
               >
                 <button
                   onClick={() => setView({ kind: 'category', slug: cat.slug })}
-                  className={`store-card w-full h-full group relative text-right rounded-2xl border border-border overflow-hidden hover:${accent.border} transition-all hover:shadow-2xl hover:shadow-primary/10 min-h-[260px] flex flex-col justify-end p-6 sm:p-8`}
+                  className={`store-card w-full ${cat.slug === 'sports' ? 'flex-1' : 'h-full'} group relative text-right rounded-2xl border border-border overflow-hidden hover:${accent.border} transition-all hover:shadow-2xl hover:shadow-primary/10 min-h-[260px] flex flex-col justify-end p-6 sm:p-8`}
                 >
                   {/* Background image */}
                   <div className="absolute inset-0">
@@ -132,6 +133,7 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
                     <ArrowLeft className="h-3 w-3" />
                   </div>
                 </button>
+                {cat.slug === 'sports' && <CustomPrintButton />}
               </Reveal>
             )
           })}

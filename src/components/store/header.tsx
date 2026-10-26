@@ -11,6 +11,7 @@ import { BrandLogo } from './brand-logo'
 const NAV = [
   { slug: 'anime', label: 'أنمي' },
   { slug: 'sports', label: 'عالم الشغف' },
+  { slug: 'custom-print', label: 'اطلب طبعة خاصة' },
   { slug: 'arabic-art', label: 'حبر ومعنى' },
   { slug: 'limitless-drops', label: 'خارج المألوف', hot: true },
 ]
@@ -38,8 +39,8 @@ export function Header() {
           {NAV.map((item) => (
             <button
               key={item.slug}
-              onClick={() => setView({ kind: 'category', slug: item.slug })}
-              className="relative px-3 py-2 text-sm font-medium hover:text-primary transition-colors group"
+              onClick={() => setView(item.slug === 'custom-print' ? { kind: 'custom-print' } : { kind: 'category', slug: item.slug })}
+              className={`relative px-3 py-2 text-sm font-medium hover:text-primary transition-colors group ${item.slug === 'custom-print' ? 'rounded-lg border border-gold/30 text-gold' : ''}`}
             >
               <span className="flex items-center gap-1.5">
                 {item.label}
@@ -50,7 +51,6 @@ export function Header() {
               <span className="absolute bottom-0 left-3 right-3 h-px bg-gold scale-x-0 group-hover:scale-x-100 transition-transform" />
             </button>
           ))}
-          <button onClick={() => setView({ kind: 'custom-print' })} className="min-h-11 rounded-lg border border-gold/30 px-3 py-2 text-sm font-semibold text-gold hover:bg-primary/10">اطلب طبعة خاصة</button>
         </nav>
 
         {/* Actions */}
@@ -99,7 +99,7 @@ export function Header() {
               <button
                 key={item.slug}
                 onClick={() => {
-                  setView({ kind: 'category', slug: item.slug })
+                  setView(item.slug === 'custom-print' ? { kind: 'custom-print' } : { kind: 'category', slug: item.slug })
                   setMobileOpen(false)
                 }}
                 className="flex items-center justify-between px-3 py-3 text-sm font-medium rounded-md hover:bg-accent transition-colors"
@@ -110,7 +110,6 @@ export function Header() {
                 </span>
               </button>
             ))}
-            <button onClick={() => { setView({ kind: 'custom-print' }); setMobileOpen(false) }} className="min-h-11 rounded-md border border-gold/25 px-3 py-3 text-right text-sm font-semibold text-gold hover:bg-primary/10">اطلب طبعة خاصة</button>
           </div>
         </nav>
       )}

@@ -8,24 +8,18 @@ import { Label } from '@/components/ui/label'
 import { useUI } from '@/lib/ui-store'
 import { buildCustomPrintMessage, DESIGN_MAX_BYTES, PRINT_COLORS, PRINT_POSITIONS, PRINT_SIZES, type CustomPrintDetails } from '@/lib/custom-print'
 
-export function CustomPrintBanner() {
+export function CustomPrintButton() {
   const setView = useUI((state) => state.setView)
   return (
-    <section className="border-b border-border px-4 py-10 sm:px-6" aria-labelledby="custom-print-banner-title">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 rounded-2xl border border-gold/25 bg-gradient-to-bl from-primary/10 via-card to-card p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-gold"><Palette aria-hidden="true" /></div>
-          <div>
-            <p className="mb-2 text-xs font-semibold text-gold">تصميمك، على طريقتك</p>
-            <h2 id="custom-print-banner-title" className="text-2xl font-black sm:text-3xl">باغي طبعة خاصة بيك؟</h2>
-            <p className="mt-3 max-w-lg text-sm leading-7 text-muted-foreground">صيفط لينا التصميم اللي عجبك، ولا شرح الفكرة ديالك، واختار اللون والمقاس.</p>
-          </div>
-        </div>
-        <Button size="lg" className="store-cta min-h-11 gradient-gold font-bold text-primary-foreground" onClick={() => setView({ kind: 'custom-print' })}>
-          اطلب طبعة خاصة <ImagePlus className="h-4 w-4" aria-hidden="true" />
-        </Button>
-      </div>
-    </section>
+    <Button
+      size="lg"
+      variant="outline"
+      className="min-h-14 w-full justify-between gap-3 whitespace-normal rounded-xl border-gold/30 bg-primary/10 px-5 py-3 font-bold text-gold hover:border-gold hover:bg-primary/15"
+      onClick={() => setView({ kind: 'custom-print' })}
+    >
+      <span className="flex items-center gap-2"><ImagePlus className="h-5 w-5 shrink-0" aria-hidden="true" /> اطلب طبعة خاصة</span>
+      <ArrowRight className="h-4 w-4 rotate-180 shrink-0" aria-hidden="true" />
+    </Button>
   )
 }
 
