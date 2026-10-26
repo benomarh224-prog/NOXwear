@@ -119,15 +119,6 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
               </Button>
             </div>
           </div>
-
-          {/* Low stock warning */}
-          {lowStock && (
-            <div className="absolute bottom-3 right-3 group-hover:opacity-0 transition-opacity">
-              <Badge className="bg-amber-500/90 text-amber-950 text-[10px] font-bold">
-                {product.stock} فقط متبقي
-              </Badge>
-            </div>
-          )}
         </div>
 
         {/* Content */}
@@ -157,6 +148,12 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">
             {product.description}
           </p>
+
+          {lowStock && (
+            <Badge className="mb-3 max-w-full self-start whitespace-normal bg-amber-500/90 text-amber-950 text-[10px] font-bold">
+              {product.stock} فقط متبقي
+            </Badge>
+          )}
 
           <div className="flex items-end justify-between flex-row-reverse">
             <div className="text-left">
