@@ -15,7 +15,7 @@ import { toast } from 'sonner'
 import { formatPrice } from '@/lib/format'
 import { ProductCard } from './product-card'
 import type { Product } from '@/lib/types'
-import { OptimizedImage } from './optimized-image'
+import { ProductGallery } from './product-gallery'
 
 interface ProductDetailProps {
   product: Product
@@ -29,7 +29,6 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
   const [selectedSize, setSelectedSize] = useState(() => product.sizes[0] || '')
   const [selectedColor, setSelectedColor] = useState(() => product.colors[0] || '')
   const productImages = [...new Set([product.image, ...product.gallery.split(',').filter(Boolean)])]
-  const [selectedImage, setSelectedImage] = useState(product.image)
   const [quantity, setQuantity] = useState(1)
   const [wishlist, setWishlist] = useState(false)
 
@@ -92,16 +91,9 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image */}
           <div
-            className="relative"
+            className="relative min-w-0"
           >
-            <div className="relative aspect-square rounded-2xl overflow-hidden border border-border bg-muted">
-              <OptimizedImage
-                src={selectedImage}
-                alt={product.name}
-                className="object-cover"
-                sizes="(max-width: 1023px) 100vw, 50vw"
-                preload
-              />
+            <ProductGallery images={productImages} name={product.name}>
               {/* Badges */}
               <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
                 {product.badge && (
@@ -122,17 +114,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
               >
                 <Heart className={`h-5 w-5 ${wishlist ? 'fill-red-500 text-red-500' : ''}`} />
               </button>
-            </div>
-
-            {productImages.length > 1 && (
-              <div className="mt-3 flex flex-wrap gap-2" aria-label="صور المنتج">
-                {productImages.map((image, index) => (
-                  <button key={image} type="button" onClick={() => setSelectedImage(image)} aria-label={`عرض الصورة ${index + 1}`} aria-pressed={selectedImage === image} className={`relative h-16 w-16 overflow-hidden rounded-lg border-2 ${selectedImage === image ? 'border-gold' : 'border-border'}`}>
-                    <OptimizedImage src={image} alt="" className="object-cover" sizes="64px" />
-                  </button>
-                ))}
-              </div>
-            )}
+            </ProductGallery>
 
             {/* Perks */}
             <div className="mt-4 grid grid-cols-3 gap-2">
