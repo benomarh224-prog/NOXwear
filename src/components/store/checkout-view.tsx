@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { ChevronRight, Loader2, Lock, Check, MessageCircle, Phone, User, MapPin } from 'lucide-react'
 import { useUI } from '@/lib/ui-store'
 import { useCart } from '@/lib/store'
+import { trackStoreEvent } from '@/lib/analytics-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -124,6 +125,7 @@ export function CheckoutView() {
         try {
           whatsappTab.opener = null
           whatsappTab.location.href = waUrl
+          trackStoreEvent('whatsapp', '/checkout')
         } catch {
           whatsappTab.close()
         }

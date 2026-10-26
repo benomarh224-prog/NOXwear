@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useUI } from '@/lib/ui-store'
+import { trackStoreEvent } from '@/lib/analytics-client'
 import { buildCustomPrintMessage, DESIGN_MAX_BYTES, PRINT_COLORS, PRINT_POSITIONS, PRINT_SIZES, type CustomPrintDetails } from '@/lib/custom-print'
 
 export function CustomPrintButton() {
@@ -90,9 +91,11 @@ export function CustomPrintView() {
       const message = buildCustomPrintMessage(details, imageUrl)
       const url = `https://wa.me/212645900763?text=${encodeURIComponent(message)}`
       setWhatsappUrl(url)
+      trackStoreEvent('custom_request', '/custom-print')
       if (tab) {
         tab.opener = null
         tab.location.href = url
+        trackStoreEvent('whatsapp', '/custom-print')
       }
     } catch (caught) {
       tab?.close()

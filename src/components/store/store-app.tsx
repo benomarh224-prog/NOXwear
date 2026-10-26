@@ -20,6 +20,7 @@ import { CheckoutView } from './checkout-view'
 import { SuccessView } from './success-view'
 import { SearchView } from './search-view'
 import { WhatsAppFab } from './whatsapp-fab'
+import { StoreAnalytics } from './store-analytics'
 import type { Category, Product } from '@/lib/types'
 
 interface StoreAppProps {
@@ -96,6 +97,7 @@ export function StoreApp({
       <CartDrawer />
       <SearchDialog products={products} />
       <WhatsAppFab />
+      <StoreAnalytics />
     </div>
   )
 }

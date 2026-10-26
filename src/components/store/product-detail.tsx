@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useUI } from '@/lib/ui-store'
 import { useCart } from '@/lib/store'
+import { trackStoreEvent } from '@/lib/analytics-client'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -49,6 +50,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
       color: selectedColor,
       quantity,
     })
+    trackStoreEvent('add_to_cart', '/product/' + product.slug)
     toast.success('أضيف للسلة', {
       description: `${quantity} × ${product.name} (${selectedSize}، ${selectedColor})`,
     })

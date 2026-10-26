@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { signOut } from 'next-auth/react'
 import { ExternalLink, Eye, EyeOff, ImagePlus, Loader2, LogOut, Package, Pencil, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react'
 import { BrandLogo } from '@/components/store/brand-logo'
+import { AnalyticsPanel } from './analytics-panel'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -86,6 +87,7 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
           <div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-400" dir="ltr">YOUR STORE, YOUR WAY</p><h1 className="text-3xl font-black sm:text-4xl">المنتجات ديالك</h1><p className="mt-3 text-sm leading-7 text-muted-foreground">زيد منتجاتك وعدّل التصاور والأثمنة. كلشي كيتحفظ وكيبان فالمتجر.</p></div>
           <Button onClick={() => { setError(''); setEditing(null) }} className="h-12 gap-2 bg-amber-400 px-5 font-bold text-black hover:bg-amber-300"><Plus size={18} /> إضافة منتج</Button>
         </div>
+        <AnalyticsPanel products={snapshot.products} />
         <div className="mb-8 grid grid-cols-3 gap-3 sm:gap-5">
           <Summary label="جميع المنتجات" value={currentProducts.length} />
           <Summary label="ظاهرة فالمتجر" value={active} />

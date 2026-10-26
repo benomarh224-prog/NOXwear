@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useUI } from '@/lib/ui-store'
 import { useCart } from '@/lib/store'
+import { trackStoreEvent } from '@/lib/analytics-client'
 import { formatPrice } from '@/lib/format'
 import { toast } from 'sonner'
 import type { Product } from '@/lib/types'
@@ -39,6 +40,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       size: product.sizes[0] || 'مقاس واحد',
       color: product.colors[0] || 'افتراضي',
     })
+    trackStoreEvent('add_to_cart', '/product/' + product.slug)
     toast.success('أضيف للسلة', { description: product.name })
   }
 

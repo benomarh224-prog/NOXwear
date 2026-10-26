@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server'
+import { after, NextResponse } from 'next/server'
+import { recordRegisteredOrder } from '@/lib/analytics-store'
 import { createOrder, getProducts } from '@/lib/data'
 import { calculateOrderPricing, type PricingLine } from '@/lib/pricing'
 import { OrderStorageUnavailableError } from '@/lib/orders'
@@ -49,6 +50,10 @@ export async function POST(req: Request) {
     const expectedTotal = pricing.grandTotal
     if (Math.abs(expectedTotal - parsed.data.total) > 0.01) return NextResponse.json({ error: 'مجموع الطلب تبدل. حدّث الصفحة وراجع السلة.' }, { status: 409 })
     const order = await createOrder({ ...parsed.data, total: expectedTotal, pricing })
+    after(async () => {
+      try { await recordRegisteredOrder(order.id, expectedTotal) }
+      catch { console.warn('Order statistics could not be updated') }
+    })
     return NextResponse.json({ order, pricing }, { status: 201 })
   } catch (err: unknown) {
     console.error('Order creation failed:', err)
