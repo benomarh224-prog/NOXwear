@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { BarChart3, Eye, Loader2, MessageCircle, RefreshCw, ShoppingBag, Users, type LucideIcon } from 'lucide-react'
+import { BarChart3, ChevronDown, Eye, Loader2, MessageCircle, RefreshCw, ShoppingBag, Users, type LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { formatPrice } from '@/lib/format'
 import type { AnalyticsSummary } from '@/lib/analytics-model'
@@ -23,6 +23,7 @@ export function AnalyticsPanel({ products }: { products: { slug: string; name: s
   const [data, setData] = useState<AnalyticsSummary | null>(null)
   const [busy, setBusy] = useState(true)
   const [expanded, setExpanded] = useState(false)
+  const [panelOpen, setPanelOpen] = useState(false)
   const [error, setError] = useState('')
   useEffect(() => {
     const controller = new AbortController()
@@ -41,9 +42,22 @@ export function AnalyticsPanel({ products }: { products: { slug: string; name: s
 
   const maximum = Math.max(1, ...(data?.daily.map((day) => day.visits) || []))
   return (
-    <section className="mb-10 rounded-2xl border border-white/10 bg-[#111113] p-4 sm:p-6" aria-labelledby="store-analytics-title" aria-busy={busy}>
+    <section className="mb-5 overflow-hidden rounded-xl border border-white/10 bg-[#111113]" aria-labelledby="store-analytics-title" aria-busy={busy}>
+      <h2 id="store-analytics-title" className="sr-only">إحصائيات المتجر</h2>
+      <button
+        type="button"
+        aria-expanded={panelOpen}
+        aria-controls="store-analytics-content"
+        aria-label={panelOpen ? 'إخفاء إحصائيات المتجر' : 'عرض إحصائيات المتجر'}
+        onClick={() => setPanelOpen((open) => !open)}
+        className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-3 text-right transition-colors hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-400"
+      >
+        <span className="flex min-w-0 items-center gap-2"><BarChart3 size={17} className="shrink-0 text-amber-400" aria-hidden="true" /><span className="truncate text-sm font-semibold">الإحصائيات</span></span>
+        <span className="flex shrink-0 items-center gap-3"><span className="text-xs text-muted-foreground">{error ? 'تعذر التحميل' : <>زوار اليوم: <span className="font-bold text-amber-400">{data ? number.format(data.todayVisitors) : '…'}</span></>}</span><ChevronDown size={16} className={panelOpen ? 'rotate-180 text-amber-400' : 'text-muted-foreground'} aria-hidden="true" /></span>
+      </button>
+      <div id="store-analytics-content" hidden={!panelOpen} className="border-t border-white/10 p-4 sm:p-5">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
-        <div><h2 id="store-analytics-title" className="flex items-center gap-2 text-xl font-bold"><BarChart3 size={22} className="text-amber-400" /> إحصائيات المتجر</h2><p className="mt-2 text-xs leading-6 text-muted-foreground">التتبع كيبدا من تفعيل الخاصية؛ الزيارات القديمة ما محسوباش. التوقيت ديال المغرب.</p></div>
+        <div><p className="text-sm font-bold">تفاصيل الإحصائيات</p><p className="mt-2 text-xs leading-6 text-muted-foreground">التتبع كيبدا من تفعيل الخاصية؛ الزيارات القديمة ما محسوباش. التوقيت ديال المغرب.</p></div>
         <div className="flex items-center gap-2">
           <label htmlFor="analytics-period" className="sr-only">الفترة ديال الإحصائيات</label>
           <select id="analytics-period" value={days} disabled={busy} onChange={(event) => { setBusy(true); setError(''); setData(null); setDays(Number(event.target.value) as 7 | 30) }} className="min-h-11 rounded-lg border border-input bg-[#18181a] px-3 text-sm"><option value={7}>آخر 7 أيام</option><option value={30}>آخر 30 يوم</option></select>
@@ -82,6 +96,7 @@ export function AnalyticsPanel({ products }: { products: { slug: string; name: s
           </>}
         </>
       )}
+      </div>
     </section>
   )
 }
