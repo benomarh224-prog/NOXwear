@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useState } from 'react'
 import { BrandLogo } from './brand-logo'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 const NAV = [
   { slug: 'anime', label: 'أنمي' },
@@ -31,11 +32,11 @@ export function Header() {
           className="flex min-h-11 items-center group shrink-0"
           aria-label="العودة إلى الصفحة الرئيسية"
         >
-          <BrandLogo showTagline className="transition-opacity group-hover:opacity-80" />
+          <BrandLogo showTagline className="transition-opacity group-hover:opacity-80 [&_.brand-wordmark]:max-[360px]:w-28" />
         </button>
 
         {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden xl:flex items-center gap-1">
           {NAV.map((item) => (
             <button
               key={item.slug}
@@ -55,6 +56,7 @@ export function Header() {
 
         {/* Actions */}
         <div className="flex items-center gap-1 shrink-0">
+          <ThemeToggle />
           <Button
             variant="ghost"
             size="icon"
@@ -82,7 +84,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="xl:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="القائمة"
           >
@@ -93,7 +95,7 @@ export function Header() {
 
       {/* Mobile Nav */}
       {mobileOpen && (
-        <nav className="lg:hidden border-t border-border/40 bg-card">
+        <nav className="xl:hidden border-t border-border/40 bg-card">
           <div className="flex flex-col p-2">
             {NAV.map((item) => (
               <button

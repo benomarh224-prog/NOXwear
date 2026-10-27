@@ -6,6 +6,7 @@ import { signOut } from 'next-auth/react'
 import { ExternalLink, Eye, EyeOff, ImagePlus, Loader2, LogOut, Package, Pencil, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react'
 import { BrandLogo } from '@/components/store/brand-logo'
 import { AnalyticsPanel } from './analytics-panel'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -75,16 +76,16 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
   }
 
   return (
-    <main className="min-h-dvh bg-[#0b0b0d] text-foreground">
-      <header className="border-b border-white/10 bg-[#111113]">
+    <main className="min-h-dvh bg-background text-foreground">
+      <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-5 sm:px-8">
-          <div className="flex items-center gap-5"><BrandLogo /><span className="hidden border-r border-white/15 pr-5 text-sm text-muted-foreground sm:block">لوحة الإدارة</span></div>
-          <div className="flex items-center gap-2"><a href="/" target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm text-muted-foreground hover:bg-white/5"><ExternalLink size={16} /> المتجر</a><Button variant="ghost" size="icon" onClick={() => signOut({ callbackUrl: '/admin/login' })} aria-label="تسجيل الخروج"><LogOut size={18} /></Button></div>
+          <div className="flex items-center gap-5"><BrandLogo /><span className="hidden border-r border-border pr-5 text-sm text-muted-foreground sm:block">لوحة الإدارة</span></div>
+          <div className="flex items-center gap-2"><ThemeToggle /><a href="/" target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm text-muted-foreground hover:bg-accent"><ExternalLink size={16} /> المتجر</a><Button variant="ghost" size="icon" onClick={() => signOut({ callbackUrl: '/admin/login' })} aria-label="تسجيل الخروج"><LogOut size={18} /></Button></div>
         </div>
       </header>
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-12">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
-          <div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-400" dir="ltr">YOUR STORE, YOUR WAY</p><h1 className="text-3xl font-black sm:text-4xl">المنتجات ديالك</h1><p className="mt-3 text-sm leading-7 text-muted-foreground">زيد منتجاتك وعدّل التصاور والأثمنة. كلشي كيتحفظ وكيبان فالمتجر.</p></div>
+          <div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary" dir="ltr">YOUR STORE, YOUR WAY</p><h1 className="text-3xl font-black sm:text-4xl">المنتجات ديالك</h1><p className="mt-3 text-sm leading-7 text-muted-foreground">زيد منتجاتك وعدّل التصاور والأثمنة. كلشي كيتحفظ وكيبان فالمتجر.</p></div>
           <Button onClick={() => { setError(''); setEditing(null) }} className="h-12 gap-2 bg-amber-400 px-5 font-bold text-black hover:bg-amber-300"><Plus size={18} /> إضافة منتج</Button>
         </div>
         <AnalyticsPanel products={snapshot.products} />
@@ -94,33 +95,33 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
           <Summary label="مخفية" value={currentProducts.length - active} />
         </div>
         {notice && <div role="status" className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-300">{notice}<button type="button" onClick={() => setNotice('')} aria-label="إغلاق الإشعار"><X size={16} /></button></div>}
-        {error && <p role="alert" className="mb-5 rounded-xl bg-red-500/10 p-4 text-sm text-red-300">{error}</p>}
+        {error && <p role="alert" className="mb-5 rounded-xl bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">{error}</p>}
         <div className="mb-4 flex flex-wrap gap-2" aria-label="عرض المنتجات أو المحذوفة">
           <Button variant={showTrash ? 'outline' : 'secondary'} aria-pressed={!showTrash} onClick={() => setShowTrash(false)}>المنتجات ({currentProducts.length})</Button>
           <Button variant={showTrash ? 'secondary' : 'outline'} aria-pressed={showTrash} onClick={() => setShowTrash(true)}><Trash2 size={15} /> المحذوفة ({trashCount})</Button>
         </div>
         <div className="mb-6 flex flex-wrap gap-3">
-          <div className="relative min-w-48 flex-1"><Search className="absolute right-3 top-3.5 text-muted-foreground" size={17} /><Input aria-label="البحث فالمنتجات" placeholder="قلّب على منتج..." value={query} onChange={(event) => setQuery(event.target.value)} className="h-11 bg-[#141416] pr-10" /></div>
-          <select aria-label="تصفية حسب القسم" value={category} onChange={(event) => setCategory(event.target.value)} className="h-11 max-w-full rounded-lg border border-input bg-[#141416] px-3 text-sm"><option value="all">جميع الأقسام</option>{categories.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}</select>
+          <div className="relative min-w-48 flex-1"><Search className="absolute right-3 top-3.5 text-muted-foreground" size={17} /><Input aria-label="البحث فالمنتجات" placeholder="قلّب على منتج..." value={query} onChange={(event) => setQuery(event.target.value)} className="h-11 bg-card pr-10" /></div>
+          <select aria-label="تصفية حسب القسم" value={category} onChange={(event) => setCategory(event.target.value)} className="h-11 max-w-full rounded-lg border border-input bg-card px-3 text-sm"><option value="all">جميع الأقسام</option>{categories.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}</select>
           <Button variant="outline" disabled={refreshing} onClick={refresh} aria-label="تحديث اللائحة" className="h-11"><RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} /></Button>
         </div>
-        {filtered.length === 0 ? <div className="rounded-2xl border border-dashed border-white/15 py-20 text-center"><Package className="mx-auto mb-4 text-muted-foreground" size={36} /><p>ما كاين حتى منتج بهاد البحث</p></div> : (
+        {filtered.length === 0 ? <div className="rounded-2xl border border-dashed border-border py-20 text-center"><Package className="mx-auto mb-4 text-muted-foreground" size={36} /><p>ما كاين حتى منتج بهاد البحث</p></div> : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {filtered.map((product) => (
-              <article key={product.slug} className="overflow-hidden rounded-2xl border border-white/10 bg-[#141416]">
+              <article key={product.slug} className="overflow-hidden rounded-2xl border border-border bg-card">
                 <div className="flex gap-4 p-4">
-                  <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-black/30"><Image src={product.images[0]} alt={product.name} fill unoptimized className="object-cover" /></div>
-                  <div className="min-w-0 flex-1"><p className="mb-2 truncate text-xs text-amber-400">{categories.find((item) => item.slug === product.categorySlug)?.name}</p><h2 className="line-clamp-2 text-sm font-semibold leading-6">{product.name}</h2><p className="mt-2 font-bold">{formatPrice(product.price)}</p><p className="mt-1 text-xs text-muted-foreground">المخزون: {product.stock}</p></div>
+                  <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-muted"><Image src={product.images[0]} alt={product.name} fill unoptimized className="object-cover" /></div>
+                  <div className="min-w-0 flex-1"><p className="mb-2 truncate text-xs text-primary">{categories.find((item) => item.slug === product.categorySlug)?.name}</p><h2 className="line-clamp-2 text-sm font-semibold leading-6">{product.name}</h2><p className="mt-2 font-bold">{formatPrice(product.price)}</p><p className="mt-1 text-xs text-muted-foreground">المخزون: {product.stock}</p></div>
                 </div>
-                <div className="flex items-center justify-between gap-2 border-t border-white/5 px-4 py-3">
-                  <span className={'inline-flex items-center gap-1.5 text-xs ' + (product.active && !product.deletedAt ? 'text-emerald-400' : 'text-muted-foreground')}>
+                <div className="flex items-center justify-between gap-2 border-t border-border px-4 py-3">
+                  <span className={'inline-flex items-center gap-1.5 text-xs ' + (product.active && !product.deletedAt ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground')}>
                     {product.deletedAt ? <Trash2 size={14} /> : product.active ? <Eye size={14} /> : <EyeOff size={14} />}
                     {product.deletedAt ? 'فالمحذوفة' : product.active ? 'ظاهر فالمتجر' : 'مخفي'}
                   </span>
                   {product.deletedAt ? <Button variant="outline" size="sm" disabled={mutating} onClick={() => changeTrash(product, false)}><RefreshCw size={14} /> استرجاع</Button> : (
                     <div className="flex items-center gap-1.5">
                       <Button variant="outline" size="sm" disabled={mutating} onClick={() => setEditing(product)}><Pencil size={14} /> تعديل</Button>
-                      <Button variant="ghost" size="sm" disabled={mutating} className="text-red-400 hover:bg-red-500/10 hover:text-red-300" onClick={() => { setError(''); setDeleteTarget(product) }}><Trash2 size={14} /> حذف</Button>
+                      <Button variant="ghost" size="sm" disabled={mutating} className="text-red-700 dark:text-red-400 hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300" onClick={() => { setError(''); setDeleteTarget(product) }}><Trash2 size={14} /> حذف</Button>
                     </div>
                   )}
                 </div>
@@ -130,14 +131,14 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
         )}
       </div>
       <AlertDialog open={deleteTarget !== null} onOpenChange={(open) => { if (!open && !mutating) setDeleteTarget(null) }}>
-        <AlertDialogContent dir="rtl" className="rounded-2xl border-white/10 bg-[#141416]">
+        <AlertDialogContent dir="rtl" className="rounded-2xl border-border bg-card">
           <AlertDialogHeader className="text-right sm:text-right"><AlertDialogTitle>حذف المنتج؟</AlertDialogTitle><AlertDialogDescription className="leading-7">غادي يتحيد «{deleteTarget?.name}» من المتجر واللائحة الرئيسية. تقدر ترجعو من «المحذوفة».</AlertDialogDescription></AlertDialogHeader>
-          {error && <p role="alert" className="text-sm leading-6 text-red-300">{error}</p>}
+          {error && <p role="alert" className="text-sm leading-6 text-red-700 dark:text-red-300">{error}</p>}
           <AlertDialogFooter><AlertDialogCancel disabled={mutating}>إلغاء</AlertDialogCancel><AlertDialogAction disabled={mutating} className="bg-red-600 text-white hover:bg-red-500" onClick={(event) => { event.preventDefault(); if (deleteTarget) void changeTrash(deleteTarget, true) }}>{mutating ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}{mutating ? 'كيتم الحذف...' : 'حذف المنتج'}</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
       <Dialog open={editing !== undefined} onOpenChange={(open) => { if (!open) setEditing(undefined) }}>
-        <DialogContent className="max-h-[94dvh] w-[calc(100%_-_1.5rem)] overflow-y-auto rounded-2xl border-white/10 bg-[#141416] p-5 sm:max-w-3xl sm:p-7 [&>button]:left-4 [&>button]:right-auto" dir="rtl">
+        <DialogContent className="max-h-[94dvh] w-[calc(100%_-_1.5rem)] overflow-y-auto rounded-2xl border-border bg-card p-5 sm:max-w-3xl sm:p-7 [&>button]:left-4 [&>button]:right-auto" dir="rtl">
           <DialogHeader className="text-right sm:text-right"><DialogTitle className="text-2xl">{editing ? 'تعديل المنتج' : 'منتج جديد'}</DialogTitle><DialogDescription>دخل المعلومات وزيد التصاور، ومن بعد اضغط على حفظ.</DialogDescription></DialogHeader>
           {editing !== undefined && <ProductEditor key={editing?.slug || 'new'} product={editing} categories={categories} onSave={save} onCancel={() => setEditing(undefined)} onRefresh={refresh} />}
         </DialogContent>
@@ -147,7 +148,7 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
 }
 
 function Summary({ label, value }: { label: string; value: number }) {
-  return <div className="rounded-2xl border border-white/10 bg-[#141416] p-4 sm:p-5"><p className="text-2xl font-bold sm:text-3xl">{value}</p><p className="mt-2 text-xs leading-5 text-muted-foreground sm:text-sm">{label}</p></div>
+  return <div className="rounded-2xl border border-border bg-card p-4 sm:p-5"><p className="text-2xl font-bold sm:text-3xl">{value}</p><p className="mt-2 text-xs leading-5 text-muted-foreground sm:text-sm">{label}</p></div>
 }
 
 async function prepareImage(file: File) {
@@ -219,8 +220,8 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
       <fieldset disabled={saving} className="space-y-6 disabled:opacity-70">
         <div><div className="mb-3 flex items-center justify-between"><h3 className="text-sm font-semibold">تصاور المنتج <span className="text-muted-foreground">({images.length}/6)</span></h3><span className="text-xs text-muted-foreground">الأولى هي الرئيسية</span></div>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-            {images.map((url, index) => <div key={url} className={`relative aspect-square overflow-hidden rounded-xl border ${index === 0 ? 'border-amber-400' : 'border-white/10'}`}><Image src={url} alt={`صورة المنتج ${index + 1}`} fill unoptimized className="object-cover" /><button type="button" disabled={uploading} onClick={() => setImages((current) => current.filter((item) => item !== url))} aria-label={`حذف الصورة ${index + 1}`} className="absolute left-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-black/75 text-white"><Trash2 size={14} /></button><button type="button" disabled={uploading} onClick={() => setImages((current) => [url, ...current.filter((item) => item !== url)])} className={`absolute inset-x-0 bottom-0 py-2 text-[10px] ${index === 0 ? 'bg-amber-400 text-black' : 'bg-black/75 text-white'}`}>{index === 0 ? 'الصورة الرئيسية' : 'خليها رئيسية'}</button></div>)}
-            {images.length < 6 && <button type="button" disabled={uploading} onClick={() => uploadInput.current?.click()} className="flex aspect-square flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 bg-white/[0.02] text-xs text-muted-foreground hover:border-amber-400 hover:text-amber-400">{uploading ? <Loader2 className="animate-spin" size={24} /> : <ImagePlus size={24} />}{uploading ? 'كتترفع الصورة...' : 'زيد تصاور'}</button>}
+            {images.map((url, index) => <div key={url} className={`relative aspect-square overflow-hidden rounded-xl border ${index === 0 ? 'border-amber-400' : 'border-border'}`}><Image src={url} alt={`صورة المنتج ${index + 1}`} fill unoptimized className="object-cover" /><button type="button" disabled={uploading} onClick={() => setImages((current) => current.filter((item) => item !== url))} aria-label={`حذف الصورة ${index + 1}`} className="absolute left-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-black/75 text-white"><Trash2 size={14} /></button><button type="button" disabled={uploading} onClick={() => setImages((current) => [url, ...current.filter((item) => item !== url)])} className={`absolute inset-x-0 bottom-0 py-2 text-[10px] ${index === 0 ? 'bg-amber-400 text-black' : 'bg-black/75 text-white'}`}>{index === 0 ? 'الصورة الرئيسية' : 'خليها رئيسية'}</button></div>)}
+            {images.length < 6 && <button type="button" disabled={uploading} onClick={() => uploadInput.current?.click()} className="flex aspect-square flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/40 text-xs text-muted-foreground hover:border-amber-400 hover:text-primary">{uploading ? <Loader2 className="animate-spin" size={24} /> : <ImagePlus size={24} />}{uploading ? 'كتترفع الصورة...' : 'زيد تصاور'}</button>}
           </div>
           <input ref={uploadInput} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif" multiple className="hidden" aria-label="رفع صور المنتج" onChange={(event) => upload(event.target.files)} />
           <p className="mt-2 text-xs leading-6 text-muted-foreground">اختار من الهاتف أو الحاسوب. التصاور كتتصغّر تلقائياً باش المتجر يبقى سريع.</p>
@@ -233,13 +234,13 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
           <Field label="الكمية المتوفرة" id="product-stock"><Input id="product-stock" name="stock" type="number" inputMode="numeric" required min="0" max="100000" step="1" defaultValue={product?.stock ?? 50} /></Field>
         </div>
         <Field label="وصف المنتج" id="product-description"><Textarea id="product-description" name="description" maxLength={3000} rows={3} defaultValue={product?.description || ''} placeholder="كتب تفاصيل المنتج، القماش والطبعة..." /></Field>
-        <div><p className="mb-3 text-sm font-medium">المقاسات المتوفرة</p><div className="flex flex-wrap gap-2" dir="ltr">{[...new Set(['S', 'M', 'L', 'XL', 'XXL', ...(product?.sizes || [])])].map((size) => <button key={size} type="button" aria-pressed={sizes.includes(size)} onClick={() => setSizes((current) => current.includes(size) ? current.filter((item) => item !== size) : [...current, size])} className={`min-h-10 min-w-12 rounded-lg border px-3 text-sm ${sizes.includes(size) ? 'border-amber-400 bg-amber-400/10 text-amber-300' : 'border-input text-muted-foreground'}`}>{size}</button>)}</div></div>
-        <div><p className="mb-3 text-sm font-medium">الألوان المتوفرة</p><div className="flex flex-wrap gap-2">{[...new Set(['أسود', 'أبيض', 'بيج', ...(product?.colors || [])])].map((color) => <button key={color} type="button" aria-pressed={colors.includes(color)} onClick={() => setColors((current) => current.includes(color) ? current.filter((item) => item !== color) : [...current, color])} className={`min-h-10 rounded-lg border px-4 text-sm ${colors.includes(color) ? 'border-amber-400 bg-amber-400/10 text-amber-300' : 'border-input text-muted-foreground'}`}>{color}</button>)}</div></div>
+        <div><p className="mb-3 text-sm font-medium">المقاسات المتوفرة</p><div className="flex flex-wrap gap-2" dir="ltr">{[...new Set(['S', 'M', 'L', 'XL', 'XXL', ...(product?.sizes || [])])].map((size) => <button key={size} type="button" aria-pressed={sizes.includes(size)} onClick={() => setSizes((current) => current.includes(size) ? current.filter((item) => item !== size) : [...current, size])} className={`min-h-10 min-w-12 rounded-lg border px-3 text-sm ${sizes.includes(size) ? 'border-amber-400 bg-amber-400/10 text-primary' : 'border-input text-muted-foreground'}`}>{size}</button>)}</div></div>
+        <div><p className="mb-3 text-sm font-medium">الألوان المتوفرة</p><div className="flex flex-wrap gap-2">{[...new Set(['أسود', 'أبيض', 'بيج', ...(product?.colors || [])])].map((color) => <button key={color} type="button" aria-pressed={colors.includes(color)} onClick={() => setColors((current) => current.includes(color) ? current.filter((item) => item !== color) : [...current, color])} className={`min-h-10 rounded-lg border px-4 text-sm ${colors.includes(color) ? 'border-amber-400 bg-amber-400/10 text-primary' : 'border-input text-muted-foreground'}`}>{color}</button>)}</div></div>
         <Field label="شارة المنتج (اختياري)" id="product-badge"><Input id="product-badge" name="badge" maxLength={50} defaultValue={product?.badge || ''} placeholder="مثلاً: جديد أو عرض ترحيبي" /></Field>
-        <div className="space-y-3 rounded-xl border border-white/10 bg-black/20 p-4"><label className="flex items-center gap-3 text-sm"><input name="active" type="checkbox" defaultChecked={product?.active ?? true} className="h-4 w-4 accent-amber-400" /> ظاهر فالمتجر <span className="text-xs text-muted-foreground">حيد العلامة باش تخفيه</span></label><label className="flex items-center gap-3 text-sm"><input name="featured" type="checkbox" defaultChecked={product?.featured ?? true} className="h-4 w-4 accent-amber-400" /> يظهر ضمن المنتجات المميزة فالرئيسية</label></div>
+        <div className="space-y-3 rounded-xl border border-border bg-muted/50 p-4"><label className="flex items-center gap-3 text-sm"><input name="active" type="checkbox" defaultChecked={product?.active ?? true} className="h-4 w-4 accent-amber-400" /> ظاهر فالمتجر <span className="text-xs text-muted-foreground">حيد العلامة باش تخفيه</span></label><label className="flex items-center gap-3 text-sm"><input name="featured" type="checkbox" defaultChecked={product?.featured ?? true} className="h-4 w-4 accent-amber-400" /> يظهر ضمن المنتجات المميزة فالرئيسية</label></div>
       </fieldset>
-      {error && <div role="alert" className="rounded-xl bg-red-500/10 p-4 text-sm leading-7 text-red-300">{error}{conflict && <button type="button" className="mr-2 underline" onClick={async () => { await onRefresh(); setConflict(false); setError('تحدّثات اللائحة. راجع معلوماتك واضغط حفظ من جديد.'); }}>تحديث اللائحة</button>}</div>}
-      <div className="sticky -bottom-5 flex gap-3 border-t border-white/10 bg-[#141416] py-4 sm:-bottom-7"><Button type="submit" disabled={saving || uploading} className="h-12 flex-1 bg-amber-400 font-bold text-black hover:bg-amber-300">{saving && <Loader2 size={16} className="animate-spin" />}{saving ? 'كيتحفظ...' : product ? 'حفظ التغييرات' : 'إضافة المنتج'}</Button><Button type="button" variant="outline" disabled={saving} onClick={onCancel} className="h-12">إلغاء</Button></div>
+      {error && <div role="alert" className="rounded-xl bg-red-500/10 p-4 text-sm leading-7 text-red-700 dark:text-red-300">{error}{conflict && <button type="button" className="mr-2 underline" onClick={async () => { await onRefresh(); setConflict(false); setError('تحدّثات اللائحة. راجع معلوماتك واضغط حفظ من جديد.'); }}>تحديث اللائحة</button>}</div>}
+      <div className="sticky -bottom-5 flex gap-3 border-t border-border bg-card py-4 sm:-bottom-7"><Button type="submit" disabled={saving || uploading} className="h-12 flex-1 bg-amber-400 font-bold text-black hover:bg-amber-300">{saving && <Loader2 size={16} className="animate-spin" />}{saving ? 'كيتحفظ...' : product ? 'حفظ التغييرات' : 'إضافة المنتج'}</Button><Button type="button" variant="outline" disabled={saving} onClick={onCancel} className="h-12">إلغاء</Button></div>
     </form>
   )
 }

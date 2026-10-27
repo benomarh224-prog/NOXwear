@@ -5,6 +5,7 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-gold: var(--gold);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -45,7 +46,10 @@
 
 :root {
   --radius: 0.75rem;
-  /* Light theme: warm cream backgrounds with gold accents */
+  /* Light theme: warm cream backgrounds with readable gold accents. */
+  --gold: #925300;
+  --gold-gradient-start: #995b0a;
+  --gold-gradient-end: #80430b;
   --background: oklch(0.99 0.005 80);
   --foreground: oklch(0.18 0.01 60);
   --card: oklch(1 0 0);
@@ -80,7 +84,10 @@
 }
 
 .dark {
-  /* Dark premium: deep charcoal with gold/amber accents */
+  /* Dark premium: deep charcoal with gold/amber accents. */
+  --gold: oklch(0.78 0.15 75);
+  --gold-gradient-start: oklch(0.78 0.15 75);
+  --gold-gradient-end: oklch(0.65 0.18 50);
   --background: oklch(0.13 0.005 60);
   --foreground: oklch(0.96 0.01 80);
   --card: oklch(0.17 0.008 60);
@@ -125,19 +132,19 @@
 
 @layer utilities {
   .text-gold {
-    color: oklch(0.78 0.15 75);
+    color: var(--gold);
   }
   .bg-gold {
-    background-color: oklch(0.78 0.15 75);
+    background-color: var(--gold);
   }
   .border-gold {
-    border-color: oklch(0.78 0.15 75);
+    border-color: var(--gold);
   }
   .gradient-gold {
-    background: linear-gradient(135deg, oklch(0.78 0.15 75) 0%, oklch(0.65 0.18 50) 100%);
+    background: linear-gradient(135deg, var(--gold-gradient-start) 0%, var(--gold-gradient-end) 100%);
   }
   .gradient-text-gold {
-    background: linear-gradient(135deg, oklch(0.85 0.15 80) 0%, oklch(0.65 0.18 50) 100%);
+    background: linear-gradient(135deg, var(--gold-gradient-start) 0%, var(--gold-gradient-end) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -150,7 +157,7 @@
   }
   .glass {
     backdrop-filter: blur(12px);
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 253, 249, 0.94);
   }
   .dark .glass {
     background: rgba(0, 0, 0, 0.4);
