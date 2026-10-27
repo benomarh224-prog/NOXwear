@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+import dynamic from 'next/dynamic'
 import { initializeNavigation, useUI } from '@/lib/ui-store'
 import { useCart } from '@/lib/store'
 import { Header } from './header'
@@ -23,6 +24,8 @@ import { WhatsAppFab } from './whatsapp-fab'
 import { StoreAnalytics } from './store-analytics'
 import type { Category, Product } from '@/lib/types'
 
+const StoreMotion = dynamic(() => import('./store-motion'), { ssr: false })
+
 interface StoreAppProps {
   categories: Category[]
   products: Product[]
@@ -41,6 +44,7 @@ export function StoreApp({
   accentImage,
 }: StoreAppProps) {
   const view = useUI((s) => s.view)
+  const root = useRef<HTMLDivElement>(null)
 
   useEffect(() => initializeNavigation(), [])
   useEffect(() => { useCart.getState().syncCatalog(products) }, [products])
@@ -89,7 +93,8 @@ export function StoreApp({
   }
 
   return (
-    <div data-storefront className="flex min-h-screen flex-col">
+    <div ref={root} data-storefront className="flex min-h-screen flex-col">
+      <StoreMotion root={root} view={view} />
       <Marquee />
       <Header />
       <main className="flex-1 flex flex-col">{renderView()}</main>

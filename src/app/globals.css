@@ -246,14 +246,6 @@
 
 /* Storefront motion: short entrances and feedback, without layout changes. */
 @media (prefers-reduced-motion: no-preference) {
-  .hero-copy-enter {
-    animation: store-hero-enter 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .hero-accent-enter {
-    animation: store-accent-enter 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
   [data-storefront] [data-slot="button"] {
     transition-property: transform, color, background-color, border-color, box-shadow, opacity;
     transition-duration: 200ms;
@@ -298,14 +290,4 @@
 .store-card:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 3px;
-}
-
-@keyframes store-hero-enter {
-  from { transform: translateY(14px); }
-  to { transform: translateY(0); }
-}
-
-@keyframes store-accent-enter {
-  from { transform: translateY(18px) rotate(2deg); }
-  to { transform: translateY(0) rotate(0); }
 }

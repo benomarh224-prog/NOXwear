@@ -17,7 +17,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
   const setView = useUI((s) => s.setView)
 
   return (
-    <section className="relative overflow-hidden border-b border-border">
+    <section data-hero-section className="relative overflow-hidden border-b border-border">
       {/* Background gradient + pattern */}
       <div className="absolute inset-0 pattern-arabic" />
       <div className="absolute inset-0 bg-gradient-to-bl from-background via-background to-primary/5" />
@@ -30,7 +30,8 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Right side (in LTR) — but with RTL, this is now Left: copy */}
           <div
-            className="hero-copy-enter text-center lg:text-right"
+            data-hero-copy
+            className="text-center lg:text-right"
           >
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-medium mb-6">
               <Sparkles className="h-3 w-3 text-gold" />
@@ -84,10 +85,11 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
 
           {/* Image collage */}
           <div
+            data-hero-collage
             className="relative mx-auto aspect-[9/10] w-full max-w-[540px]"
           >
             {/* Main image */}
-            <div className="absolute top-0 left-0 w-3/4 h-3/4 rounded-2xl overflow-hidden border border-border shadow-2xl shadow-primary/10">
+            <div data-hero-main className="absolute top-0 left-0 w-3/4 h-3/4 rounded-2xl overflow-hidden border border-border shadow-2xl shadow-primary/10">
               <OptimizedImage
                 src={featuredImage}
                 alt="هودي الحصان الأسود بلوغو واسم NOXwear"
@@ -99,7 +101,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
             </div>
 
             {/* Accent image */}
-            <div className="hero-accent-enter absolute bottom-0 right-0 w-1/2 h-1/2 rounded-2xl overflow-hidden border border-gold/30 shadow-2xl shadow-primary/20">
+            <div data-hero-accent className="absolute bottom-0 right-0 w-1/2 h-1/2 rounded-2xl overflow-hidden border border-gold/30 shadow-2xl shadow-primary/20">
               <OptimizedImage
                 src={accentImage}
                 alt="هودي ساموراي أسود وأحمر بلوغو واسم NOXwear"
