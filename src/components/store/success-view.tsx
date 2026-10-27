@@ -60,7 +60,7 @@ export function SuccessView({ orderId, total, whatsappUrl }: SuccessViewProps) {
               <span className="text-sm text-muted-foreground">إجمالي الطلب</span>
             </div>
             <div className="flex justify-between py-2 border-b border-border flex-row-reverse">
-              <span className="text-sm font-semibold text-emerald-400">بانتظار تأكيد واتساب</span>
+              <span className="text-sm font-semibold text-emerald-800 dark:text-emerald-400">بانتظار تأكيد واتساب</span>
               <span className="text-sm text-muted-foreground">الحالة</span>
             </div>
             <div className="flex justify-between py-2 flex-row-reverse">

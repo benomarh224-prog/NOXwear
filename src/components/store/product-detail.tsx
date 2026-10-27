@@ -154,7 +154,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
 
             <div className="mt-4 flex items-baseline gap-3 flex-row-reverse justify-end">
               {discount > 0 && (
-                <Badge className="bg-red-500/20 text-red-400 border border-red-500/30">
+                <Badge className="bg-red-500/20 text-red-800 dark:text-red-400 border border-red-500/30">
                   وفّر {formatPrice(product.oldPrice! - product.price)}
                 </Badge>
               )}
@@ -254,7 +254,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
             {/* Stock indicator */}
             <div className="flex items-center gap-2 text-xs mb-6 flex-row-reverse justify-end">
               <span className="text-muted-foreground mr-2">• يُشحن خلال 1-2 يوم عمل</span>
-              <span className={product.stock > 10 ? 'text-emerald-400' : 'text-amber-400'}>
+              <span className={product.stock > 10 ? 'text-emerald-800 dark:text-emerald-400' : 'text-amber-900 dark:text-amber-400'}>
                 {product.stock > 10 ? 'متوفر' : `${product.stock} فقط متبقي`}
               </span>
               <span className={`h-2 w-2 rounded-full ${product.stock > 10 ? 'bg-emerald-500' : 'bg-amber-500'}`} />

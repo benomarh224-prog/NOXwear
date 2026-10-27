@@ -112,7 +112,7 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
                           دروب مباشر
                         </div>
                       ) : (
-                        <ArrowLeft className="h-5 w-5 text-white/60 group-hover:text-gold group-hover:-translate-x-1 transition-all" />
+                        <ArrowLeft className="h-5 w-5 text-white/60 group-hover:text-amber-200 group-hover:-translate-x-1 transition-all" />
                       )}
                     </div>
 
@@ -128,7 +128,7 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
                   </div>
 
                   {/* Hover indicator */}
-                  <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-gold opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all relative">
+                  <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-amber-200 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all relative">
                     استكشف المجموعة
                     <ArrowLeft className="h-3 w-3" />
                   </div>

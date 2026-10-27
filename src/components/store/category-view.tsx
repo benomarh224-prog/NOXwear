@@ -27,11 +27,11 @@ const SORTS = [
 ]
 
 const ACCENTS: Record<string, string> = {
-  hoodies: 'from-amber-500/20 to-amber-500/5 text-amber-400',
-  anime: 'from-red-500/20 to-red-500/5 text-red-400',
-  sports: 'from-emerald-500/20 to-emerald-500/5 text-emerald-400',
-  'arabic-art': 'from-yellow-500/20 to-yellow-500/5 text-yellow-400',
-  'limitless-drops': 'from-red-500/20 to-red-500/5 text-red-400',
+  hoodies: 'from-amber-500/20 to-amber-500/5 text-amber-900 dark:text-amber-400',
+  anime: 'from-red-500/20 to-red-500/5 text-red-800 dark:text-red-400',
+  sports: 'from-emerald-500/20 to-emerald-500/5 text-emerald-800 dark:text-emerald-400',
+  'arabic-art': 'from-yellow-500/20 to-yellow-500/5 text-yellow-900 dark:text-yellow-400',
+  'limitless-drops': 'from-red-500/20 to-red-500/5 text-red-800 dark:text-red-400',
 }
 
 export function CategoryView({ category, products: catalogProducts }: CategoryViewProps) {
@@ -71,7 +71,7 @@ export function CategoryView({ category, products: catalogProducts }: CategoryVi
           sizes="100vw"
           preload
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-background/95 via-background/80 to-background/45" />
+        <div className="absolute inset-0 bg-gradient-to-l from-background via-background/95 to-background/80 dark:from-background/95 dark:via-background/80 dark:to-background/45" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent" />
         <div className="absolute inset-0 pattern-arabic opacity-20" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-right min-h-[300px] sm:min-h-[360px] flex flex-col items-start justify-center">

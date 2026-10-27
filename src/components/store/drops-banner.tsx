@@ -26,7 +26,7 @@ export function DropsBanner() {
               <span className="italic">ينفد للأبد</span>.
             </h2>
 
-            <p className="mt-6 text-base text-primary-foreground/80 max-w-md">
+            <p className="mt-6 text-base text-primary-foreground max-w-md">
               إصدارات مرقمة. تفاصيل يدوية. كميات محدودة جداً. الدروب التي تختفي في دقائق. اشترك ليصلك إشعار قبل بدء الدروب.
             </p>
 
@@ -42,7 +42,7 @@ export function DropsBanner() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                className="bg-transparent border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
               >
                 <Lock className="ml-2 h-4 w-4" />
                 وصول مبكر
@@ -69,7 +69,7 @@ function DropStat({ number, label }: { number: string; label: string }) {
       <div className="text-4xl sm:text-5xl font-black text-primary-foreground">
         {number}
       </div>
-      <div className="text-xs text-primary-foreground/70 mt-2">
+      <div className="text-xs text-primary-foreground mt-2">
         {label}
       </div>
     </div>

@@ -179,7 +179,7 @@ export function CheckoutView() {
             <MessageCircle className="h-5 w-5" />
           </div>
           <div className="text-right flex-1">
-            <p className="font-bold text-emerald-400">إتمام الطلب عبر واتساب</p>
+            <p className="font-bold text-emerald-800 dark:text-emerald-400">إتمام الطلب عبر واتساب</p>
             <p className="text-xs text-muted-foreground">
               بعد الإرسال، نتواصل معك لتأكيد الطلب. توصيل مجاني لكل المغرب + تسبيق احتياطي 50 د.م.
             </p>
@@ -271,7 +271,7 @@ export function CheckoutView() {
               </div>
               <div className="rounded-xl border border-border bg-card p-4 space-y-3">
                 <div className="flex items-start gap-3 flex-row-reverse">
-                  <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <Check className="h-5 w-5 text-emerald-700 dark:text-emerald-500 shrink-0 mt-0.5" />
                   <div className="text-right flex-1">
                     <p className="font-semibold text-sm">توصيل مجاني لكل المغرب</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
@@ -280,7 +280,7 @@ export function CheckoutView() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3 flex-row-reverse">
-                  <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <Check className="h-5 w-5 text-emerald-700 dark:text-emerald-500 shrink-0 mt-0.5" />
                   <div className="text-right flex-1">
                     <p className="font-semibold text-sm">تسبيق احتياطي {advance} د.م عبر واتساب</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
@@ -289,7 +289,7 @@ export function CheckoutView() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3 flex-row-reverse">
-                  <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <Check className="h-5 w-5 text-emerald-700 dark:text-emerald-500 shrink-0 mt-0.5" />
                   <div className="text-right flex-1">
                     <p className="font-semibold text-sm">الباقي عند التوصيل</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
@@ -298,7 +298,7 @@ export function CheckoutView() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3 flex-row-reverse">
-                  <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <Check className="h-5 w-5 text-emerald-700 dark:text-emerald-500 shrink-0 mt-0.5" />
                   <div className="text-right flex-1">
                     <p className="font-semibold text-sm">تواصل مباشر مع البائع</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
@@ -345,7 +345,7 @@ export function CheckoutView() {
                   <span className="font-semibold">{formatPrice(subtotal)}</span>
                   <span className="text-muted-foreground">المجموع الفرعي</span>
                 </div>
-                {discount > 0 && <div className="flex justify-between text-emerald-400 flex-row-reverse"><span className="font-bold">−{formatPrice(discount)}</span><span>تخفيض كل جوج هوديات</span></div>}
+                {discount > 0 && <div className="flex justify-between text-emerald-800 dark:text-emerald-400 flex-row-reverse"><span className="font-bold">−{formatPrice(discount)}</span><span>تخفيض كل جوج هوديات</span></div>}
                 <div className="flex justify-between flex-row-reverse">
                   <span className="font-semibold">
                     {shipping === 0 ? (
@@ -356,7 +356,7 @@ export function CheckoutView() {
                   </span>
                   <span className="text-muted-foreground">رسوم التوصيل</span>
                 </div>
-                <div className="text-[10px] text-emerald-400 pr-2 border-r-2 border-emerald-500/40 text-right">
+                <div className="text-[10px] text-emerald-800 dark:text-emerald-400 pr-2 border-r-2 border-emerald-500/40 text-right">
                   ✦ توصيل مجاني لجميع مدن المغرب
                 </div>
               </div>
@@ -371,7 +371,7 @@ export function CheckoutView() {
               {/* Advance payment highlight */}
               <div className="mt-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-3">
                 <div className="flex justify-between items-center flex-row-reverse">
-                  <span className="text-emerald-400 font-bold text-lg">{formatPrice(advance)}</span>
+                  <span className="text-emerald-800 dark:text-emerald-400 font-bold text-lg">{formatPrice(advance)}</span>
                   <span className="text-xs text-muted-foreground">تسبيق عبر واتساب</span>
                 </div>
                 <div className="flex justify-between items-center mt-2 flex-row-reverse">
@@ -437,7 +437,7 @@ function Field({
   return (
     <div className={className}>
       <Label className="text-xs font-medium mb-1.5 block text-right block">
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-red-700 dark:text-red-500 ml-1">*</span>}
         {label}
       </Label>
       <div className="relative">

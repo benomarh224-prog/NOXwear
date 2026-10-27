@@ -94,7 +94,7 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
           <Summary label="ظاهرة فالمتجر" value={active} />
           <Summary label="مخفية" value={currentProducts.length - active} />
         </div>
-        {notice && <div role="status" className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-300">{notice}<button type="button" onClick={() => setNotice('')} aria-label="إغلاق الإشعار"><X size={16} /></button></div>}
+        {notice && <div role="status" className="mb-5 flex items-center justify-between gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-300">{notice}<button type="button" onClick={() => setNotice('')} aria-label="إغلاق الإشعار"><X size={16} /></button></div>}
         {error && <p role="alert" className="mb-5 rounded-xl bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">{error}</p>}
         <div className="mb-4 flex flex-wrap gap-2" aria-label="عرض المنتجات أو المحذوفة">
           <Button variant={showTrash ? 'outline' : 'secondary'} aria-pressed={!showTrash} onClick={() => setShowTrash(false)}>المنتجات ({currentProducts.length})</Button>

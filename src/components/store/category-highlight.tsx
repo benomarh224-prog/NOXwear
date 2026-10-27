@@ -17,31 +17,31 @@ interface CategoryHighlightProps {
 const ACCENTS: Record<string, { gradient: string; text: string; border: string; glow: string }> = {
   hoodies: {
     gradient: 'from-amber-500/20 via-amber-500/5 to-transparent',
-    text: 'text-amber-400',
+    text: 'text-amber-900 dark:text-amber-400',
     border: 'border-amber-500/30',
     glow: 'shadow-amber-500/20',
   },
   anime: {
     gradient: 'from-red-500/20 via-red-500/5 to-transparent',
-    text: 'text-red-400',
+    text: 'text-red-800 dark:text-red-400',
     border: 'border-red-500/30',
     glow: 'shadow-red-500/20',
   },
   sports: {
     gradient: 'from-emerald-500/20 via-emerald-500/5 to-transparent',
-    text: 'text-emerald-400',
+    text: 'text-emerald-800 dark:text-emerald-400',
     border: 'border-emerald-500/30',
     glow: 'shadow-emerald-500/20',
   },
   'arabic-art': {
     gradient: 'from-yellow-500/20 via-yellow-500/5 to-transparent',
-    text: 'text-yellow-400',
+    text: 'text-yellow-900 dark:text-yellow-400',
     border: 'border-yellow-500/30',
     glow: 'shadow-yellow-500/20',
   },
   'limitless-drops': {
     gradient: 'from-red-500/20 via-red-500/5 to-transparent',
-    text: 'text-red-400',
+    text: 'text-red-800 dark:text-red-400',
     border: 'border-red-500/30',
     glow: 'shadow-red-500/20',
   },

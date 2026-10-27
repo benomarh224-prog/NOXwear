@@ -139,15 +139,15 @@ export function CartDrawer() {
                 <span className="font-semibold">{formatPrice(subtotal)}</span>
                 <span className="text-muted-foreground">المجموع الفرعي</span>
               </div>
-              {discount > 0 && <div className="flex justify-between text-sm text-emerald-400 flex-row-reverse"><span className="font-bold">−{formatPrice(discount)}</span><span>تخفيض كل جوج هوديات</span></div>}
-              {pricing.hoodieCount % 2 === 1 && <p className="rounded-lg border border-amber-400/20 bg-amber-400/10 p-2 text-right text-xs text-amber-300">زيد هودي آخر واستافد من عرض جوج هوديات.</p>}
+              {discount > 0 && <div className="flex justify-between text-sm text-emerald-800 dark:text-emerald-400 flex-row-reverse"><span className="font-bold">−{formatPrice(discount)}</span><span>تخفيض كل جوج هوديات</span></div>}
+              {pricing.hoodieCount % 2 === 1 && <p className="rounded-lg border border-amber-400/20 bg-amber-400/10 p-2 text-right text-xs text-amber-900 dark:text-amber-300">زيد هودي آخر واستافد من عرض جوج هوديات.</p>}
               <div className="flex justify-between text-sm flex-row-reverse">
                 <span className="font-semibold">
                   <span className="text-gold">مجاني</span>
                 </span>
                 <span className="text-muted-foreground">رسوم التوصيل</span>
               </div>
-              <div className="text-xs bg-emerald-500/10 border border-emerald-500/30 rounded-md p-2 text-emerald-400 text-right">
+              <div className="text-xs bg-emerald-500/10 border border-emerald-500/30 rounded-md p-2 text-emerald-800 dark:text-emerald-400 text-right">
                 ✦ توصيل مجاني لجميع مدن المغرب
               </div>
               <div className="border-t border-border pt-3 flex justify-between items-baseline flex-row-reverse">
