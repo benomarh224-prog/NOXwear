@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import seed from '@/lib/catalog.json'
+import { PRODUCT_VIDEO_PATH } from '@/lib/product-video'
 
 export const adminCategories = seed.categories.map(({ slug, name }) => ({ slug, name }))
 const categorySlugs = new Set(adminCategories.map((category) => category.slug))
@@ -13,6 +14,7 @@ export const productInputSchema = z.object({
   price: z.number().finite().positive('الثمن خاصو يكون أكبر من صفر').max(100000),
   categorySlug: z.string().refine((value) => categorySlugs.has(value), 'اختار القسم'),
   images: z.array(imagePath).min(1, 'زيد صورة للمنتج').max(6),
+  video: z.union([z.literal(''), z.string().max(200).regex(PRODUCT_VIDEO_PATH)]).default(''),
   sizes: choices,
   colors: choices,
   stock: z.number().int().min(0).max(100000),
@@ -57,6 +59,7 @@ export function initialCatalog(): CatalogDocument {
       price: product.price,
       oldPrice: null,
       images: [product.image],
+      video: '',
       categorySlug: product.categorySlug,
       sizes: product.sizes.split(',').map((size) => size.trim()),
       colors: product.colors.split(',').map((color) => color.trim()),

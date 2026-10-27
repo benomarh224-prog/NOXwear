@@ -20,6 +20,7 @@ export interface Product {
   oldPrice: number | null
   image: string
   gallery: string
+  video?: string
   categoryId: string
   sizes: string[]
   colors: string[]

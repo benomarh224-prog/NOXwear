@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import Image from 'next/image'
 import { signOut } from 'next-auth/react'
-import { ExternalLink, Eye, EyeOff, ImagePlus, Loader2, LogOut, Package, Pencil, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react'
+import { ExternalLink, Eye, EyeOff, ImagePlus, Video, Loader2, LogOut, Package, Pencil, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react'
 import { BrandLogo } from '@/components/store/brand-logo'
 import { AnalyticsPanel } from './analytics-panel'
+import { MAX_PRODUCT_VIDEO_BYTES, validVideoHeader, videoExtension } from '@/lib/product-video'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -174,6 +175,8 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
   product: AdminProduct | null; categories: CategoryOption[]; onSave: (product: ProductInput) => Promise<void>; onCancel: () => void; onRefresh: () => Promise<void>
 }) {
   const [images, setImages] = useState(product?.images || [])
+  const [video, setVideo] = useState(product?.video || '')
+  const [videoProgress, setVideoProgress] = useState<number | null>(null)
   const [sizes, setSizes] = useState(product?.sizes || ['S', 'M', 'L', 'XL', 'XXL'])
   const [colors, setColors] = useState(product?.colors || ['أسود', 'أبيض'])
   const [uploading, setUploading] = useState(false)
@@ -181,6 +184,42 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
   const [error, setError] = useState('')
   const [conflict, setConflict] = useState(false)
   const uploadInput = useRef<HTMLInputElement>(null)
+  const videoInput = useRef<HTMLInputElement>(null)
+  const videoAbort = useRef<AbortController | null>(null)
+  useEffect(() => () => videoAbort.current?.abort(), [])
+
+  async function uploadVideo(file: File | undefined) {
+    if (!file) return
+    const extension = videoExtension(file.type)
+    if (!extension || !file.size || file.size > MAX_PRODUCT_VIDEO_BYTES) { setError('اختار فيديو MP4 أو WebM أصغر من 50 ميغا.'); return }
+    setUploading(true); setError(''); setVideoProgress(0)
+    const controller = new AbortController()
+    videoAbort.current = controller
+    try {
+      const header = new Uint8Array(await file.slice(0, 4096).arrayBuffer())
+      if (!validVideoHeader(header, extension)) throw new Error('هاد الملف ماشي فيديو MP4 أو WebM صالح.')
+      const configuration = await requestJson('/api/admin/video-upload', { signal: controller.signal })
+      if (configuration.direct) {
+        const { upload } = await import('@vercel/blob/client')
+        const filename = crypto.randomUUID() + '.' + extension
+        await upload('catalog/videos/' + filename, file, {
+          access: 'private', handleUploadUrl: '/api/admin/video-upload', multipart: true,
+          contentType: file.type, abortSignal: controller.signal,
+          onUploadProgress: ({ percentage }) => setVideoProgress(Math.round(percentage)),
+        })
+        setVideo('/api/product-videos/' + filename)
+      } else {
+        const body = new FormData(); body.append('file', file)
+        const result = await requestJson('/api/admin/video-upload', { method: 'POST', body, signal: controller.signal })
+        setVideo(result.url)
+      }
+    } catch (failure) {
+      if (!controller.signal.aborted) setError((failure as Error).message || 'تعذر رفع الفيديو. حاول من جديد.')
+    } finally {
+      setUploading(false); setVideoProgress(null); videoAbort.current = null
+      if (videoInput.current) videoInput.current.value = ''
+    }
+  }
 
   async function upload(files: FileList | null) {
     if (!files?.length) return
@@ -198,6 +237,7 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError(''); setConflict(false)
+    if (saving || uploading) return
     if (!images.length) { setError('زيد صورة وحدة على الأقل للمنتج.'); return }
     if (!sizes.length || !colors.length) { setError('اختار مقاس ولون واحد على الأقل.'); return }
     const values = new FormData(event.currentTarget)
@@ -207,7 +247,7 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
         name: String(values.get('name')).trim(), description: String(values.get('description')).trim(),
         price: Number(values.get('price')), stock: Number(values.get('stock')),
         categorySlug: String(values.get('categorySlug')), productType: values.get('productType') === 'other' ? 'other' : 'hoodie', badge: String(values.get('badge')).trim(),
-        sizes, colors, images, active: values.get('active') === 'on', featured: values.get('featured') === 'on',
+        sizes, colors, images, video, active: values.get('active') === 'on', featured: values.get('featured') === 'on',
       })
     } catch (failure) {
       const message = (failure as Error).message
@@ -226,6 +266,14 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
           <input ref={uploadInput} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif" multiple className="hidden" aria-label="رفع صور المنتج" onChange={(event) => upload(event.target.files)} />
           <p className="mt-2 text-xs leading-6 text-muted-foreground">اختار من الهاتف أو الحاسوب. التصاور كتتصغّر تلقائياً باش المتجر يبقى سريع.</p>
         </div>
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold">فيديو المنتج <span className="font-normal text-muted-foreground">(اختياري)</span></h3>
+          {video && <div className="space-y-3 rounded-xl border border-border bg-muted/40 p-3"><video key={video} src={video} controls playsInline preload="metadata" className="max-h-64 w-full rounded-lg bg-black" aria-label="معاينة فيديو المنتج" /><Button type="button" variant="outline" disabled={uploading} onClick={() => setVideo('')} className="gap-2 text-red-700 dark:text-red-400"><Trash2 size={15} /> حيد الفيديو من المنتج</Button></div>}
+          <Button type="button" variant="outline" disabled={uploading} onClick={() => videoInput.current?.click()} className="min-h-11 gap-2">{videoProgress !== null ? <Loader2 className="animate-spin" size={17} /> : <Video size={17} />}{videoProgress !== null ? 'كيترفع الفيديو… ' + videoProgress + '%' : video ? 'بدل الفيديو' : 'زيد فيديو'}</Button>
+          {videoProgress !== null && <div role="progressbar" aria-label="رفع فيديو المنتج" aria-valuenow={videoProgress} aria-valuemin={0} aria-valuemax={100} className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary transition-[width]" style={{ width: videoProgress + '%' }} /></div>}
+          <input ref={videoInput} type="file" accept="video/mp4,video/webm" className="hidden" aria-label="رفع فيديو المنتج" onChange={(event) => { void uploadVideo(event.target.files?.[0]) }} />
+          <p className="text-xs leading-6 text-muted-foreground">فيديو واحد MP4 أو WebM، حتى لـ50 ميغا. كيبان مع التصاور فصفحة المنتج وكيخدم ملي الزبون يضغط عليه.</p>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="اسم المنتج" id="product-name"><Input id="product-name" name="name" required minLength={2} maxLength={150} defaultValue={product?.name || ''} placeholder="مثلاً: هودي NOXwear أسود" /></Field>
           <Field label="القسم" id="product-category"><select id="product-category" name="categorySlug" defaultValue={product?.categorySlug || 'anime'} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">{categories.map((category) => <option key={category.slug} value={category.slug}>{category.name}</option>)}</select></Field>
@@ -240,7 +288,7 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
         <div className="space-y-3 rounded-xl border border-border bg-muted/50 p-4"><label className="flex items-center gap-3 text-sm"><input name="active" type="checkbox" defaultChecked={product?.active ?? true} className="h-4 w-4 accent-amber-400" /> ظاهر فالمتجر <span className="text-xs text-muted-foreground">حيد العلامة باش تخفيه</span></label><label className="flex items-center gap-3 text-sm"><input name="featured" type="checkbox" defaultChecked={product?.featured ?? true} className="h-4 w-4 accent-amber-400" /> يظهر ضمن المنتجات المميزة فالرئيسية</label></div>
       </fieldset>
       {error && <div role="alert" className="rounded-xl bg-red-500/10 p-4 text-sm leading-7 text-red-700 dark:text-red-300">{error}{conflict && <button type="button" className="mr-2 underline" onClick={async () => { await onRefresh(); setConflict(false); setError('تحدّثات اللائحة. راجع معلوماتك واضغط حفظ من جديد.'); }}>تحديث اللائحة</button>}</div>}
-      <div className="sticky -bottom-5 flex gap-3 border-t border-border bg-card py-4 sm:-bottom-7"><Button type="submit" disabled={saving || uploading} className="h-12 flex-1 bg-amber-400 font-bold text-black hover:bg-amber-300">{saving && <Loader2 size={16} className="animate-spin" />}{saving ? 'كيتحفظ...' : product ? 'حفظ التغييرات' : 'إضافة المنتج'}</Button><Button type="button" variant="outline" disabled={saving} onClick={onCancel} className="h-12">إلغاء</Button></div>
+      <div className="sticky -bottom-5 flex gap-3 border-t border-border bg-card py-4 sm:-bottom-7"><Button type="submit" disabled={saving || uploading} className="h-12 flex-1 bg-amber-400 font-bold text-black hover:bg-amber-300">{saving && <Loader2 size={16} className="animate-spin" />}{saving ? 'كيتحفظ...' : product ? 'حفظ التغييرات' : 'إضافة المنتج'}</Button><Button type="button" variant="outline" disabled={saving || uploading} onClick={onCancel} className="h-12">إلغاء</Button></div>
     </form>
   )
 }

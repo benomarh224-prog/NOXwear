@@ -93,7 +93,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
           <div
             className="relative min-w-0"
           >
-            <ProductGallery images={productImages} name={product.name}>
+            <ProductGallery images={productImages} video={product.video} name={product.name}>
               {/* Badges */}
               <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
                 {product.badge && (
