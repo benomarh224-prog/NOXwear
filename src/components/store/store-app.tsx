@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { Activity, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import dynamic from 'next/dynamic'
-import { initializeNavigation, useUI } from '@/lib/ui-store'
+import { initializeNavigation, restoreNavigationScroll, useUI } from '@/lib/ui-store'
+import { isBrowsingView, viewKey, type BrowsingView, type View } from '@/lib/navigation-view'
 import { useCart } from '@/lib/store'
 import { Header } from './header'
 import { Marquee } from './marquee'
@@ -27,6 +28,7 @@ import type { Category, Product } from '@/lib/types'
 const StoreMotion = dynamic(() => import('./store-motion'), { ssr: false })
 
 interface StoreAppProps {
+  initialView: View
   categories: Category[]
   products: Product[]
   featured: Product[]
@@ -36,6 +38,7 @@ interface StoreAppProps {
 }
 
 export function StoreApp({
+  initialView,
   categories,
   products,
   featured,
@@ -43,13 +46,20 @@ export function StoreApp({
   heroImage,
   accentImage,
 }: StoreAppProps) {
-  const view = useUI((s) => s.view)
+  // Match the server HTML to the URL on first load; hydrate that same view.
+  const view = useSyncExternalStore(useUI.subscribe, () => useUI.getState().view, () => initialView)
+  const browsingView = isBrowsingView(view) && (view.kind === 'home' || categories.some((category) => category.slug === view.slug)) ? view : null
+  const [browsingViews, setBrowsingViews] = useState<BrowsingView[]>(() => browsingView ? [browsingView] : [])
+  if (browsingView && !browsingViews.some((cached) => viewKey(cached) === viewKey(browsingView))) {
+    setBrowsingViews([...browsingViews, browsingView])
+  }
   const root = useRef<HTMLDivElement>(null)
 
-  useEffect(() => initializeNavigation(), [])
+  useLayoutEffect(() => initializeNavigation(), [])
+  useLayoutEffect(() => restoreNavigationScroll(), [view])
   useEffect(() => { useCart.getState().syncCatalog(products) }, [products])
 
-  const renderView = () => {
+  const renderView = (view: View) => {
     switch (view.kind) {
       case 'home':
         return (
@@ -97,7 +107,14 @@ export function StoreApp({
       <StoreMotion root={root} view={view} />
       <Marquee />
       <Header />
-      <main className="flex-1 flex flex-col">{renderView()}</main>
+      <main className="flex-1 flex flex-col">
+        {browsingViews.map((cached) => (
+          <Activity key={viewKey(cached)} mode={viewKey(view) === viewKey(cached) ? 'visible' : 'hidden'}>
+            <div data-store-page={viewKey(cached)} className="flex flex-1 flex-col">{renderView(cached)}</div>
+          </Activity>
+        ))}
+        {!browsingView && <div key={viewKey(view)} data-store-page={viewKey(view)} className="flex flex-1 flex-col">{renderView(view)}</div>}
+      </main>
       <Footer />
       <CartDrawer />
       <SearchDialog products={products} />

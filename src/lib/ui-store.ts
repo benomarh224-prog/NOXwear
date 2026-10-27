@@ -2,14 +2,8 @@
 
 import { create } from 'zustand'
 
-export type View =
-  | { kind: 'home' }
-  | { kind: 'category'; slug: string }
-  | { kind: 'product'; slug: string }
-  | { kind: 'search'; query: string }
-  | { kind: 'checkout' }
-  | { kind: 'custom-print' }
-  | { kind: 'success'; orderId: string; total: number; whatsappUrl: string }
+import { viewFromParams, type View } from './navigation-view'
+export type { View } from './navigation-view'
 
 interface UIState {
   view: View
@@ -32,21 +26,41 @@ function historyDepth() {
 }
 
 function viewFromUrl(): View {
-  const params = new URLSearchParams(window.location.search)
-  const collection = params.get('collection')
-  const product = params.get('product')
-  const search = params.get('search')
+  return viewFromParams(new URLSearchParams(window.location.search), historyData().noxView)
+}
 
-  if (collection) return { kind: 'category', slug: collection }
-  if (product) return { kind: 'product', slug: product }
-  if (params.has('search')) return { kind: 'search', query: search || '' }
-  if (params.has('custom')) return { kind: 'custom-print' }
-  if (params.has('checkout')) return { kind: 'checkout' }
-  if (params.has('success')) {
-    const saved = historyData().noxView
-    if (saved?.kind === 'success') return saved
-  }
-  return { kind: 'home' }
+interface ScrollPosition { left: number; top: number }
+const positions = new Map<string, ScrollPosition>()
+let currentEntry = ''
+let pendingScroll: ScrollPosition | null = null
+
+function scrollPosition(): ScrollPosition {
+  return { left: Math.max(0, window.scrollX), top: Math.max(0, window.scrollY) }
+}
+
+function savedPosition(value: unknown): ScrollPosition | null {
+  if (!value || typeof value !== 'object') return null
+  const { left, top } = value as ScrollPosition
+  return Number.isFinite(left) && Number.isFinite(top) && left >= 0 && top >= 0 ? { left, top } : null
+}
+
+function rememberScroll() {
+  if (currentEntry && !pendingScroll) positions.set(currentEntry, scrollPosition())
+}
+
+function saveHistoryScroll() {
+  rememberScroll()
+  window.history.replaceState({ ...historyData(), noxScroll: positions.get(currentEntry) || scrollPosition() }, '')
+}
+
+// Called in a layout effect, after the destination DOM has committed and before
+// paint. Never scroll the old collection while React is still replacing it.
+export function restoreNavigationScroll() {
+  if (!pendingScroll) return
+  const target = pendingScroll
+  pendingScroll = null
+  window.scrollTo({ ...target, behavior: 'instant' })
+  rememberScroll()
 }
 
 function urlForView(view: View) {
@@ -78,19 +92,34 @@ function urlForView(view: View) {
 }
 
 export function initializeNavigation() {
+  const previousRestoration = window.history.scrollRestoration
+  window.history.scrollRestoration = 'manual'
   const view = viewFromUrl()
+  currentEntry = historyData().noxEntry || window.crypto.randomUUID()
+  pendingScroll = savedPosition(historyData().noxScroll) || scrollPosition()
+  positions.set(currentEntry, pendingScroll)
   window.history.replaceState(
-    { ...historyData(), noxDepth: historyDepth(), noxView: view },
+    { ...historyData(), noxEntry: currentEntry, noxDepth: historyDepth(), noxView: view, noxScroll: pendingScroll },
     '',
     urlForView(view),
   )
   useUI.setState({ view })
 
   const onPopState = () => {
+    currentEntry = historyData().noxEntry || window.crypto.randomUUID()
+    pendingScroll = positions.get(currentEntry) || savedPosition(historyData().noxScroll) || { left: 0, top: 0 }
     useUI.setState({ view: viewFromUrl(), searchOpen: false })
   }
+  window.addEventListener('scroll', rememberScroll, { passive: true })
+  window.addEventListener('pagehide', saveHistoryScroll)
   window.addEventListener('popstate', onPopState)
-  return () => window.removeEventListener('popstate', onPopState)
+  return () => {
+    saveHistoryScroll()
+    window.history.scrollRestoration = previousRestoration
+    window.removeEventListener('scroll', rememberScroll)
+    window.removeEventListener('pagehide', saveHistoryScroll)
+    window.removeEventListener('popstate', onPopState)
+  }
 }
 
 export const useUI = create<UIState>((set, get) => ({
@@ -99,19 +128,23 @@ export const useUI = create<UIState>((set, get) => ({
     if (JSON.stringify(view) === JSON.stringify(get().view)) return
 
     if (typeof window !== 'undefined') {
+      saveHistoryScroll()
       const replace = options?.replace === true
       const depth = historyDepth() + (replace ? 0 : 1)
+      currentEntry = window.crypto.randomUUID()
+      pendingScroll = { left: 0, top: 0 }
+      positions.set(currentEntry, pendingScroll)
       window.history[replace ? 'replaceState' : 'pushState'](
-        { ...historyData(), noxDepth: depth, noxView: view },
+        { ...historyData(), noxEntry: currentEntry, noxDepth: depth, noxView: view, noxScroll: pendingScroll },
         '',
         urlForView(view),
       )
-      window.scrollTo(0, 0)
     }
     set({ view, searchOpen: false })
   },
   back: () => {
     if (typeof window !== 'undefined' && historyDepth() > 0) {
+      saveHistoryScroll()
       window.history.back()
     } else {
       get().setView({ kind: 'home' }, { replace: true })

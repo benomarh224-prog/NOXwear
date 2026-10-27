@@ -1,6 +1,6 @@
 'use client'
 
-import { type RefObject } from 'react'
+import { useRef, type RefObject } from 'react'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
 import type { View } from '@/lib/ui-store'
@@ -13,9 +13,11 @@ interface StoreMotionProps {
 }
 
 export default function StoreMotion({ root, view }: StoreMotionProps) {
+  const enteredHome = useRef(false)
   useGSAP(() => {
     const element = root.current
-    if (!element || view.kind !== 'home') return
+    if (!element || view.kind !== 'home' || enteredHome.current) return
+    enteredHome.current = true
     const media = gsap.matchMedia()
 
     // Product/category images stay fully visible and still at every scroll position.

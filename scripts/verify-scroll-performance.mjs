@@ -19,11 +19,13 @@ async function load(path, dependencies = {}, globals = {}) {
 // to image/card targets or opacity would reintroduce the scroll flash.
 async function motionCase({ desktop = true, reduced = false, kind = 'home', top = 100, bottom = 200, focused = false } = {}) {
   const writes = [], queries = [], listeners = new Map()
+  const enteredHome = { current: false }
   let cleanup, mediaCleanup, reverted = false, finished = false
   const heading = { contains: () => focused, getBoundingClientRect: () => ({ top, bottom }), addEventListener: (name, fn) => listeners.set(name, fn), removeEventListener: (name) => listeners.delete(name) }
   const root = { current: { querySelector: (query) => { queries.push(query); assert.equal(query, '[data-hero-copy] h1'); return heading } } }
   const animation = { progress: (value) => { assert.equal(value, 1); finished = true; return animation }, kill: () => {} }
   const motion = await load('src/components/store/store-motion.tsx', {
+    react: { ...React, useRef: () => enteredHome },
     gsap: { gsap: { registerPlugin() {}, matchMedia: () => ({ add: (query, fn) => { assert.match(query, /pointer: fine/); assert.match(query, /prefers-reduced-motion: no-preference/); if (desktop && !reduced) mediaCleanup = fn() }, revert: () => { reverted = true; mediaCleanup?.() } }), fromTo: (target, from, to) => { assert.equal(target, heading); writes.push({ from, to }); return animation } } },
     '@gsap/react': { useGSAP: (fn) => { cleanup = fn() } },
   }, { document: { activeElement: null }, window: { innerHeight: 800 } })
@@ -38,7 +40,11 @@ async function motionCase({ desktop = true, reduced = false, kind = 'home', top 
   cleanup?.()
   assert.equal(listeners.size, 0, 'Navigation must remove listeners')
   if (kind === 'home') assert.ok(reverted)
-  return { writes, queries }
+  const previousWrites = writes.length
+  motion.default({ root, view: { kind: 'category', slug: 'anime' } })
+  motion.default({ root, view: { kind: 'home' } })
+  if (kind === 'home') assert.equal(writes.length, previousWrites, 'Returning home must not replay its entrance')
+  return { writes: writes.slice(0, previousWrites), queries }
 }
 assert.equal((await motionCase()).writes.length, 1)
 for (const options of [{ desktop: false }, { reduced: true }, { top: -200, bottom: -100 }, { top: 900, bottom: 1000 }, { focused: true }, { kind: 'category' }, { kind: 'product' }]) {

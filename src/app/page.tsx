@@ -1,10 +1,17 @@
 import { getCategories, getProducts } from '@/lib/data'
 import { StoreApp } from '@/components/store/store-app'
 import type { Product } from '@/lib/types'
+import { viewFromParams } from '@/lib/navigation-view'
 
 export const dynamic = 'force-dynamic'
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(await searchParams)) {
+    const first = Array.isArray(value) ? value[0] : value
+    if (first !== undefined) params.set(key, first)
+  }
+  const initialView = viewFromParams(params)
   const [categories, products] = await Promise.all([
     getCategories(),
     getProducts({ sort: 'featured' }),
@@ -43,6 +50,7 @@ export default async function Home() {
 
   return (
     <StoreApp
+      initialView={initialView}
       categories={categories}
       products={products}
       featured={featured}
