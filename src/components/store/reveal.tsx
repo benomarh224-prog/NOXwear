@@ -8,7 +8,7 @@ interface RevealProps {
   delay?: number
 }
 
-// Render visible content first; the shared GSAP controller enhances it on scroll.
+// Keep layout wrappers stable; images must never fade out when entering the viewport.
 export function Reveal({ children, className, delay = 0 }: RevealProps) {
   return <div data-store-reveal data-reveal-delay={delay} className={className}>{children}</div>
 }

@@ -23,8 +23,8 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
       <div className="absolute inset-0 bg-gradient-to-bl from-background via-background to-primary/5" />
 
       {/* Floating decorative elements */}
-      <div className="hero-glow absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-primary/10 blur-3xl animate-float" />
-      <div className="hero-glow absolute bottom-1/4 right-1/4 w-48 h-48 rounded-full bg-primary/5 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+      <div className="hero-glow absolute top-1/4 left-1/4 w-64 h-64 rounded-full hero-glow-primary" />
+      <div className="hero-glow absolute bottom-1/4 right-1/4 w-48 h-48 rounded-full hero-glow-secondary" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -94,7 +94,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
                 src={featuredImage}
                 alt="هودي الحصان الأسود بلوغو واسم NOXwear"
                 className="object-cover"
-                sizes="(max-width: 1023px) 75vw, 38vw"
+                sizes="(max-width: 571px) calc(75vw - 24px), (max-width: 1023px) 405px, (max-width: 1279px) calc(37.5vw - 42px), 405px"
                 preload
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent" />
@@ -106,7 +106,7 @@ export function Hero({ featuredImage, accentImage, categoryCount, productCount }
                 src={accentImage}
                 alt="هودي ساموراي أسود وأحمر بلوغو واسم NOXwear"
                 className="object-cover"
-                sizes="(max-width: 1023px) 50vw, 25vw"
+                sizes="(max-width: 571px) calc(50vw - 16px), (max-width: 1023px) 270px, (max-width: 1279px) calc(25vw - 28px), 270px"
                 loading="eager"
               />
               <div className="absolute inset-0 bg-gradient-to-tl from-primary/30 to-transparent" />

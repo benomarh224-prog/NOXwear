@@ -15,9 +15,10 @@ import { Reveal } from './reveal'
 interface ProductCardProps {
   product: Product
   index?: number
+  eager?: boolean
 }
 
-export function ProductCard({ product, index = 0 }: ProductCardProps) {
+export function ProductCard({ product, index = 0, eager = false }: ProductCardProps) {
   const setView = useUI((s) => s.setView)
   const addItem = useCart((s) => s.addItem)
 
@@ -51,7 +52,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       <div
         role="link"
         tabIndex={0}
-        className="store-card h-full group relative flex flex-col rounded-xl border border-border bg-card overflow-hidden hover:border-gold/40 hover:shadow-xl hover:shadow-primary/5 transition-all cursor-pointer"
+        className="store-card h-full group relative flex flex-col rounded-xl border border-border bg-card overflow-hidden hover:border-gold/40 hover:shadow-xl hover:shadow-primary/5 transition-colors cursor-pointer"
         onClick={goToProduct}
         onKeyDown={(event) => {
           if (event.key === 'Enter') goToProduct()
@@ -62,9 +63,9 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           <OptimizedImage
             src={product.image}
             alt={product.name}
-            className="object-cover transition-transform duration-300 md:group-hover:scale-105"
-            sizes="(max-width: 1023px) 50vw, 25vw"
-            loading="lazy"
+            className="store-image object-cover"
+            sizes="(max-width: 639px) calc(50vw - 22px), (max-width: 1023px) calc(50vw - 32px), (max-width: 1279px) calc(25vw - 28px), 284px"
+            loading={eager ? 'eager' : 'lazy'}
           />
 
           {/* Top badges */}
@@ -94,7 +95,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           </button>
 
           {/* Quick actions overlay */}
-          <div className="absolute inset-x-0 bottom-0 p-3 translate-y-0 md:translate-y-full md:group-hover:translate-y-0 md:group-focus-within:translate-y-0 transition-transform duration-300">
+          <div className="store-quick-actions absolute inset-x-0 bottom-0 p-3">
             <div className="flex gap-2 flex-row-reverse">
               <Button
                 size="sm"

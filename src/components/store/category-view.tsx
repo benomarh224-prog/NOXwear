@@ -134,7 +134,7 @@ export function CategoryView({ category, products: catalogProducts }: CategoryVi
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {products.map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} />
+              <ProductCard key={p.id} product={p} index={i} eager={i < 4} />
             ))}
           </div>
         )}

@@ -95,7 +95,7 @@ export function CategoryHighlight({ categories, highlights }: CategoryHighlightP
                     <OptimizedImage
                       src={p.image}
                       alt={p.name}
-                      className="object-cover transition-transform duration-300 md:group-hover:scale-105"
+                      className="store-image object-cover"
                       sizes="(max-width: 639px) 120px, 140px"
                       loading="lazy"
                     />

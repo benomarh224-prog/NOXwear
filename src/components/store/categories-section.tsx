@@ -90,8 +90,8 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
                     <OptimizedImage
                       src={CATEGORY_IMAGES[cat.slug] || CATEGORY_IMAGES.hoodies}
                       alt={cat.name}
-                      className="object-cover transition-transform duration-500 md:group-hover:scale-105"
-                      sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                      className="store-image object-cover"
+                      sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) calc(50vw - 32px), (max-width: 1279px) calc(33.333vw - 32px), 384px"
                       loading="lazy"
                     />
                     {/* Gradient overlay for text readability */}
