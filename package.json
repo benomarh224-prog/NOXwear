@@ -19,7 +19,8 @@
     "test:analytics": "node scripts/verify-analytics.mjs",
     "test:video": "node scripts/verify-product-video.mjs",
     "test:scroll": "node scripts/verify-scroll-performance.mjs",
-    "test:navigation": "node scripts/verify-navigation.mjs"
+    "test:navigation": "node scripts/verify-navigation.mjs",
+    "test:collection-order": "node scripts/verify-collection-order.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

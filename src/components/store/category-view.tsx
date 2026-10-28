@@ -19,11 +19,11 @@ interface CategoryViewProps {
 }
 
 const SORTS = [
+  { value: 'newest', label: 'الأحدث' },
   { value: 'featured', label: 'المميز' },
   { value: 'price-low', label: 'السعر: من الأقل للأعلى' },
   { value: 'price-high', label: 'السعر: من الأعلى للأقل' },
   { value: 'rating', label: 'الأعلى تقييماً' },
-  { value: 'newest', label: 'الأحدث' },
 ]
 
 const ACCENTS: Record<string, string> = {
@@ -37,7 +37,7 @@ const ACCENTS: Record<string, string> = {
 export function CategoryView({ category, products: catalogProducts }: CategoryViewProps) {
   const setView = useUI((s) => s.setView)
   const back = useUI((s) => s.back)
-  const [sort, setSort] = useState('featured')
+  const [sort, setSort] = useState('newest')
 
   const products = useMemo(() => {
     const nextProducts = catalogProducts.filter((product) => product.categoryId === category.slug)
@@ -49,7 +49,7 @@ export function CategoryView({ category, products: catalogProducts }: CategoryVi
       case 'rating':
         return [...nextProducts].sort((a, b) => b.rating - a.rating)
       case 'newest':
-        return [...nextProducts].reverse()
+        return [...nextProducts].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       default:
         return [...nextProducts].sort(
           (a, b) => Number(b.featured) - Number(a.featured) || b.rating - a.rating,

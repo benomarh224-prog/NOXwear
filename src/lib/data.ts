@@ -7,7 +7,7 @@ const categories: Category[] = catalog.categories.filter((category) => category.
   ...category, id: category.slug,
 }))
 
-async function catalogProducts(): Promise<(Product & { createdAt: string })[]> {
+async function catalogProducts(): Promise<Product[]> {
   const { document } = await readCatalog()
   return document.products.filter((product) => product.active && !product.deletedAt).map((product) => ({
     ...product,
