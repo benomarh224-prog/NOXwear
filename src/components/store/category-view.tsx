@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { compareCollectionOrder } from '@/lib/collection-order'
 import { SlidersHorizontal, ChevronRight, PackageX } from 'lucide-react'
 import { useUI } from '@/lib/ui-store'
 import { Button } from '@/components/ui/button'
@@ -19,6 +20,7 @@ interface CategoryViewProps {
 }
 
 const SORTS = [
+  { value: 'store-order', label: 'ترتيب المتجر' },
   { value: 'newest', label: 'الأحدث' },
   { value: 'featured', label: 'المميز' },
   { value: 'price-low', label: 'السعر: من الأقل للأعلى' },
@@ -37,11 +39,13 @@ const ACCENTS: Record<string, string> = {
 export function CategoryView({ category, products: catalogProducts }: CategoryViewProps) {
   const setView = useUI((s) => s.setView)
   const back = useUI((s) => s.back)
-  const [sort, setSort] = useState('newest')
+  const [sort, setSort] = useState('store-order')
 
   const products = useMemo(() => {
     const nextProducts = catalogProducts.filter((product) => product.categoryId === category.slug)
     switch (sort) {
+      case 'store-order':
+        return [...nextProducts].sort(compareCollectionOrder)
       case 'price-low':
         return [...nextProducts].sort((a, b) => a.price - b.price)
       case 'price-high':

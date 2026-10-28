@@ -18,6 +18,7 @@ export interface Product {
   price: number
   productType: 'hoodie' | 'other'
   createdAt: string
+  sortOrder?: number | null
   oldPrice: number | null
   image: string
   gallery: string

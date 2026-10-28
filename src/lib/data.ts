@@ -1,4 +1,5 @@
 import catalog from '@/lib/catalog.json'
+import { compareCollectionOrder } from '@/lib/collection-order'
 import { readCatalog } from '@/lib/admin/catalog-store'
 import type { Category, Product } from '@/lib/types'
 import type { OrderInput } from '@/lib/orders'
@@ -51,7 +52,9 @@ export async function getProducts(opts: {
     case 'price-high': result.sort((a, b) => b.price - a.price); break
     case 'rating': result.sort((a, b) => b.rating - a.rating); break
     case 'featured': result.sort((a, b) => Number(b.featured) - Number(a.featured) || b.createdAt.localeCompare(a.createdAt) || b.rating - a.rating); break
-    default: result.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    case 'newest': result.sort((a, b) => b.createdAt.localeCompare(a.createdAt)); break
+    case 'store-order': result.sort(compareCollectionOrder); break
+    default: result.sort(categorySlug ? compareCollectionOrder : (a, b) => b.createdAt.localeCompare(a.createdAt))
   }
   if (limit !== undefined && Number.isFinite(limit)) {
     result = result.slice(0, Math.max(0, Math.min(100, Math.trunc(limit))))

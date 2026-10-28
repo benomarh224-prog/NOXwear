@@ -9,6 +9,9 @@ import { renderToStaticMarkup } from 'react-dom/server'
 const require = createRequire(import.meta.url)
 const source = await readFile('src/components/store/category-view.tsx', 'utf8')
 const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText
+const orderExports = {}
+const orderCode = ts.transpileModule(await readFile('src/lib/collection-order.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText
+vm.runInNewContext(orderCode, { exports: orderExports })
 const box = ({ children }) => React.createElement('div', null, children)
 const products = ['anime', 'sports', 'arabic-art', 'limitless-drops'].flatMap((categoryId) => [
   { id: categoryId + '-old', name: 'Old', categoryId, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-12-31T00:00:00.000Z', featured: true, rating: 5, price: 300 },
@@ -20,6 +23,7 @@ function render(category, sort) {
   const exports = {}
   const dependencies = {
     react: sort ? { ...React, useState: () => [sort, () => {}] } : React,
+    '@/lib/collection-order': orderExports,
     '@/lib/ui-store': { useUI: (select) => select({ setView() {}, back() {} }) },
     '@/components/ui/button': { Button: box }, '@/components/ui/badge': { Badge: box },
     '@/components/ui/select': { Select: ({ value, children }) => React.createElement('div', { 'data-sort': value }, children), SelectContent: box, SelectItem: box, SelectTrigger: box, SelectValue: () => null },
@@ -31,7 +35,7 @@ function render(category, sort) {
 }
 for (const category of ['anime', 'sports', 'arabic-art', 'limitless-drops']) {
   const markup = render(category)
-  assert.match(markup, /data-sort="newest"/)
+  assert.match(markup, /data-sort="store-order"/)
   const order = [...markup.matchAll(/data-product="([^"]+)"/g)].map((match) => match[1])
   assert.deepEqual(order, [category + '-new', category + '-middle', category + '-old'], 'New products must precede older featured/recently edited products')
 }
@@ -40,4 +44,12 @@ for (const [sort, ids] of [['price-low', ['middle', 'new', 'old']], ['price-high
   assert.deepEqual(order, ids.map((id) => 'anime-' + id))
 }
 assert.equal(JSON.stringify(products), original, 'Collection sorting must not mutate the shared catalogue')
-console.log('PASS: newest-first default in every collection, creation-date ordering, edits do not move old products, manual sorts and catalogue immutability')
+for (const category of ['anime', 'sports', 'arabic-art', 'limitless-drops']) {
+  const items = products.filter((product) => product.categoryId === category)
+  items[0].sortOrder = 0; items[1].sortOrder = 2; items[2].sortOrder = 1
+  const html = render(category)
+  assert.deepEqual([...html.matchAll(/data-product="([^"]+)"/g)].map((match) => match[1]), [category + '-old', category + '-middle', category + '-new'], 'Owner order must override creation date and featured status')
+  assert.deepEqual([...render(category, 'newest').matchAll(/data-product="([^"]+)"/g)].map((match) => match[1]), [category + '-new', category + '-middle', category + '-old'], 'Visitors can still explicitly choose newest')
+}
+assert.ok(orderExports.compareCollectionOrder({ createdAt: '2026-10-28', sortOrder: null }, { createdAt: '2026-01-01', sortOrder: 0 }) < 0, 'New arrivals stay above the arranged catalogue until the owner positions them')
+console.log('PASS: owner ordering in all collections, newest fallback, explicit visitor sorts and catalogue immutability')

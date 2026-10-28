@@ -29,6 +29,7 @@ export const productRecordSchema = productInputSchema.extend({
   rating: z.number().min(0).max(5),
   reviewCount: z.number().int().nonnegative(),
   tags: z.array(z.string().max(100)).max(30),
+  sortOrder: z.number().int().min(0).max(1000).nullable().default(null),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   deletedAt: z.string().datetime().nullable().default(null),
@@ -42,6 +43,13 @@ export const catalogDocumentSchema = z.object({
 export const saveProductSchema = z.object({
   revision: z.string().min(1).max(300),
   product: productInputSchema,
+})
+
+export const reorderProductsSchema = z.object({
+  revision: z.string().min(1).max(300),
+  categorySlug: z.string().refine((value) => categorySlugs.has(value), 'اختار القسم'),
+  slugs: z.array(z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(150)).max(1000)
+    .refine((slugs) => new Set(slugs).size === slugs.length, 'الترتيب فيه منتج مكرر'),
 })
 
 export type ProductInput = z.infer<typeof productInputSchema>
@@ -71,6 +79,7 @@ export function initialCatalog(): CatalogDocument {
       tags: product.tags.split(',').map((tag) => tag.trim()),
       active: true,
       deletedAt: null,
+      sortOrder: null,
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
     })),

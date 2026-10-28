@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import Image from 'next/image'
 import { signOut } from 'next-auth/react'
-import { ExternalLink, Eye, EyeOff, ImagePlus, Video, Loader2, LogOut, Package, Pencil, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react'
+import { ArrowUpDown, ExternalLink, Eye, EyeOff, ImagePlus, Video, Loader2, LogOut, Package, Pencil, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react'
 import { BrandLogo } from '@/components/store/brand-logo'
 import { AnalyticsPanel } from './analytics-panel'
+import { ProductOrderEditor } from './product-order-editor'
+import { compareCollectionOrder } from '@/lib/collection-order'
 import { MAX_PRODUCT_VIDEO_BYTES, validVideoHeader, videoExtension } from '@/lib/product-video'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
@@ -30,6 +32,8 @@ async function requestJson(url: string, options?: RequestInit) {
 
 export function ProductDashboard({ initialProducts, initialRevision, categories }: Props) {
   const [snapshot, setSnapshot] = useState<Snapshot>({ products: initialProducts, revision: initialRevision })
+  const [ordering, setOrdering] = useState<string | null>(null)
+  const [orderingBusy, setOrderingBusy] = useState(false)
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('all')
   const [editing, setEditing] = useState<AdminProduct | null | undefined>(undefined)
@@ -41,7 +45,7 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
   const [error, setError] = useState('')
   const filtered = useMemo(() => snapshot.products.filter((product) =>
     Boolean(product.deletedAt) === showTrash && (category === 'all' || product.categorySlug === category) && product.name.toLocaleLowerCase().includes(query.toLocaleLowerCase().trim()),
-  ), [snapshot.products, category, query, showTrash])
+  ).sort((a, b) => category === 'all' ? b.createdAt.localeCompare(a.createdAt) : compareCollectionOrder(a, b)), [snapshot.products, category, query, showTrash])
   const currentProducts = snapshot.products.filter((product) => !product.deletedAt)
   const active = currentProducts.filter((product) => product.active).length
   const trashCount = snapshot.products.length - currentProducts.length
@@ -76,6 +80,15 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
     setEditing(undefined)
   }
 
+  async function saveOrder(categorySlug: string, slugs: string[], revision: string) {
+    const result: Snapshot = await requestJson('/api/admin/products/reorder', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ categorySlug, slugs, revision }),
+    })
+    setSnapshot(result); setOrdering(null)
+    setNotice('تحفظ ترتيب المنتجات وكيبان فالكولكشن.')
+  }
+
   return (
     <main className="min-h-dvh bg-background text-foreground">
       <header className="border-b border-border bg-card">
@@ -87,7 +100,7 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
       <div className="mx-auto max-w-7xl px-5 py-8 sm:px-8 sm:py-12">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
           <div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary" dir="ltr">YOUR STORE, YOUR WAY</p><h1 className="text-3xl font-black sm:text-4xl">المنتجات ديالك</h1><p className="mt-3 text-sm leading-7 text-muted-foreground">زيد منتجاتك وعدّل التصاور والأثمنة. كلشي كيتحفظ وكيبان فالمتجر.</p></div>
-          <Button onClick={() => { setError(''); setEditing(null) }} className="h-12 gap-2 bg-amber-400 px-5 font-bold text-black hover:bg-amber-300"><Plus size={18} /> إضافة منتج</Button>
+          <div className="flex flex-wrap gap-2"><Button variant="outline" className="h-12 gap-2" disabled={refreshing || mutating} onClick={() => setOrdering(category === 'all' ? categories[0]?.slug || null : category)}><ArrowUpDown size={18} /> ترتيب المنتجات</Button><Button onClick={() => { setError(''); setEditing(null) }} className="h-12 gap-2 bg-amber-400 px-5 font-bold text-black hover:bg-amber-300"><Plus size={18} /> إضافة منتج</Button></div>
         </div>
         <AnalyticsPanel products={snapshot.products} />
         <div className="mb-8 grid grid-cols-3 gap-3 sm:gap-5">
@@ -131,6 +144,12 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
           </div>
         )}
       </div>
+      <Dialog open={ordering !== null} onOpenChange={(open) => { if (!open && !orderingBusy) setOrdering(null) }}>
+        <DialogContent dir="rtl" className="flex h-[85dvh] max-h-[720px] w-[calc(100%_-_1.5rem)] flex-col gap-4 overflow-hidden rounded-2xl border-border bg-card p-4 sm:max-w-xl sm:p-6 [&>button]:left-4 [&>button]:right-auto">
+          <DialogHeader className="shrink-0 text-right sm:text-right"><DialogTitle>ترتيب المنتجات</DialogTitle><DialogDescription>نتا كتختار شكون يبان فوق فكل كولكشن.</DialogDescription></DialogHeader>
+          {ordering && <ProductOrderEditor key={ordering + snapshot.revision} products={snapshot.products} revision={snapshot.revision} category={ordering} categories={categories} onCategory={setOrdering} onSave={saveOrder} onRefresh={refresh} onCancel={() => setOrdering(null)} onBusy={setOrderingBusy} />}
+        </DialogContent>
+      </Dialog>
       <AlertDialog open={deleteTarget !== null} onOpenChange={(open) => { if (!open && !mutating) setDeleteTarget(null) }}>
         <AlertDialogContent dir="rtl" className="rounded-2xl border-border bg-card">
           <AlertDialogHeader className="text-right sm:text-right"><AlertDialogTitle>حذف المنتج؟</AlertDialogTitle><AlertDialogDescription className="leading-7">غادي يتحيد «{deleteTarget?.name}» من المتجر واللائحة الرئيسية. تقدر ترجعو من «المحذوفة».</AlertDialogDescription></AlertDialogHeader>

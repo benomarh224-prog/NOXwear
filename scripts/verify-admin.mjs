@@ -39,6 +39,7 @@ try {
   assert.equal(unauthenticated.status, 401)
   assert.equal((await request('/admin', {}, false)).status, 307)
   assert.equal((await request('/api/admin/upload', { method: 'POST' }, false)).status, 401)
+  assert.equal((await request('/api/admin/products/reorder', { method: 'POST' }, false)).status, 401)
   assert.equal((await request('/api/admin/products/unknown', { method: 'DELETE' }, false)).status, 401)
   assert.equal((await request('/api/admin/products/unknown', { method: 'PATCH' }, false)).status, 401)
   const wrong = await (await login('incorrect-password')).json()
@@ -48,6 +49,29 @@ try {
   assert.equal((await request('/admin')).status, 200)
   const snapshot = await (await request('/api/admin/products')).json()
   assert.equal(snapshot.products.length, 7)
+  const members = snapshot.products.filter((product) => product.categorySlug === 'anime' && !product.deletedAt)
+  const orderedSlugs = members.map((product) => product.slug).reverse()
+  const reorder = (slugs, revision = snapshot.revision, origin = base) => request('/api/admin/products/reorder', { method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json' }, body: JSON.stringify({ categorySlug: 'anime', slugs, revision }) })
+  assert.equal((await reorder(orderedSlugs, snapshot.revision, 'https://untrusted.example')).status, 403)
+  assert.equal((await reorder([orderedSlugs[0], orderedSlugs[0]])).status, 400)
+  assert.equal((await reorder(orderedSlugs.slice(1))).status, 400)
+  assert.equal((await reorder(orderedSlugs.map((slug, index) => index ? slug : snapshot.products.find((product) => product.categorySlug !== 'anime').slug))).status, 400)
+  const reordered = await reorder(orderedSlugs)
+  assert.equal(reordered.status, 200)
+  let ranked = await reordered.json()
+  assert.equal((await reorder(orderedSlugs)).status, 409, 'Stale reorder must not overwrite newer data')
+  const storefrontOrder = (await (await request('/api/products?category=anime', {}, false)).json()).products
+  assert.deepEqual(storefrontOrder.map((product) => product.slug), orderedSlugs)
+  assert.deepEqual(ranked.products.filter((product) => product.categorySlug !== 'anime'), snapshot.products.filter((product) => product.categorySlug !== 'anime'), 'Reordering must leave other collections untouched')
+  for (const product of members) {
+    const after = ranked.products.find((item) => item.slug === product.slug)
+    assert.deepEqual({ ...after, sortOrder: product.sortOrder }, product, 'Ordering must not rewrite product information or timestamps')
+  }
+  const existing = members[0]
+  const editAfterRank = await save(existing.slug, { ...existing, price: existing.price + 1 }, ranked.revision)
+  assert.equal(editAfterRank.status, 200)
+  ranked = await editAfterRank.json()
+  assert.equal(ranked.product.sortOrder, orderedSlugs.indexOf(existing.slug), 'Editing a product must preserve its manual rank')
   const newProduct = {
     name: 'منتج تجربة الإدارة', description: 'اختبار حفظ منتج وصور وأثمنة', price: 250, categorySlug: 'anime',
     images: [snapshot.products[0].images[0]], sizes: ['L'], colors: ['أسود', 'أبيض'], stock: 8,

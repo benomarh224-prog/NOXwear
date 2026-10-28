@@ -30,6 +30,7 @@ export async function saveProduct(input: ProductInput, expectedRevision: string,
       oldPrice: existing?.oldPrice ?? null,
       rating: existing?.rating ?? 0, reviewCount: existing?.reviewCount ?? 0,
       tags: existing?.tags ?? [],
+      sortOrder: existing?.categorySlug === input.categorySlug ? existing.sortOrder : null,
       createdAt: existing?.createdAt ?? now, updatedAt: now, deletedAt: null,
     }
     const products = existing
@@ -58,4 +59,22 @@ export async function setProductDeleted(slug: string, expectedRevision: string, 
   const next = catalogDocumentSchema.parse({ version: 1, products: document.products.map((item) => item.slug === slug ? product : item) })
   const nextRevision = await writeJson(CATALOG_PATH, next, revision === 'seed' ? null : revision)
   return { products: next.products, revision: nextRevision, product }
+}
+
+export class InvalidProductOrderError extends Error {}
+
+export async function reorderProducts(categorySlug: string, slugs: string[], expectedRevision: string) {
+  const { document, revision } = await readCatalog()
+  if (normalizeRevision(revision) !== normalizeRevision(expectedRevision)) throw new StorageConflictError('Catalog changed')
+  const members = document.products.filter((product) => product.categorySlug === categorySlug && !product.deletedAt)
+  const ranks = new Map(slugs.map((slug, index) => [slug, index]))
+  if (slugs.length !== members.length || ranks.size !== members.length || members.some((product) => !ranks.has(product.slug))) {
+    throw new InvalidProductOrderError('Invalid collection membership')
+  }
+  const products = document.products.map((product) => product.categorySlug === categorySlug && !product.deletedAt
+    ? { ...product, sortOrder: ranks.get(product.slug)! }
+    : product)
+  const next = catalogDocumentSchema.parse({ version: 1, products })
+  const nextRevision = await writeJson(CATALOG_PATH, next, revision === 'seed' ? null : revision)
+  return { products: next.products, revision: nextRevision }
 }
