@@ -36,7 +36,7 @@ Features:
   - 7 products (WhatsApp-image hoodies, all at 250 DH)
   - Cart + WhatsApp checkout on +212 645-900763
   - Free shipping for all Moroccan cities
-  - 50 DH advance deposit (تسبيق احتياطي)
+  - Full payment in cash on delivery
   - Arabic RTL interface
   - Image cards per category (cards.png style)
 

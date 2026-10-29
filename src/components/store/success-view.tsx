@@ -39,7 +39,7 @@ export function SuccessView({ orderId, total, whatsappUrl }: SuccessViewProps) {
           </h1>
 
           <p className="mt-4 text-base text-muted-foreground max-w-md mx-auto">
-            شكراً لطلبك. أرسل رسالة الطلب الجاهزة عبر واتساب لتأكيده ودفع تسبيق 50 د.م.
+            شكراً لطلبك. أرسل رسالة الطلب الجاهزة عبر واتساب لتأكيده. المبلغ كامل عند الاستلام.
           </p>
 
           {/* Order info card */}

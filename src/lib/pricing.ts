@@ -1,4 +1,4 @@
-import { ADVANCE_DEPOSIT, computeShipping } from './format'
+import { computeShipping } from './format'
 
 export const HOODIE_PAIR_DISCOUNT = 50
 
@@ -27,7 +27,6 @@ export function calculateOrderPricing(items: PricingLine[], country = 'المغ�
   const discountedSubtotal = (subtotalCents - discountCents) / 100
   const shipping = computeShipping(country, discountedSubtotal)
   const grandTotalCents = subtotalCents - discountCents + Math.round(shipping * 100)
-  const advanceCents = Math.min(ADVANCE_DEPOSIT * 100, grandTotalCents)
   return {
     subtotal: subtotalCents / 100,
     hoodieCount,
@@ -36,8 +35,9 @@ export function calculateOrderPricing(items: PricingLine[], country = 'المغ�
     discountedSubtotal,
     shipping,
     grandTotal: grandTotalCents / 100,
-    advance: advanceCents / 100,
-    remainingToPay: (grandTotalCents - advanceCents) / 100,
+    // Retain summary fields for API compatibility; the full total is due on delivery.
+    advance: 0,
+    remainingToPay: grandTotalCents / 100,
   }
 }
 
@@ -49,6 +49,6 @@ export function pricingMessageLines(pricing: OrderPricing, country: string) {
   lines.push(country === 'المغرب' || country === 'Morocco'
     ? 'رسوم التوصيل: مجاني (جميع مدن المغرب)'
     : `رسوم التوصيل: ${pricing.shipping === 0 ? 'مجاني' : pricing.shipping + ' د.م'}`)
-  lines.push(`الإجمالي: ${pricing.grandTotal} د.م`, '', `✅ تسبيق احتياطي: ${pricing.advance} د.م`, `⏳ المتبقي عند التوصيل: ${pricing.remainingToPay} د.م`)
+  lines.push(`الإجمالي: ${pricing.grandTotal} د.م`, '', `✅ الدفع عند الاستلام: ${pricing.grandTotal} د.م`)
   return lines
 }

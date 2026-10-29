@@ -112,7 +112,7 @@ try {
   assert.equal(orderResponse.status, 201)
   const savedOrder = await orderResponse.json(); createdOrders.push(savedOrder.order.id)
   assert.equal(savedOrder.pricing.subtotal, 551); assert.equal(savedOrder.pricing.discount, 50); assert.equal(savedOrder.pricing.grandTotal, 501)
-  assert.equal(savedOrder.pricing.remainingToPay, 451)
+  assert.equal(savedOrder.pricing.advance, 0); assert.equal(savedOrder.pricing.remainingToPay, 501)
   const storedOrder = JSON.parse(await readFile(join(process.cwd(), '.codex/store/orders', savedOrder.order.id + '.json'), 'utf8'))
   assert.equal(storedOrder.total, 501); assert.deepEqual(storedOrder.pricing, savedOrder.pricing)
   const undiscounted = await request('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...orderPayload, total: 551 }) }, false)

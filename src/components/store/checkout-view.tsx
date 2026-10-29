@@ -33,7 +33,7 @@ export function CheckoutView() {
   })
 
   const pricing = calculateOrderPricing(items, DELIVERY_COUNTRY)
-  const { subtotal, discount, shipping, advance, grandTotal, remainingToPay } = pricing
+  const { subtotal, discount, shipping, grandTotal } = pricing
 
   const buildWhatsAppMessage = () => {
     const lines: string[] = []
@@ -181,7 +181,7 @@ export function CheckoutView() {
           <div className="text-right flex-1">
             <p className="font-bold text-emerald-800 dark:text-emerald-400">إتمام الطلب عبر واتساب</p>
             <p className="text-xs text-muted-foreground">
-              بعد الإرسال، نتواصل معك لتأكيد الطلب. توصيل مجاني لكل المغرب + تسبيق احتياطي 50 د.م.
+              بعد الإرسال، نتواصل معك لتأكيد الطلب. توصيل مجاني لكل المغرب والدفع عند الاستلام.
             </p>
           </div>
         </div>
@@ -282,18 +282,9 @@ export function CheckoutView() {
                 <div className="flex items-start gap-3 flex-row-reverse">
                   <Check className="h-5 w-5 text-emerald-700 dark:text-emerald-500 shrink-0 mt-0.5" />
                   <div className="text-right flex-1">
-                    <p className="font-semibold text-sm">تسبيق احتياطي {advance} د.م عبر واتساب</p>
+                    <p className="font-semibold text-sm">الدفع عند الاستلام</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      تدفع {advance} درهم فقط عند تأكيد الطلب عبر واتساب — كاحتياط لضمان جدية الطلب.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 flex-row-reverse">
-                  <Check className="h-5 w-5 text-emerald-700 dark:text-emerald-500 shrink-0 mt-0.5" />
-                  <div className="text-right flex-1">
-                    <p className="font-semibold text-sm">الباقي عند التوصيل</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      المبلغ المتبقي يُدفع نقداً عند استلام الطلب ({remainingToPay} د.م).
+                      المبلغ كامل يُدفع نقداً عند استلام الطلب ({grandTotal} د.م).
                     </p>
                   </div>
                 </div>
@@ -368,15 +359,10 @@ export function CheckoutView() {
                 <span className="font-semibold">الإجمالي</span>
               </div>
 
-              {/* Advance payment highlight */}
               <div className="mt-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-3">
                 <div className="flex justify-between items-center flex-row-reverse">
-                  <span className="text-emerald-800 dark:text-emerald-400 font-bold text-lg">{formatPrice(advance)}</span>
-                  <span className="text-xs text-muted-foreground">تسبيق عبر واتساب</span>
-                </div>
-                <div className="flex justify-between items-center mt-2 flex-row-reverse">
-                  <span className="font-semibold">{formatPrice(remainingToPay)}</span>
-                  <span className="text-xs text-muted-foreground">عند التوصيل</span>
+                  <span className="text-emerald-800 dark:text-emerald-400 font-bold text-lg">{formatPrice(grandTotal)}</span>
+                  <span className="text-xs text-muted-foreground">المبلغ عند الاستلام</span>
                 </div>
               </div>
 

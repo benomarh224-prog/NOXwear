@@ -9,11 +9,11 @@ const loaded = new Map()
 function load(path) {
   const filename = resolve(path)
   if (loaded.has(filename)) return loaded.get(filename).exports
-  const module = { exports: {} }; loaded.set(filename, module)
+  const loadedModule = { exports: {} }; loaded.set(filename, loadedModule)
   const compiled = ts.transpileModule(readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText
   const require = (name) => name.startsWith('.') ? load(resolve(dirname(filename), name + '.ts')) : createRequire(filename)(name)
-  new Function('require', 'module', 'exports', compiled)(require, module, module.exports)
-  return module.exports
+  new Function('require', 'module', 'exports', compiled)(require, loadedModule, loadedModule.exports)
+  return loadedModule.exports
 }
 
 const { calculateOrderPricing: price, pricingMessageLines } = load('src/lib/pricing.ts')
@@ -22,19 +22,19 @@ const expected = [[0, 0, 0], [1, 0, 250], [2, 50, 450], [3, 50, 700], [4, 100, 9
 for (const [quantity, discount, total] of expected) {
   const actual = price([hoodie(quantity)])
   assert.equal(actual.discount, discount); assert.equal(actual.grandTotal, total)
-  assert.equal(actual.shipping, 0); assert.equal(actual.advance + actual.remainingToPay, total)
+  assert.equal(actual.shipping, 0); assert.equal(actual.advance, 0); assert.equal(actual.remainingToPay, total)
 }
 assert.equal(price([hoodie(1), hoodie(1)]).grandTotal, 450, 'Different hoodie designs/variants should combine')
 assert.equal(price([hoodie(1), { quantity: 1, price: 250, productType: 'other' }]).discount, 0)
 assert.equal(price([{ quantity: 2, price: 250, productType: 'other' }]).grandTotal, 500)
 assert.equal(price([hoodie(2, 250.25)]).grandTotal, 450.5, 'Money must retain cents')
 assert.equal(price([hoodie(2, 10)]).grandTotal, 0, 'Discount must not produce a negative total')
-assert.equal(price([hoodie(1, 25)]).remainingToPay, 0, 'Advance cannot exceed total')
+assert.equal(price([hoodie(1, 25)]).remainingToPay, 25, 'The full amount is due on delivery, even for small orders')
 assert.equal(price([{ quantity: 2, price: 250 }]).discount, 50, 'Existing hoodie carts must retain eligibility')
 const pair = price([hoodie(2)])
-assert.equal(pair.advance, 50); assert.equal(pair.remainingToPay, 400)
+assert.equal(pair.advance, 0); assert.equal(pair.remainingToPay, 450)
 const message = pricingMessageLines(pair, 'المغرب').join('\n')
-assert.match(message, /-50 د.م/); assert.match(message, /الإجمالي: 450 د.م/); assert.match(message, /المتبقي عند التوصيل: 400 د.م/)
+assert.match(message, /-50 د.م/); assert.match(message, /الإجمالي: 450 د.م/); assert.match(message, /الدفع عند الاستلام: 450 د.م/); assert.doesNotMatch(message, /تسبيق|المتبقي/)
 assert.ok(!pricingMessageLines(price([hoodie(1)]), 'المغرب').some((line) => line.includes('تخفيض')))
 
 const persisted = new Map()
@@ -53,4 +53,4 @@ assert.equal(price(cart().items).grandTotal, 450)
 cart().removeItem(cart().items[1].id)
 assert.equal(price(cart().items).grandTotal, 250)
 cart().clear()
-console.log('PASS: hoodie pairs, mixed products, quantities, money, deposit, WhatsApp summary, cart add/remove/update')
+console.log('PASS: hoodie pairs, mixed products, quantities, money, full cash on delivery, WhatsApp summary, cart add/remove/update')

@@ -12,10 +12,9 @@ export function formatPriceShort(amount: number): string {
 // Shipping policy:
 // - Morocco: FREE for ALL cities, ALL order amounts (no minimum, no fee)
 // - International: FREE if order >= 250 DH (minimum cart to checkout), else 30 DH
-// - Advance deposit (تسبيق): 50 DH flat, paid via WhatsApp at confirmation
+// - Payment: full amount in cash on delivery
 export const SHIPPING_FEE_INTERNATIONAL = 30
 export const FREE_SHIPPING_THRESHOLD_INTL = 250
-export const ADVANCE_DEPOSIT = 50
 
 // Compute shipping based on country and subtotal
 export function computeShipping(country: string, subtotal: number): number {

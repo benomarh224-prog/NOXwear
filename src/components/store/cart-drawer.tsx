@@ -164,7 +164,7 @@ export function CartDrawer() {
                 <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
               </Button>
               <p className="text-[10px] text-center text-muted-foreground">
-                تسبيق 50 د.م فقط • توصيل لكل المغرب • إرجاع خلال 30 يوم
+                الدفع عند الاستلام • توصيل لكل المغرب • إرجاع خلال 30 يوم
               </p>
             </div>
           </>
