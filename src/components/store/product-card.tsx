@@ -22,9 +22,9 @@ export function ProductCard({ product, index = 0, eager = false }: ProductCardPr
   const setView = useUI((s) => s.setView)
   const addItem = useCart((s) => s.addItem)
 
-  const discount = product.oldPrice
-    ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
-    : 0
+  const originalPrice = product.oldPrice
+  const hasDiscount = typeof originalPrice === 'number' && originalPrice > product.price
+  const discount = hasDiscount ? Math.round(((originalPrice - product.price) / originalPrice) * 100) : 0
 
   const lowStock = product.stock <= 10 && product.stock > 0
 
@@ -55,7 +55,7 @@ export function ProductCard({ product, index = 0, eager = false }: ProductCardPr
         className="store-card h-full group relative flex flex-col rounded-xl border border-border bg-card overflow-hidden hover:border-gold/40 hover:shadow-xl hover:shadow-primary/5 transition-colors cursor-pointer"
         onClick={goToProduct}
         onKeyDown={(event) => {
-          if (event.key === 'Enter') goToProduct()
+          if (event.target === event.currentTarget && event.key === 'Enter') goToProduct()
         }}
       >
         {/* Image */}
@@ -69,10 +69,10 @@ export function ProductCard({ product, index = 0, eager = false }: ProductCardPr
           />
 
           {/* Top badges */}
-          <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
+          <div className="absolute top-2 right-2 flex max-w-[calc(100%_-_52px)] flex-col gap-1.5 items-end sm:top-3 sm:right-3">
             {product.badge && (
-              <Badge className="bg-primary text-primary-foreground text-[10px] font-bold shadow-md">
-                {product.badge}
+              <Badge className="max-w-full bg-primary text-primary-foreground text-[10px] font-bold shadow-md">
+                <span className="truncate">{product.badge}</span>
               </Badge>
             )}
             {discount > 0 && (
@@ -88,32 +88,32 @@ export function ProductCard({ product, index = 0, eager = false }: ProductCardPr
               e.stopPropagation()
               toast('أضيف للمفضلة', { description: product.name })
             }}
-            className="absolute top-3 left-3 h-8 w-8 rounded-full glass border border-border flex items-center justify-center hover:border-gold hover:text-gold transition-colors"
+            className="absolute top-2 left-2 h-8 w-8 sm:top-3 sm:left-3 rounded-full glass border border-border flex items-center justify-center hover:border-gold hover:text-gold transition-colors"
             aria-label="أضف للمفضلة"
           >
             <Heart className="h-4 w-4" />
           </button>
 
           {/* Quick actions overlay */}
-          <div className="store-quick-actions absolute inset-x-0 bottom-0 p-3">
-            <div className="flex gap-2 flex-row-reverse">
+          <div className="store-quick-actions absolute inset-x-0 bottom-0 p-2 sm:p-3">
+            <div className="flex gap-1.5 flex-row-reverse">
               <Button
                 size="sm"
                 variant="secondary"
-                className="flex-1 bg-background/95 backdrop-blur"
+                className="min-w-0 flex-1 gap-1 bg-background/95 px-1.5 text-[11px] backdrop-blur has-[>svg]:px-1.5 sm:text-xs"
                 onClick={(e) => {
                   e.stopPropagation()
                   goToProduct()
                 }}
               >
-                <Eye className="h-4 w-4 ml-1" />
+                <Eye className="h-3.5 w-3.5" />
                 عرض سريع
               </Button>
               <Button
                 size="sm"
                 onClick={handleQuickAdd}
                 disabled={product.stock <= 0}
-                className="gradient-gold text-primary-foreground"
+                className="h-8 w-8 shrink-0 gradient-gold px-0 text-primary-foreground has-[>svg]:px-0 sm:w-9"
                 aria-label="أضف للسلة"
               >
                 <Plus className="h-4 w-4" />
@@ -122,62 +122,40 @@ export function ProductCard({ product, index = 0, eager = false }: ProductCardPr
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex flex-col flex-1 p-4">
-          <div className="flex items-center gap-1 mb-1.5 flex-row-reverse justify-end">
-            <span className="text-xs text-muted-foreground">
-              {product.rating} ({product.reviewCount})
-            </span>
-            <div className="flex">
+        {/* Keep each text slot bounded; long descriptions must not stretch cards. */}
+        <div className="flex min-w-0 flex-1 flex-col p-3 sm:p-4" dir="rtl">
+          <div className="mb-2 flex h-4 shrink-0 items-center gap-1.5 overflow-hidden text-[10px] text-muted-foreground sm:text-xs">
+            <div className="flex shrink-0" aria-hidden="true">
               {[1, 2, 3, 4, 5].map((i) => (
-                <Star
-                  key={i}
-                  className={`h-3 w-3 ${
-                    i <= Math.round(product.rating)
-                      ? 'fill-gold text-gold'
-                      : 'text-muted-foreground/30'
-                  }`}
-                />
+                <Star key={i} className={'h-2.5 w-2.5 sm:h-3 sm:w-3 ' + (i <= Math.round(product.rating) ? 'fill-gold text-gold' : 'text-muted-foreground/30')} />
               ))}
             </div>
+            <span className="whitespace-nowrap">{product.rating} ({product.reviewCount})</span>
           </div>
 
-          <h3 className="font-semibold text-sm leading-tight line-clamp-2 mb-1 group-hover:text-gold transition-colors">
+          <h3 data-card-title className="h-10 shrink-0 overflow-hidden text-right text-sm font-semibold leading-5 line-clamp-2 group-hover:text-gold transition-colors" dir="auto">
             {product.name}
           </h3>
-
-          <p className="text-xs text-muted-foreground line-clamp-2 mb-3 flex-1">
+          <p data-card-description className="mt-1 h-9 shrink-0 overflow-hidden text-right text-xs leading-[18px] text-muted-foreground line-clamp-2" dir="auto">
             {product.description}
           </p>
 
-          {lowStock && (
-            <Badge className="mb-3 max-w-full self-start whitespace-normal bg-amber-500/90 text-amber-950 text-[10px] font-bold">
-              {product.stock} فقط متبقي
-            </Badge>
-          )}
+          <div className="mt-2 min-h-6 shrink-0">
+            {lowStock && <Badge className="max-w-full whitespace-nowrap bg-amber-500/90 text-amber-950 text-[10px] font-bold">{product.stock} فقط متبقي</Badge>}
+          </div>
 
-          <div className="flex items-end justify-between flex-row-reverse">
-            <div className="text-left">
-              <div className="flex items-baseline gap-2 flex-row-reverse">
-                {product.oldPrice && (
-                  <span className="text-xs text-muted-foreground line-through">
-                    {formatPrice(product.oldPrice)}
-                  </span>
-                )}
-                <span className="font-black text-lg">{formatPrice(product.price)}</span>
+          {/* Prices use the full card width, above the independent action row. */}
+          <div data-card-footer className="mt-auto min-w-0 pt-2">
+            <div data-card-price className="flex min-w-0 flex-col items-start gap-0.5 tabular-nums">
+              <div className="flex h-4 items-center">
+                {hasDiscount && <del data-card-old-price className="whitespace-nowrap text-xs leading-4 text-muted-foreground"><span className="sr-only">الثمن قبل التخفيض: </span><bdi>{formatPrice(originalPrice)}</bdi></del>}
               </div>
-              <p className="text-[10px] text-muted-foreground mt-0.5 text-right">
-                {product.colors[0]}
-              </p>
+              <span className="whitespace-nowrap text-base font-black leading-6 sm:text-lg"><span className="sr-only">الثمن الحالي: </span><bdi>{formatPrice(product.price)}</bdi></span>
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleQuickAdd}
-              className="h-8 px-3 hover:border-gold hover:text-gold text-xs"
-            >
-              أضف
-            </Button>
+            <div className="mt-2 flex min-w-0 items-center justify-between gap-2">
+              <span className="min-w-0 truncate text-xs text-muted-foreground">{product.colors[0]}</span>
+              <Button size="sm" variant="outline" onClick={handleQuickAdd} disabled={product.stock <= 0} className="h-9 shrink-0 px-3 text-xs hover:border-gold hover:text-gold">أضف</Button>
+            </div>
           </div>
         </div>
       </div>
