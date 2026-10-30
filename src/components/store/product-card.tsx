@@ -69,15 +69,15 @@ export function ProductCard({ product, index = 0, eager = false }: ProductCardPr
           />
 
           {/* Top badges */}
-          <div className="absolute top-2 right-2 flex max-w-[calc(100%_-_52px)] flex-col gap-1.5 items-end sm:top-3 sm:right-3">
-            {product.badge && (
-              <Badge className="max-w-full bg-primary text-primary-foreground text-[10px] font-bold shadow-md">
-                <span className="truncate">{product.badge}</span>
+          <div className="absolute top-2 right-2 flex max-w-[calc(100%_-_52px)] flex-col items-end gap-1.5 sm:top-3 sm:right-3" dir="ltr">
+            {discount > 0 && (
+              <Badge data-discount-badge dir="ltr" aria-label={'تخفيض ' + discount + ' بالمئة'} className="h-6 min-w-12 rounded-md border-0 bg-red-700 px-2.5 py-0 text-[11px] font-bold leading-none tabular-nums text-white">
+                -{discount}%
               </Badge>
             )}
-            {discount > 0 && (
-              <Badge className="bg-red-500 text-white text-[10px] font-bold shadow-md">
-                -{discount}%
+            {product.badge && (
+              <Badge dir="auto" className="max-w-full bg-primary text-primary-foreground text-[10px] font-bold">
+                <span className="truncate">{product.badge}</span>
               </Badge>
             )}
           </div>

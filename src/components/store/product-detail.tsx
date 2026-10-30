@@ -95,15 +95,15 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
           >
             <ProductGallery images={productImages} video={product.video} name={product.name}>
               {/* Badges */}
-              <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
-                {product.badge && (
-                  <Badge className="bg-primary text-primary-foreground font-bold">
-                    {product.badge}
+              <div className="absolute top-4 right-4 flex max-w-[calc(100%_-_88px)] flex-col items-end gap-1.5" dir="ltr">
+                {discount > 0 && (
+                  <Badge data-discount-badge dir="ltr" aria-label={'تخفيض ' + discount + ' بالمئة'} className="h-6 min-w-12 rounded-md border-0 bg-red-700 px-2.5 py-0 text-[11px] font-bold leading-none tabular-nums text-white">
+                    -{discount}%
                   </Badge>
                 )}
-                {discount > 0 && (
-                  <Badge className="bg-red-500 text-white font-bold">
-                    -{discount}%
+                {product.badge && (
+                  <Badge dir="auto" className="max-w-full bg-primary text-primary-foreground font-bold">
+                    <span className="truncate">{product.badge}</span>
                   </Badge>
                 )}
               </div>
