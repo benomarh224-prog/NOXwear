@@ -125,7 +125,7 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
               <article key={product.slug} className="overflow-hidden rounded-2xl border border-border bg-card">
                 <div className="flex gap-4 p-4">
                   <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-muted"><Image src={product.images[0]} alt={product.name} fill unoptimized className="object-cover" /></div>
-                  <div className="min-w-0 flex-1"><p className="mb-2 truncate text-xs text-primary">{categories.find((item) => item.slug === product.categorySlug)?.name}</p><h2 className="line-clamp-2 text-sm font-semibold leading-6">{product.name}</h2><p className="mt-2 font-bold">{formatPrice(product.price)}</p><p className="mt-1 text-xs text-muted-foreground">المخزون: {product.stock}</p></div>
+                  <div className="min-w-0 flex-1"><p className="mb-2 truncate text-xs text-primary">{categories.find((item) => item.slug === product.categorySlug)?.name}</p><h2 className="line-clamp-2 text-sm font-semibold leading-6">{product.name}</h2><div className="mt-2 flex flex-wrap items-baseline gap-2 tabular-nums">{product.oldPrice != null && product.oldPrice > product.price && <span className="text-xs text-muted-foreground line-through">{formatPrice(product.oldPrice)}</span>}<span className="font-bold">{formatPrice(product.price)}</span></div><p className="mt-1 text-xs text-muted-foreground">المخزون: {product.stock}</p></div>
                 </div>
                 <div className="flex items-center justify-between gap-2 border-t border-border px-4 py-3">
                   <span className={'inline-flex items-center gap-1.5 text-xs ' + (product.active && !product.deletedAt ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground')}>
@@ -260,11 +260,18 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
     if (!images.length) { setError('زيد صورة وحدة على الأقل للمنتج.'); return }
     if (!sizes.length || !colors.length) { setError('اختار مقاس ولون واحد على الأقل.'); return }
     const values = new FormData(event.currentTarget)
+    const price = Number(values.get('price'))
+    const oldPriceText = String(values.get('oldPrice') || '').trim()
+    const oldPrice = oldPriceText ? Number(oldPriceText) : null
+    if (oldPrice !== null && (!Number.isFinite(oldPrice) || oldPrice <= price)) {
+      setError('الثمن قبل التخفيض خاصو يكون أكبر من الثمن الحالي. خليه فارغ إلا ما كاينش تخفيض.')
+      return
+    }
     setSaving(true)
     try {
       await onSave({
         name: String(values.get('name')).trim(), description: String(values.get('description')).trim(),
-        price: Number(values.get('price')), stock: Number(values.get('stock')),
+        price, oldPrice, stock: Number(values.get('stock')),
         categorySlug: String(values.get('categorySlug')), productType: values.get('productType') === 'other' ? 'other' : 'hoodie', badge: String(values.get('badge')).trim(),
         sizes, colors, images, video, active: values.get('active') === 'on', featured: values.get('featured') === 'on',
       })
@@ -297,8 +304,9 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
           <Field label="اسم المنتج" id="product-name"><Input id="product-name" name="name" required minLength={2} maxLength={150} defaultValue={product?.name || ''} placeholder="مثلاً: هودي NOXwear أسود" /></Field>
           <Field label="القسم" id="product-category"><select id="product-category" name="categorySlug" defaultValue={product?.categorySlug || 'anime'} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">{categories.map((category) => <option key={category.slug} value={category.slug}>{category.name}</option>)}</select></Field>
           <Field label="نوع القطعة" id="product-type"><select id="product-type" name="productType" defaultValue={product?.productType || 'hoodie'} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"><option value="hoodie">هودي — كيشملو العرض</option><option value="other">قطعة أخرى — بدون العرض</option></select></Field>
-          <Field label="الثمن بالدرهم" id="product-price"><Input id="product-price" name="price" type="number" inputMode="decimal" required min="0.01" max="100000" step="0.01" defaultValue={product?.price ?? 250} /></Field>
           <Field label="الكمية المتوفرة" id="product-stock"><Input id="product-stock" name="stock" type="number" inputMode="numeric" required min="0" max="100000" step="1" defaultValue={product?.stock ?? 50} /></Field>
+          <Field label="الثمن قبل التخفيض (د.م، اختياري)" id="product-old-price"><Input id="product-old-price" name="oldPrice" type="number" inputMode="decimal" min="0.01" max="100000" step="0.01" defaultValue={product?.oldPrice ?? ''} aria-describedby="product-old-price-help" className="tabular-nums" /><p id="product-old-price-help" className="text-xs leading-6 text-muted-foreground">خليه فارغ إلا ما كاينش تخفيض.</p></Field>
+          <Field label="الثمن الحالي / بعد التخفيض (د.م)" id="product-price"><Input id="product-price" name="price" type="number" inputMode="decimal" required min="0.01" max="100000" step="0.01" defaultValue={product?.price ?? 250} className="tabular-nums" /></Field>
         </div>
         <Field label="وصف المنتج" id="product-description"><Textarea id="product-description" name="description" maxLength={3000} rows={3} defaultValue={product?.description || ''} placeholder="كتب تفاصيل المنتج، القماش والطبعة..." /></Field>
         <div><p className="mb-3 text-sm font-medium">المقاسات المتوفرة</p><div className="flex flex-wrap gap-2" dir="ltr">{[...new Set(['S', 'M', 'L', 'XL', 'XXL', ...(product?.sizes || [])])].map((size) => <button key={size} type="button" aria-pressed={sizes.includes(size)} onClick={() => setSizes((current) => current.includes(size) ? current.filter((item) => item !== size) : [...current, size])} className={`min-h-10 min-w-12 rounded-lg border px-3 text-sm ${sizes.includes(size) ? 'border-amber-400 bg-amber-400/10 text-primary' : 'border-input text-muted-foreground'}`}>{size}</button>)}</div></div>

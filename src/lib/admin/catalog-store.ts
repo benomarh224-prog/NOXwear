@@ -22,12 +22,13 @@ export async function saveProduct(input: ProductInput, expectedRevision: string,
     const existing = slug ? document.products.find((product) => product.slug === slug) : undefined
     if (slug && (!existing || existing.deletedAt)) return null
     if (!existing && document.products.length >= 1000) throw new Error('Catalog capacity reached')
+    const requestedOldPrice = input.oldPrice === undefined ? existing?.oldPrice ?? null : input.oldPrice
     const product: AdminProduct = {
       ...input,
       sizes: [...new Set(input.sizes)], colors: [...new Set(input.colors)],
       images: [...new Set(input.images)],
       slug: newSlug,
-      oldPrice: existing?.oldPrice ?? null,
+      oldPrice: requestedOldPrice !== null && requestedOldPrice > input.price ? requestedOldPrice : null,
       rating: existing?.rating ?? 0, reviewCount: existing?.reviewCount ?? 0,
       tags: existing?.tags ?? [],
       sortOrder: existing?.categorySlug === input.categorySlug ? existing.sortOrder : null,

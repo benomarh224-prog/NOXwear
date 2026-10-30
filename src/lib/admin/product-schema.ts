@@ -12,6 +12,7 @@ export const productInputSchema = z.object({
   productType: z.enum(['hoodie', 'other']).default('hoodie'),
   description: z.string().trim().max(3000),
   price: z.number().finite().positive('الثمن خاصو يكون أكبر من صفر').max(100000),
+  oldPrice: z.number().finite().positive('الثمن قبل التخفيض خاصو يكون أكبر من صفر').max(100000).nullable().optional(),
   categorySlug: z.string().refine((value) => categorySlugs.has(value), 'اختار القسم'),
   images: z.array(imagePath).min(1, 'زيد صورة للمنتج').max(6),
   video: z.union([z.literal(''), z.string().max(200).regex(PRODUCT_VIDEO_PATH)]).default(''),
@@ -43,6 +44,10 @@ export const catalogDocumentSchema = z.object({
 export const saveProductSchema = z.object({
   revision: z.string().min(1).max(300),
   product: productInputSchema,
+}).superRefine(({ product }, context) => {
+  if (product.oldPrice != null && product.oldPrice <= product.price) {
+    context.addIssue({ code: 'custom', path: ['product', 'oldPrice'], message: 'الثمن قبل التخفيض خاصو يكون أكبر من الثمن الحالي' })
+  }
 })
 
 export const reorderProductsSchema = z.object({

@@ -73,12 +73,15 @@ try {
   ranked = await editAfterRank.json()
   assert.equal(ranked.product.sortOrder, orderedSlugs.indexOf(existing.slug), 'Editing a product must preserve its manual rank')
   const newProduct = {
-    name: 'منتج تجربة الإدارة', description: 'اختبار حفظ منتج وصور وأثمنة', price: 250, categorySlug: 'anime',
+    name: 'منتج تجربة الإدارة', description: 'اختبار حفظ منتج وصور وأثمنة', price: 250, oldPrice: 350, categorySlug: 'anime',
     images: [snapshot.products[0].images[0]], sizes: ['L'], colors: ['أسود', 'أبيض'], stock: 8,
     featured: true, active: false, badge: '',
   }
   assert.equal((await save(null, newProduct, snapshot.revision, 'https://untrusted.example')).status, 403)
   assert.equal((await save(null, { ...newProduct, price: -1 }, snapshot.revision)).status, 400)
+  assert.equal((await save(null, { ...newProduct, oldPrice: 200 }, snapshot.revision)).status, 400)
+  assert.equal((await save(null, { ...newProduct, oldPrice: 250 }, snapshot.revision)).status, 400)
+  assert.equal((await save(null, { ...newProduct, oldPrice: -1 }, snapshot.revision)).status, 400)
   assert.equal((await save(null, { ...newProduct, images: [] }, snapshot.revision)).status, 400)
   const invalidImage = new FormData(); invalidImage.append('file', new Blob(['<svg/>'], { type: 'image/png' }), 'fake.png')
   assert.equal((await request('/api/admin/upload', { method: 'POST', headers: { Origin: base }, body: invalidImage })).status, 400)
@@ -94,6 +97,7 @@ try {
   assert.equal(created.status, 201)
   let latest = await created.json()
   const slug = latest.product.slug
+  assert.equal(latest.product.oldPrice, 350, 'Before-discount price must persist when creating a product')
   assert.equal((await request('/api/products/' + slug, {}, false)).status, 404, 'Hidden product leaked')
   assert.equal((await save(slug, newProduct, snapshot.revision)).status, 409, 'Stale edit accepted')
   const staleCreate = await save(null, { ...newProduct, name: 'تجربة إضافة من لائحة قديمة' }, snapshot.revision)
@@ -104,8 +108,22 @@ try {
   const updated = await save(slug, changed, latest.revision)
   assert.equal(updated.status, 200); latest = await updated.json()
   const publicProduct = (await (await request('/api/products/' + slug, {}, false)).json()).product
+  assert.equal(publicProduct.oldPrice, 350);
   assert.equal(publicProduct.price, 275.5); assert.equal(publicProduct.gallery.split(',').length, 2)
   assert.match(await (await request('/', {}, false)).text(), /منتج تجربة الإدارة/)
+  const discountedPage = await (await request('/?product=' + slug, {}, false)).text()
+  assert.match(discountedPage, /line-through/)
+  assert.match(discountedPage, /وفّر/)
+  const noDiscount = await save(slug, { ...changed, oldPrice: null }, latest.revision)
+  assert.equal(noDiscount.status, 200); latest = await noDiscount.json()
+  assert.equal(latest.product.oldPrice, null, 'Clearing the before price must remove the discount')
+  const restoredDiscount = await save(slug, changed, latest.revision)
+  assert.equal(restoredDiscount.status, 200); latest = await restoredDiscount.json()
+  assert.equal(latest.product.oldPrice, 350)
+  const { oldPrice: _omitted, ...legacyEdit } = changed
+  const legacySave = await save(slug, legacyEdit, latest.revision)
+  assert.equal(legacySave.status, 200); latest = await legacySave.json()
+  assert.equal(latest.product.oldPrice, 350, 'Older editor clients must preserve a valid existing before price')
   const orderPayload = { customerName: 'Pricing integration test', email: 'test@example.invalid', phone: '0000000000', address: 'Test', city: 'Test', country: 'المغرب', total: 501,
     items: [{ productId: slug, name: changed.name, price: 275.5, quantity: 2, size: 'L', color: 'أسود' }] }
   const orderResponse = await request('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(orderPayload) }, false)
