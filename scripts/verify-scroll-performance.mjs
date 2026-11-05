@@ -52,14 +52,16 @@ for (const options of [{ desktop: false }, { reduced: true }, { top: -200, botto
 }
 
 // Render the real Next Image implementation: no opaque black blur layer, no
-// visibility transition, responsive optimizer URLs and reserved fill layout.
-const image = await load('src/components/store/optimized-image.tsx')
-const markup = renderToStaticMarkup(React.createElement(image.OptimizedImage, { src: '/products/front.jpg', alt: 'هودي', sizes: '(max-width: 639px) calc(50vw - 22px), 284px', loading: 'lazy', className: 'object-cover' }))
+// visibility transition, responsive media URLs and reserved fill layout.
+const mediaImages = await load('src/lib/media-image.ts')
+const image = await load('src/components/store/optimized-image.tsx', { '@/lib/media-image': mediaImages })
+const markup = renderToStaticMarkup(React.createElement(image.OptimizedImage, { src: '/api/media/00000000-0000-4000-8000-000000000000.webp', alt: 'هودي', sizes: '(max-width: 639px) calc(50vw - 22px), 284px', loading: 'lazy', className: 'object-cover' }))
 assert.match(markup, /loading="lazy"/)
 assert.match(markup, /decoding="async"/)
 assert.match(markup, /srcSet=/)
 assert.match(markup, /position:absolute/)
-assert.match(markup, /_next\/image/)
+assert.match(markup, /api\/media\/.*w=640/)
+assert.ok(!markup.includes('/_next/image'), 'Rendering must not depend on the metered optimizer')
 assert.ok(!/data:image|filter:|opacity:|background-image:|visibility:hidden/.test(markup), 'A decoded image must not be covered by a fake blur placeholder')
 const ui = { setView() {} }, cart = { addItem() {} }
 const box = ({ children }) => React.createElement('div', null, children)

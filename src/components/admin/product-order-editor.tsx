@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/store/optimized-image'
 import { ArrowUp, ArrowDown, Loader2, RefreshCw, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { compareCollectionOrder } from '@/lib/collection-order'
@@ -52,7 +52,7 @@ export function ProductOrderEditor({ products, revision, category, categories, o
         {items.map((product, index) => (
           <li key={product.slug} className="flex items-center gap-2 rounded-xl border border-border bg-background p-2 sm:gap-3 sm:p-3">
             <span className="w-5 shrink-0 text-center text-xs font-semibold text-muted-foreground" aria-label={'الموضع ' + (index + 1)}>{index + 1}</span>
-            <div className="relative h-12 w-10 shrink-0 overflow-hidden rounded-lg bg-muted"><Image src={product.images[0]} alt="" fill sizes="40px" className="object-cover" /></div>
+            <div className="relative h-12 w-10 shrink-0 overflow-hidden rounded-lg bg-muted"><OptimizedImage src={product.images[0]} alt="" sizes="40px" className="object-cover" /></div>
             <div className="min-w-0 flex-1"><p className="line-clamp-2 text-xs font-medium leading-5 sm:text-sm">{product.name}</p>{!product.active && <span className="text-[10px] text-muted-foreground">مخفي فالمتجر</span>}</div>
             <div className="flex shrink-0 gap-1">
               <Button type="button" variant="outline" size="icon" className="h-10 w-10" disabled={saving || index === 0} onClick={() => move(index, -1)} aria-label={'طلع ' + product.name}><ArrowUp size={16} /></Button>
