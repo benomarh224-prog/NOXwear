@@ -19,8 +19,8 @@ export async function GET(req: Request) {
       limit,
     })
     return NextResponse.json({ products })
-  } catch (err: any) {
-    console.error('GET /api/products failed:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch {
+    console.warn('Public catalogue is temporarily unavailable')
+    return NextResponse.json({ error: 'المنتجات غير متاحة مؤقتاً. عاود المحاولة من بعد.' }, { status: 503, headers: { 'Cache-Control': 'no-store' } })
   }
 }

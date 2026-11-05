@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
+import { STOREFRONT_CACHE_TAG } from '@/lib/storefront-cache'
 import { isAdmin, sameOrigin } from '@/lib/admin/auth'
 import { readCatalog, saveProduct } from '@/lib/admin/catalog-store'
 import { saveProductSchema } from '@/lib/admin/product-schema'
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
   if (!body.success) return NextResponse.json({ error: body.error.issues[0]?.message || 'راجع معلومات المنتج' }, { status: 400 })
   try {
     const result = await saveProduct(body.data.product, body.data.revision)
+    revalidateTag(STOREFRONT_CACHE_TAG, { expire: 0 })
     revalidatePath('/')
     return NextResponse.json(result, { status: 201, headers: { 'Cache-Control': 'private, no-store' } })
   } catch (error) {

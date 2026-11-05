@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
+import { STOREFRONT_CACHE_TAG } from '@/lib/storefront-cache'
 import { isAdmin, sameOrigin } from '@/lib/admin/auth'
 import { InvalidProductOrderError, reorderProducts } from '@/lib/admin/catalog-store'
 import { reorderProductsSchema } from '@/lib/admin/product-schema'
@@ -14,6 +15,7 @@ export async function POST(request: Request) {
   if (!body.success) return NextResponse.json({ error: 'راجع القسم ولائحة الترتيب' }, { status: 400 })
   try {
     const result = await reorderProducts(body.data.categorySlug, body.data.slugs, body.data.revision)
+    revalidateTag(STOREFRONT_CACHE_TAG, { expire: 0 })
     revalidatePath('/')
     return NextResponse.json(result, { headers: { 'Cache-Control': 'private, no-store' } })
   } catch (error) {

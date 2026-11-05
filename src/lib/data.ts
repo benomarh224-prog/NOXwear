@@ -1,3 +1,5 @@
+import { unstable_cache } from 'next/cache'
+import { CatalogUnavailableError, STOREFRONT_CACHE_TAG } from '@/lib/storefront-cache'
 import catalog from '@/lib/catalog.json'
 import { compareCollectionOrder } from '@/lib/collection-order'
 import { readCatalog } from '@/lib/admin/catalog-store'
@@ -8,8 +10,10 @@ const categories: Category[] = catalog.categories.filter((category) => category.
   ...category, id: category.slug,
 }))
 
-async function catalogProducts(): Promise<Product[]> {
-  const { document } = await readCatalog()
+async function loadCatalogProducts(): Promise<Product[]> {
+  const { document } = await readCatalog().catch((cause: unknown) => {
+    throw new CatalogUnavailableError('The catalogue is temporarily unavailable', { cause })
+  })
   return document.products.filter((product) => product.active && !product.deletedAt).map((product) => ({
     ...product,
     id: product.slug,
@@ -19,6 +23,14 @@ async function catalogProducts(): Promise<Product[]> {
     category: categories.find((category) => category.slug === product.categorySlug),
     badge: product.badge || null,
   }))
+}
+
+const cachedCatalogProducts = unstable_cache(loadCatalogProducts, ['storefront-products-v1'], {
+  revalidate: 60, tags: [STOREFRONT_CACHE_TAG],
+})
+
+async function catalogProducts(fresh = false): Promise<Product[]> {
+  return fresh || !process.env.VERCEL ? loadCatalogProducts() : cachedCatalogProducts()
 }
 
 export async function getCategories() {
@@ -35,10 +47,11 @@ export async function getProducts(opts: {
   sort?: string | null
   featuredOnly?: boolean
   limit?: number
+  fresh?: boolean
 } = {}) {
-  const { categorySlug, search, sort, featuredOnly, limit } = opts
+  const { categorySlug, search, sort, featuredOnly, limit, fresh } = opts
   const query = search?.trim().normalize('NFKC').toLocaleLowerCase()
-  let result = (await catalogProducts()).filter((product) => {
+  let result = (await catalogProducts(fresh)).filter((product) => {
     if (categorySlug && product.categoryId !== categorySlug) return false
     if (featuredOnly && !product.featured) return false
     if (query) {

@@ -2,6 +2,7 @@ import { after, NextResponse } from 'next/server'
 import { recordRegisteredOrder } from '@/lib/analytics-store'
 import { createOrder, getProducts } from '@/lib/data'
 import { calculateOrderPricing, type PricingLine } from '@/lib/pricing'
+import { CatalogUnavailableError } from '@/lib/storefront-cache'
 import { OrderStorageUnavailableError } from '@/lib/orders'
 import { z } from 'zod'
 
@@ -33,7 +34,7 @@ export async function POST(req: Request) {
         { status: 400 },
       )
     }
-    const currentProducts = new Map((await getProducts()).map((product) => [product.id, product]))
+    const currentProducts = new Map((await getProducts({ fresh: true })).map((product) => [product.id, product]))
     const pricingItems: PricingLine[] = []
     const quantities = new Map<string, number>()
     for (const item of parsed.data.items) {
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
     console.error('Order creation failed:', err)
     return NextResponse.json(
       { error: 'تعذر حفظ الطلب الآن، يرجى المحاولة مجدداً' },
-      { status: err instanceof OrderStorageUnavailableError ? 503 : 500 },
+      { status: err instanceof OrderStorageUnavailableError || err instanceof CatalogUnavailableError ? 503 : 500 },
     )
   }
 }

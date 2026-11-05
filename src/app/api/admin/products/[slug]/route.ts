@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
+import { STOREFRONT_CACHE_TAG } from '@/lib/storefront-cache'
 import { isAdmin, sameOrigin } from '@/lib/admin/auth'
 import { saveProduct, setProductDeleted } from '@/lib/admin/catalog-store'
 import { saveProductSchema } from '@/lib/admin/product-schema'
@@ -17,6 +18,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ slug
     const { slug } = await params
     const result = await saveProduct(body.data.product, body.data.revision, slug)
     if (!result) return NextResponse.json({ error: 'المنتج ما بقاش موجود' }, { status: 404 })
+    revalidateTag(STOREFRONT_CACHE_TAG, { expire: 0 })
     revalidatePath('/')
     return NextResponse.json(result, { headers: { 'Cache-Control': 'private, no-store' } })
   } catch (error) {
@@ -36,6 +38,7 @@ async function changeTrashState(request: Request, params: Promise<{ slug: string
     const { slug } = await params
     const result = await setProductDeleted(slug, body.data.revision, deleted)
     if (!result) return NextResponse.json({ error: 'المنتج ما بقاش موجود' }, { status: 404 })
+    revalidateTag(STOREFRONT_CACHE_TAG, { expire: 0 })
     revalidatePath('/')
     return NextResponse.json(result, { headers: { 'Cache-Control': 'private, no-store' } })
   } catch (error) {
