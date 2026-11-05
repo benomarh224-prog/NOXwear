@@ -13,9 +13,11 @@ Delete moves a product to Trash; restoring returns it as hidden until explicitly
 published again. Deleted records and their photos are retained for recovery.
 
 The initial catalog is `src/lib/catalog.json`. Once the first admin save occurs,
-the canonical catalog is the private Blob document `catalog/products-v1.json`.
+the canonical catalog is the private object `catalog/products-v1.json`. The
+configured NOX PostgreSQL database stores these objects; the original private
+Blob backend remains available for compatibility. See [FREE-STORAGE.md](FREE-STORAGE.md).
 The storefront reads it at request time, so changes require no GitHub push or
-redeployment. Catalog writes use an ETag precondition to reject concurrent stale
+redeployment. Catalog writes use an atomic revision precondition to reject concurrent stale
 saves instead of silently overwriting another edit.
 
 Product images are normalized to WebP and stored separately under
@@ -24,8 +26,9 @@ catalog documents, authentication data and orders remain private.
 
 ## Vercel configuration
 
-Use the Next.js preset and `npm run build`. Keep the existing **private** Vercel
-Blob connection (`BLOB_READ_WRITE_TOKEN`, or `BLOB_STORE_ID` with OIDC).
+Use the Next.js preset and `npm run build`. Production uses the Free Prisma
+Postgres integration via `NOX_DATABASE_URL_POOLED` / `NOX_DATABASE_URL`. Retain
+the original private Blob connection for recovery of legacy media.
 
 Production admin authentication requires these server-only variables:
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { STOREFRONT_CACHE_TAG } from '@/lib/storefront-cache'
+import { countMissingProductImages } from '@/lib/admin/catalog-media'
 import { isAdmin, sameOrigin } from '@/lib/admin/auth'
 import { readCatalog, saveProduct } from '@/lib/admin/catalog-store'
 import { saveProductSchema } from '@/lib/admin/product-schema'
@@ -13,7 +14,7 @@ export async function GET() {
   if (!(await isAdmin())) return NextResponse.json({ error: 'خاصك تدخل لحساب الإدارة' }, { status: 401 })
   try {
     const { document, revision } = await readCatalog()
-    return NextResponse.json({ products: document.products, revision }, { headers: { 'Cache-Control': 'private, no-store' } })
+    return NextResponse.json({ products: document.products, revision, missingImages: await countMissingProductImages(document.products) }, { headers: { 'Cache-Control': 'private, no-store' } })
   } catch {
     return NextResponse.json({ error: 'تعذر تحميل المنتجات. حاول من جديد.' }, { status: 503 })
   }

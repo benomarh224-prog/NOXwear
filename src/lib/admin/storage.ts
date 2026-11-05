@@ -3,6 +3,7 @@ import { createHash, randomUUID } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { BlobPreconditionFailedError, get, head, put } from '@vercel/blob'
+import { postgresStorageEnabled, readDatabaseObject, writeDatabaseObject } from './postgres-storage'
 
 export class StorageConflictError extends Error {}
 
@@ -12,10 +13,11 @@ export function normalizeRevision(revision: string) {
 }
 const localRoot = join(process.cwd(), '.codex', 'store')
 const localLocks = new Map<string, Promise<void>>()
+let legacyUnavailableUntil = 0
 
 export function cloudStorageEnabled() {
   if (!process.env.VERCEL && process.env.NOX_ADMIN_LOCAL_STORAGE === '1') return false
-  return Boolean(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN)
+  return postgresStorageEnabled() || Boolean(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN)
 }
 
 function localPath(path: string) {
@@ -31,6 +33,10 @@ function fileRevision(contents: string) {
 }
 
 export async function readJson<T>(path: string): Promise<{ value: T; revision: string } | null> {
+  if (postgresStorageEnabled()) {
+    const saved = await readDatabaseObject(path)
+    return saved ? { value: JSON.parse(saved.body.toString('utf8')) as T, revision: saved.revision } : null
+  }
   if (cloudStorageEnabled()) {
     for (let attempt = 0; attempt < 3; attempt++) {
       const result = await get(path, { access: 'private', useCache: false, headers: { 'Accept-Encoding': 'identity' } })
@@ -60,6 +66,11 @@ export async function readJson<T>(path: string): Promise<{ value: T; revision: s
 
 export async function writeJson(path: string, value: unknown, revision: string | null) {
   const contents = JSON.stringify(value)
+  if (postgresStorageEnabled()) {
+    const saved = await writeDatabaseObject(path, Buffer.from(contents), 'application/json', revision ? normalizeRevision(revision) : null)
+    if (!saved) throw new StorageConflictError('The data has changed. Reload before saving.')
+    return saved
+  }
   if (cloudStorageEnabled()) {
     try {
       const result = await put(path, contents, {
@@ -96,7 +107,9 @@ export async function writeJson(path: string, value: unknown, revision: string |
 
 export async function saveMedia(id: string, bytes: Buffer) {
   const path = `catalog/media/${id}.webp`
-  if (cloudStorageEnabled()) {
+  if (postgresStorageEnabled()) {
+    if (!(await writeDatabaseObject(path, bytes, 'image/webp', null))) throw new StorageConflictError('Image already exists')
+  } else if (cloudStorageEnabled()) {
     await put(path, bytes, { access: 'private', contentType: 'image/webp', addRandomSuffix: false, allowOverwrite: false })
   } else {
     const target = localPath(path)
@@ -108,6 +121,11 @@ export async function saveMedia(id: string, bytes: Buffer) {
 
 export async function readMedia(filename: string) {
   const path = `catalog/media/${filename}`
+  if (postgresStorageEnabled()) {
+    const saved = await readDatabaseObject(path)
+    if (saved) return new Uint8Array(saved.body)
+    return recoverLegacyMedia(path)
+  }
   if (cloudStorageEnabled()) {
     const result = await get(path, { access: 'private' })
     return result?.statusCode === 200 ? result.stream : null
@@ -123,7 +141,9 @@ export async function readMedia(filename: string) {
 // Customer designs use a separate namespace from the product catalogue.
 export async function saveDesignMedia(id: string, bytes: Buffer, extension: 'png' | 'jpg' | 'webp', contentType: string) {
   const path = `custom-designs/media/${id}.${extension}`
-  if (cloudStorageEnabled()) {
+  if (postgresStorageEnabled()) {
+    if (!(await writeDatabaseObject(path, bytes, contentType, null))) throw new StorageConflictError('Design already exists')
+  } else if (cloudStorageEnabled()) {
     await put(path, bytes, { access: 'private', contentType, addRandomSuffix: false, allowOverwrite: false })
   } else {
     const target = localPath(path)
@@ -135,6 +155,11 @@ export async function saveDesignMedia(id: string, bytes: Buffer, extension: 'png
 
 export async function readDesignMedia(filename: string) {
   const path = `custom-designs/media/${filename}`
+  if (postgresStorageEnabled()) {
+    const saved = await readDatabaseObject(path)
+    if (saved) return new Uint8Array(saved.body)
+    return recoverLegacyMedia(path)
+  }
   if (cloudStorageEnabled()) {
     const result = await get(path, { access: 'private' })
     return result?.statusCode === 200 ? result.stream : null
@@ -143,5 +168,21 @@ export async function readDesignMedia(filename: string) {
   catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
     throw error
+  }
+}
+
+// A short backoff avoids probing the suspended provider for every visible image.
+// Original files are copied once, only after the old provider permits reads again.
+export async function recoverLegacyMedia(path: string): Promise<Uint8Array<ArrayBuffer> | null> {
+  if (!postgresStorageEnabled() || Date.now() < legacyUnavailableUntil || !(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN)) return null
+  try {
+    const legacy = await get(path, { access: 'private' })
+    if (legacy?.statusCode !== 200) return null
+    const bytes = Buffer.from(await new Response(legacy.stream).arrayBuffer())
+    await writeDatabaseObject(path, bytes, legacy.blob.contentType || 'application/octet-stream', null)
+    return new Uint8Array(bytes)
+  } catch {
+    legacyUnavailableUntil = Date.now() + 60_000
+    return null
   }
 }

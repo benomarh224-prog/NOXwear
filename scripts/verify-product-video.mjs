@@ -18,7 +18,8 @@ function loadTypeScript(source, dependencies = {}) {
   return exports
 }
 const videoRules = loadTypeScript(await readFile('src/lib/product-video.ts', 'utf8'))
-const imageComponent = loadTypeScript(await readFile('src/components/store/optimized-image.tsx', 'utf8'))
+const mediaImages = loadTypeScript(await readFile('src/lib/media-image.ts', 'utf8'))
+const imageComponent = loadTypeScript(await readFile('src/components/store/optimized-image.tsx', 'utf8'), { '@/lib/media-image': mediaImages })
 const galleryComponent = loadTypeScript(await readFile('src/components/store/product-gallery.tsx', 'utf8'), { './optimized-image': imageComponent })
 const markup = renderToStaticMarkup(React.createElement(galleryComponent.ProductGallery, { images: ['/products/front.jpg', '/products/back.jpg'], video: '/api/product-videos/00000000-0000-4000-8000-000000000001.mp4', name: 'اختبار الفيديو' }))
 assert.match(markup, /aria-label="عرض فيديو المنتج"/)
@@ -31,6 +32,8 @@ const tokenRoute = loadTypeScript(await readFile('src/app/api/admin/video-upload
   '@vercel/blob/client': { handleUpload: (options) => blobClient.handleUpload({ ...options, token: 'vercel_blob_rw_teststore_not-a-real-secret' }) },
   '@/lib/admin/auth': { isAdmin: async () => authorized, sameOrigin: (r) => r.headers.get('origin') === new URL(r.url).origin },
   '@/lib/admin/storage': { cloudStorageEnabled: () => true },
+  '@/lib/admin/postgres-storage': { postgresStorageEnabled: () => false },
+  '@/lib/admin/postgres-video-upload': {},
   '@/lib/admin/product-video-store': { saveLocalProductVideo: () => { throw new Error('Cloud uploads must not buffer video through server') } },
   '@/lib/product-video': videoRules,
 })

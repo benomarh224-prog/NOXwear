@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { put } from '@vercel/blob'
+import { postgresStorageEnabled } from './admin/postgres-storage'
 import type { OrderPricing } from './pricing'
 
 export interface OrderInput {
@@ -29,7 +30,7 @@ export class OrderStorageUnavailableError extends Error {
 }
 
 export async function saveOrder(data: OrderInput) {
-  if (!process.env.VERCEL && process.env.NOX_ADMIN_LOCAL_STORAGE === '1') {
+  if (postgresStorageEnabled() || (!process.env.VERCEL && process.env.NOX_ADMIN_LOCAL_STORAGE === '1')) {
     const { writeJson } = await import('./admin/storage')
     const id = randomUUID()
     await writeJson('orders/' + id + '.json', { ...data, id, status: 'pending', createdAt: new Date().toISOString() }, null)

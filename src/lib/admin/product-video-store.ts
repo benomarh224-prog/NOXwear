@@ -3,7 +3,8 @@ import { createReadStream } from 'node:fs'
 import { mkdir, stat, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { BlobNotFoundError, get, head } from '@vercel/blob'
-import { cloudStorageEnabled } from './storage'
+import { postgresStorageEnabled, databaseObjectMetadata, databaseObjectRange } from './postgres-storage'
+import { cloudStorageEnabled, recoverLegacyMedia } from './storage'
 import { PRODUCT_VIDEO_FILENAME } from '@/lib/product-video'
 
 function videoPath(filename: string) {
@@ -25,6 +26,11 @@ export async function saveLocalProductVideo(filename: string, bytes: Uint8Array)
 export async function productVideoMetadata(filename: string) {
   const path = videoPath(filename)
   try {
+    if (postgresStorageEnabled()) {
+      let info = await databaseObjectMetadata(path)
+      if (!info && await recoverLegacyMedia(path)) info = await databaseObjectMetadata(path)
+      return info ? { size: info.size, etag: '"' + info.revision + '"' } : null
+    }
     if (cloudStorageEnabled()) {
       const info = await head(path)
       return { size: info.size, etag: info.etag }
@@ -39,6 +45,19 @@ export async function productVideoMetadata(filename: string) {
 
 export async function productVideoStream(filename: string, range: { start: number; end: number } | null) {
   const path = videoPath(filename)
+  if (postgresStorageEnabled()) {
+    const bytes = await databaseObjectRange(path, range)
+    if (!bytes) return null
+    let offset = 0
+    return { partial: Boolean(range), stream: new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (offset >= bytes.length) { controller.close(); return }
+        const end = Math.min(bytes.length, offset + 64 * 1024)
+        controller.enqueue(new Uint8Array(bytes.subarray(offset, end)))
+        offset = end
+      },
+    }) }
+  }
   if (cloudStorageEnabled()) {
     const result = await get(path, { access: 'private', headers: { 'Accept-Encoding': 'identity', ...(range ? { Range: `bytes=${range.start}-${range.end}` } : {}) } })
     if (!result || result.statusCode !== 200) return null

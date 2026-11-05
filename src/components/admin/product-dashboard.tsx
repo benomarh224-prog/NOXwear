@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/store/optimized-image'
 import { signOut } from 'next-auth/react'
 import { ArrowUpDown, ExternalLink, Eye, EyeOff, ImagePlus, Video, Loader2, LogOut, Package, Pencil, Plus, RefreshCw, Search, Trash2, X } from 'lucide-react'
 import { BrandLogo } from '@/components/store/brand-logo'
@@ -20,7 +20,7 @@ import type { AdminProduct, ProductInput } from '@/lib/admin/product-schema'
 
 type CategoryOption = { slug: string; name: string }
 type Snapshot = { products: AdminProduct[]; revision: string }
-type Props = { initialProducts: AdminProduct[]; initialRevision: string; categories: CategoryOption[] }
+type Props = { initialMissingImages?: number; initialProducts: AdminProduct[]; initialRevision: string; categories: CategoryOption[] }
 
 async function requestJson(url: string, options?: RequestInit) {
   const response = await fetch(url, { ...options, cache: 'no-store' })
@@ -30,8 +30,9 @@ async function requestJson(url: string, options?: RequestInit) {
   return body
 }
 
-export function ProductDashboard({ initialProducts, initialRevision, categories }: Props) {
+export function ProductDashboard({ initialProducts, initialRevision, categories, initialMissingImages = 0 }: Props) {
   const [snapshot, setSnapshot] = useState<Snapshot>({ products: initialProducts, revision: initialRevision })
+  const [missingImages, setMissingImages] = useState(initialMissingImages)
   const [ordering, setOrdering] = useState<string | null>(null)
   const [orderingBusy, setOrderingBusy] = useState(false)
   const [query, setQuery] = useState('')
@@ -52,7 +53,7 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
 
   async function refresh() {
     setRefreshing(true); setError('')
-    try { setSnapshot(await requestJson('/api/admin/products')); setNotice('تحدّثات لائحة المنتجات') }
+    try { const result = await requestJson('/api/admin/products'); setSnapshot(result); setMissingImages(result.missingImages || 0); setNotice('تحدّثات لائحة المنتجات') }
     catch (failure) { setError((failure as Error).message) }
     finally { setRefreshing(false) }
   }
@@ -102,6 +103,7 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
           <div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary" dir="ltr">YOUR STORE, YOUR WAY</p><h1 className="text-3xl font-black sm:text-4xl">المنتجات ديالك</h1><p className="mt-3 text-sm leading-7 text-muted-foreground">زيد منتجاتك وعدّل التصاور والأثمنة. كلشي كيتحفظ وكيبان فالمتجر.</p></div>
           <div className="flex flex-wrap gap-2"><Button variant="outline" className="h-12 gap-2" disabled={refreshing || mutating} onClick={() => setOrdering(category === 'all' ? categories[0]?.slug || null : category)}><ArrowUpDown size={18} /> ترتيب المنتجات</Button><Button onClick={() => { setError(''); setEditing(null) }} className="h-12 gap-2 bg-amber-400 px-5 font-bold text-black hover:bg-amber-300"><Plus size={18} /> إضافة منتج</Button></div>
         </div>
+        {missingImages > 0 && <p role="status" className="mb-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-7 text-amber-950 dark:text-amber-200">كاينين تصاور قديمة مازال ما رجعوش. دخل لـ«تعديل» باش ترفع النسخ الأصلية، أو خبي المنتج مؤقتاً حتى ترجع الصورة.</p>}
         <AnalyticsPanel products={snapshot.products} />
         <div className="mb-8 grid grid-cols-3 gap-3 sm:gap-5">
           <Summary label="جميع المنتجات" value={currentProducts.length} />
@@ -124,7 +126,7 @@ export function ProductDashboard({ initialProducts, initialRevision, categories 
             {filtered.map((product) => (
               <article key={product.slug} className="overflow-hidden rounded-2xl border border-border bg-card">
                 <div className="flex gap-4 p-4">
-                  <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-muted"><Image src={product.images[0]} alt={product.name} fill unoptimized className="object-cover" /></div>
+                  <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-xl bg-muted"><OptimizedImage src={product.images[0]} alt={product.name} unoptimized className="object-cover" /></div>
                   <div className="min-w-0 flex-1"><p className="mb-2 truncate text-xs text-primary">{categories.find((item) => item.slug === product.categorySlug)?.name}</p><h2 className="line-clamp-2 text-sm font-semibold leading-6">{product.name}</h2><div className="mt-2 flex flex-wrap items-baseline gap-2 tabular-nums">{product.oldPrice != null && product.oldPrice > product.price && <span className="text-xs text-muted-foreground line-through">{formatPrice(product.oldPrice)}</span>}<span className="font-bold">{formatPrice(product.price)}</span></div><p className="mt-1 text-xs text-muted-foreground">المخزون: {product.stock}</p></div>
                 </div>
                 <div className="flex items-center justify-between gap-2 border-t border-border px-4 py-3">
@@ -214,11 +216,24 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
     setUploading(true); setError(''); setVideoProgress(0)
     const controller = new AbortController()
     videoAbort.current = controller
+    let pendingUpload: string | undefined
     try {
       const header = new Uint8Array(await file.slice(0, 4096).arrayBuffer())
       if (!validVideoHeader(header, extension)) throw new Error('هاد الملف ماشي فيديو MP4 أو WebM صالح.')
       const configuration = await requestJson('/api/admin/video-upload', { signal: controller.signal })
-      if (configuration.direct) {
+      if (configuration.chunked) {
+        const started = await requestJson('/api/admin/video-upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'start', size: file.size, contentType: file.type }), signal: controller.signal })
+        pendingUpload = started.filename
+        const chunkBytes = configuration.chunkBytes
+        for (let start = 0, part = 0; start < file.size; start += chunkBytes, part++) {
+          const chunk = file.slice(start, Math.min(file.size, start + chunkBytes))
+          await requestJson('/api/admin/video-upload?filename=' + encodeURIComponent(started.filename) + '&part=' + part, { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: chunk, signal: controller.signal })
+          setVideoProgress(Math.round(Math.min(file.size, start + chunkBytes) / file.size * 100))
+        }
+        const finished = await requestJson('/api/admin/video-upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'complete', filename: started.filename }), signal: controller.signal })
+        setVideo(finished.url)
+        pendingUpload = undefined
+      } else if (configuration.direct) {
         const { upload } = await import('@vercel/blob/client')
         const filename = crypto.randomUUID() + '.' + extension
         await upload('catalog/videos/' + filename, file, {
@@ -233,6 +248,7 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
         setVideo(result.url)
       }
     } catch (failure) {
+      if (pendingUpload) void requestJson('/api/admin/video-upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'cancel', filename: pendingUpload }) }).catch(() => undefined)
       if (!controller.signal.aborted) setError((failure as Error).message || 'تعذر رفع الفيديو. حاول من جديد.')
     } finally {
       setUploading(false); setVideoProgress(null); videoAbort.current = null
@@ -286,7 +302,7 @@ function ProductEditor({ product, categories, onSave, onCancel, onRefresh }: {
       <fieldset disabled={saving} className="space-y-6 disabled:opacity-70">
         <div><div className="mb-3 flex items-center justify-between"><h3 className="text-sm font-semibold">تصاور المنتج <span className="text-muted-foreground">({images.length}/6)</span></h3><span className="text-xs text-muted-foreground">الأولى هي الرئيسية</span></div>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-            {images.map((url, index) => <div key={url} className={`relative aspect-square overflow-hidden rounded-xl border ${index === 0 ? 'border-amber-400' : 'border-border'}`}><Image src={url} alt={`صورة المنتج ${index + 1}`} fill unoptimized className="object-cover" /><button type="button" disabled={uploading} onClick={() => setImages((current) => current.filter((item) => item !== url))} aria-label={`حذف الصورة ${index + 1}`} className="absolute left-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-black/75 text-white"><Trash2 size={14} /></button><button type="button" disabled={uploading} onClick={() => setImages((current) => [url, ...current.filter((item) => item !== url)])} className={`absolute inset-x-0 bottom-0 py-2 text-[10px] ${index === 0 ? 'bg-amber-400 text-black' : 'bg-black/75 text-white'}`}>{index === 0 ? 'الصورة الرئيسية' : 'خليها رئيسية'}</button></div>)}
+            {images.map((url, index) => <div key={url} className={`relative aspect-square overflow-hidden rounded-xl border ${index === 0 ? 'border-amber-400' : 'border-border'}`}><OptimizedImage src={url} alt={`صورة المنتج ${index + 1}`} unoptimized className="object-cover" /><button type="button" disabled={uploading} onClick={() => setImages((current) => current.filter((item) => item !== url))} aria-label={`حذف الصورة ${index + 1}`} className="absolute left-1 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-black/75 text-white"><Trash2 size={14} /></button><button type="button" disabled={uploading} onClick={() => setImages((current) => [url, ...current.filter((item) => item !== url)])} className={`absolute inset-x-0 bottom-0 py-2 text-[10px] ${index === 0 ? 'bg-amber-400 text-black' : 'bg-black/75 text-white'}`}>{index === 0 ? 'الصورة الرئيسية' : 'خليها رئيسية'}</button></div>)}
             {images.length < 6 && <button type="button" disabled={uploading} onClick={() => uploadInput.current?.click()} className="flex aspect-square flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/40 text-xs text-muted-foreground hover:border-amber-400 hover:text-primary">{uploading ? <Loader2 className="animate-spin" size={24} /> : <ImagePlus size={24} />}{uploading ? 'كتترفع الصورة...' : 'زيد تصاور'}</button>}
           </div>
           <input ref={uploadInput} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif" multiple className="hidden" aria-label="رفع صور المنتج" onChange={(event) => upload(event.target.files)} />
