@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, CircleCheck, Crown, Shirt } from 'lucide-react'
+import { ArrowLeft, ChevronDown, CircleCheck, Crown, Shirt } from 'lucide-react'
 import { FABRICS } from '@/lib/fabrics'
 import { useUI } from '@/lib/ui-store'
 import styles from './fabric-story.module.css'
@@ -37,14 +37,17 @@ export function FabricComparison() {
                   </div>
                 </div>
                 <p className={styles.price}><bdi>{fabric.price}</bdi><span>درهم مغربي</span></p>
-                <ul className={styles.featureList}>
-                  {fabric.features.map((feature) => (
-                    <li key={feature.title}>
-                      <CircleCheck aria-hidden="true" />
-                      <p><strong>{feature.title}:</strong> {feature.detail}</p>
-                    </li>
-                  ))}
-                </ul>
+                <details className={styles.specifications}>
+                  <summary>تفاصيل القماش والطباعة <ChevronDown aria-hidden="true" /></summary>
+                  <ul className={styles.featureList}>
+                    {fabric.features.map((feature) => (
+                      <li key={feature.title}>
+                        <CircleCheck aria-hidden="true" />
+                        <p><strong>{feature.title}:</strong> {feature.detail}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
                 <button type="button" className={premium ? styles.primaryAction : styles.localAction} onClick={() => setView({ kind: 'search', query: '' })}>
                   تصفح تصاميم الهوديات <ArrowLeft aria-hidden="true" />
                 </button>

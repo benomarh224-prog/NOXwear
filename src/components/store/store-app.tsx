@@ -12,7 +12,6 @@ import { FabricComparison } from './fabric-comparison'
 import { WhyNoxwear } from './why-noxwear'
 import { CustomPrintView } from './custom-print-view'
 import { CategoriesSection } from './categories-section'
-import { CategoryHighlight } from './category-highlight'
 import { FeaturedProducts } from './featured-products'
 import { DropsBanner } from './drops-banner'
 import { Footer } from './footer'
@@ -34,7 +33,6 @@ interface StoreAppProps {
   categories: Category[]
   products: Product[]
   featured: Product[]
-  highlights: Record<string, Product>
   heroImage: string
   accentImage: string
 }
@@ -44,7 +42,6 @@ export function StoreApp({
   categories,
   products,
   featured,
-  highlights,
   heroImage,
   accentImage,
 }: StoreAppProps) {
@@ -73,7 +70,6 @@ export function StoreApp({
             <FabricComparison />
             <div id="store-collections" className="scroll-mt-20"><CategoriesSection categories={categories} /></div>
             <WhyNoxwear />
-            <CategoryHighlight categories={categories} highlights={highlights} />
             <FeaturedProducts products={featured} />
             <DropsBanner />
           </>

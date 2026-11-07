@@ -15,7 +15,10 @@ export function Hero({ featuredImage, accentImage }: HeroProps) {
   const setView = useUI((s) => s.setView)
 
   function showSection(id: string) {
-    document.getElementById(id)?.scrollIntoView({
+    const target = document.getElementById(id)
+    const specifications = target?.querySelector('details')
+    if (specifications) specifications.open = true
+    target?.scrollIntoView({
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
       block: 'start',
     })

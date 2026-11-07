@@ -37,8 +37,10 @@ export function WhyNoxwear() {
           {REASONS.map(({ icon: Icon, title, description }, index) => (
             <article key={index} className={styles.reason}>
               <span className={styles.icon}><Icon aria-hidden="true" /></span>
-              <h3>{title}</h3>
-              <p>{description}</p>
+              <div className={styles.reasonCopy}>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </div>
             </article>
           ))}
         </div>

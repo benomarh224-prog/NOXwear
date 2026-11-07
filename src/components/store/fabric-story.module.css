@@ -13,11 +13,11 @@
   --story-gold: #edbe46;
   --story-surface: #121212;
 }
-.hero { padding: 48px 24px 64px; background: var(--background); }
-.heroLayout { max-width: 1216px; margin-inline: auto; display: grid; gap: 48px; align-items: center; }
+.hero { padding: 36px 24px 44px; background: var(--background); }
+.heroLayout { max-width: 1216px; margin-inline: auto; display: grid; gap: 32px; align-items: center; }
 .copy { min-width: 0; }
 .drop { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 24px; color: var(--story-red); background: color-mix(in srgb, var(--story-red) 10%, transparent); border: 1px solid color-mix(in srgb, var(--story-red) 28%, transparent); font-size: 13px; font-weight: 700; }
-.headline { margin: 28px 0 24px; font-size: clamp(32px, 8.5vw, 52px); line-height: 1.4; font-weight: 900; letter-spacing: -.035em; }
+.headline { margin: 22px 0 18px; font-size: clamp(32px, 8.5vw, 52px); line-height: 1.4; font-weight: 900; letter-spacing: -.035em; }
 .headline span { color: var(--story-red); }
 .intro { max-width: 600px; font-size: 16px; line-height: 1.95; color: var(--story-muted); }
 .intro strong { color: var(--story-text); font-weight: 700; }
@@ -29,7 +29,7 @@
 .fabricChip > span:last-child { font-size: 13px; }
 .turkishChip { color: var(--story-red); background: color-mix(in srgb, var(--story-red) 12%, transparent); }
 .localChip { color: var(--story-gold); background: color-mix(in srgb, var(--story-gold) 12%, transparent); }
-.benefits { margin: 28px 0; padding: 22px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; border-block: 1px solid var(--border); }
+.benefits { margin: 22px 0; padding: 16px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; border-block: 1px solid var(--border); }
 .benefits li { display: flex; align-items: center; flex-direction: column; gap: 10px; text-align: center; padding: 0 6px; font-size: 13px; font-weight: 700; line-height: 1.7; }
 .benefits li + li { border-inline-start: 1px solid var(--border); }
 .benefits svg { width: 25px; height: 25px; color: var(--story-red); stroke-width: 2.2; }
@@ -46,13 +46,13 @@
 .accentImage { position: absolute; bottom: 0; right: 0; width: 49%; height: 62%; border-radius: 16px; overflow: hidden; border: 2px solid var(--background); }
 .imageCaption { position: absolute; bottom: 0; left: 0; max-width: 48%; display: flex; flex-direction: column; gap: 4px; font-size: 16px; font-weight: 700; }
 .imageCaption span { color: var(--story-muted); font-size: 12px; }
-.comparison { padding: 64px 24px 80px; background: var(--background); border-block: 1px solid var(--border); scroll-margin-top: 88px; }
+.comparison { padding: 40px 24px 48px; background: var(--background); border-block: 1px solid var(--border); scroll-margin-top: 88px; }
 .comparisonInner { max-width: 1060px; margin-inline: auto; }
-.sectionHeading { max-width: 640px; margin: 0 auto 40px; text-align: center; }
+.sectionHeading { max-width: 640px; margin: 0 auto 28px; text-align: center; }
 .eyebrow { /* taste-skill-ignore: Keep the caption explicitly shown in the client reference. */ font-size: 15px; font-weight: 700; color: var(--story-red); }
-.sectionHeading h2 { margin: 10px 0 16px; font-size: clamp(28px, 6.8vw, 40px); line-height: 1.45; letter-spacing: -.025em; font-weight: 900; }
+.sectionHeading h2 { margin: 10px 0 16px; font-size: clamp(26px, 6.5vw, 36px); line-height: 1.45; letter-spacing: -.025em; font-weight: 900; }
 .sectionHeading > p:last-child { color: var(--story-muted); line-height: 1.85; font-size: 16px; }
-.cardGrid { display: grid; gap: 24px; }
+.cardGrid { display: grid; align-items: start; gap: 16px; }
 .fabricCard { min-width: 0; padding: 24px; display: flex; flex-direction: column; background: var(--story-surface); border-radius: 24px; border: 1px solid; scroll-margin-top: 88px; }
 .premiumCard { border: 2px solid var(--story-red); --fabric-accent: var(--story-red); }
 .localCard { border-color: color-mix(in srgb, var(--story-gold) 55%, transparent); --fabric-accent: var(--story-gold); }
@@ -67,29 +67,35 @@
 .price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-top: 28px; }
 .price > bdi { font-size: 48px; font-weight: 900; line-height: 1.2; letter-spacing: -.04em; }
 .price > span { font-size: 16px; color: var(--story-muted); font-weight: 600; }
-.featureList { /* taste-skill-ignore: The client reference includes this separator above the specifications. */ margin: 26px 0 30px; padding: 24px 0 0; border-top: 1px solid var(--border); display: grid; gap: 22px; list-style: none; flex: 1; }
+.featureList { margin: 0; padding: 14px 0 4px; display: grid; gap: 14px; list-style: none; }
 .featureList li { display: flex; gap: 12px; align-items: flex-start; }
 .featureList svg { color: var(--fabric-accent); flex: 0 0 20px; width: 20px; height: 20px; margin-top: 4px; }
 .featureList p { color: var(--story-muted); font-size: 15px; line-height: 1.85; }
 .featureList strong { color: var(--story-text); font-weight: 700; }
+.specifications { margin: 20px 0 22px; }
+.specifications summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 46px; padding: 10px 0; color: var(--story-text); cursor: pointer; font-size: 14px; font-weight: 700; list-style: none; }
+.specifications summary::-webkit-details-marker { display: none; }
+.specifications summary svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--fabric-accent); }
+.specifications[open] summary svg { transform: rotate(180deg); }
+.specifications summary:focus-visible { outline: 3px solid var(--story-red); outline-offset: 4px; border-radius: 4px; }
 .localAction { background: var(--muted); color: var(--story-text); border: 1px solid var(--border); }
 .story button:focus-visible { outline: 3px solid var(--story-red); outline-offset: 4px; }
 @media (min-width: 640px) {
-  .hero { padding-block: 64px 80px; }
+  .hero { padding-block: 48px 56px; }
   .headline { font-size: 56px; }
   .intro { font-size: 18px; }
   .fabricLinks { flex-wrap: nowrap; }
   .desktopBreak { display: block; }
   .fabricChoices { flex: 0 1 280px; }
   .benefits li { font-size: 15px; }
-  .fabricCard { padding: 32px; }
-  .comparison { padding-block: 80px 96px; }
+  .fabricCard { padding: 26px; }
+  .comparison { padding-block: 48px 56px; }
 }
 @media (min-width: 900px) {
   .cardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (min-width: 1024px) {
-  .hero { padding-block: 72px 88px; }
+  .hero { padding-block: 56px 64px; }
   .heroLayout { grid-template-columns: 1fr 1fr; gap: 64px; }
   .headline { font-size: clamp(44px, 4.5vw, 62px); }
   .intro { font-size: 17px; }

@@ -52,14 +52,14 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
   const setView = useUI((s) => s.setView)
 
   return (
-    <section className="py-16 sm:py-24 border-b border-border">
+    <section className="py-10 sm:py-14 border-b border-border">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-7">
           <div>
             <Badge variant="outline" className="mb-3 border-gold/30 text-gold">
               تصفح حسب القسم
             </Badge>
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
               أربعة عوالم.<br />
               <span className="gradient-text-gold">هوية واحدة.</span>
             </h2>
@@ -69,7 +69,7 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {categories.map((cat, index) => {
             const Icon = ICONS[cat.icon] || Shirt
             const accent = ACCENTS[cat.slug] || ACCENTS.hoodies
@@ -79,11 +79,11 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
               <Reveal
                 key={cat.id}
                 delay={(index % 3) * 60}
-                className={cat.slug === 'limitless-drops' ? 'sm:col-span-2 lg:col-span-1' : cat.slug === 'sports' ? 'flex flex-col gap-3' : ''}
+                className={cat.slug === 'sports' ? 'flex flex-col gap-3' : ''}
               >
                 <button
                   onClick={() => setView({ kind: 'category', slug: cat.slug })}
-                  className={`store-card w-full ${cat.slug === 'sports' ? 'flex-1' : 'h-full'} group relative text-right rounded-2xl border border-border overflow-hidden hover:${accent.border} transition-all hover:shadow-2xl hover:shadow-primary/10 min-h-[260px] flex flex-col justify-end p-6 sm:p-8`}
+                  className={`store-card w-full ${cat.slug === 'sports' ? 'flex-1' : 'h-full'} group relative text-right rounded-2xl border border-border overflow-hidden hover:${accent.border} transition-all hover:shadow-2xl hover:shadow-primary/10 min-h-[210px] sm:min-h-[260px] flex flex-col justify-end p-4 sm:p-8`}
                 >
                   {/* Background image */}
                   <div className="absolute inset-0">
@@ -103,7 +103,7 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
                   {/* Content */}
                   <div className="relative">
                     <div className="flex items-start justify-between mb-4 flex-row-reverse">
-                      <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-black/40 backdrop-blur ${accent.text} border ${accent.border}`}>
+                      <div className={`flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-black/40 backdrop-blur ${accent.text} border ${accent.border}`}>
                         <Icon className="h-6 w-6" />
                       </div>
                       {isHot ? (
@@ -116,19 +116,19 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
                       )}
                     </div>
 
-                    <h3 className="text-3xl font-black mb-1 text-white drop-shadow-lg">
+                    <h3 className="text-xl sm:text-3xl font-black mb-1 text-white drop-shadow-lg">
                       {cat.name}
                     </h3>
-                    <p className={`text-sm font-medium mb-3 ${accent.text}`}>
+                    <p className={`text-xs sm:text-sm font-medium sm:mb-3 ${accent.text}`}>
                       {cat.tagline}
                     </p>
-                    <p className="text-sm text-white/80 line-clamp-2 drop-shadow">
+                    <p className="hidden sm:line-clamp-2 text-sm text-white/80 drop-shadow">
                       {cat.description}
                     </p>
                   </div>
 
                   {/* Hover indicator */}
-                  <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-amber-200 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all relative">
+                  <div className="mt-4 hidden sm:flex items-center gap-2 text-xs font-semibold text-amber-200 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all relative">
                     استكشف المجموعة
                     <ArrowLeft className="h-3 w-3" />
                   </div>
@@ -140,7 +140,7 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
 
           {/* Bonus: brand story card (NOXwear) */}
           <div
-            className="group relative rounded-2xl border border-gold/30 overflow-hidden gradient-gold min-h-[260px] flex flex-col justify-end p-6 sm:p-8"
+            className="col-span-2 lg:col-span-1 group relative rounded-2xl border border-gold/30 overflow-hidden gradient-gold min-h-[190px] sm:min-h-[260px] flex flex-col justify-end p-5 sm:p-8"
           >
             <div className="absolute inset-0 pattern-arabic opacity-20" />
             {/* Crown decoration */}
