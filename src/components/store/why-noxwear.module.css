@@ -1,0 +1,80 @@
+.section {
+  padding: 64px 24px 72px;
+  background: var(--story-surface);
+  scroll-margin-top: 88px;
+}
+.inner {
+  max-width: 1060px;
+  margin-inline: auto;
+}
+.heading {
+  max-width: 640px;
+  margin: 0 auto 36px;
+  text-align: center;
+}
+.heading h2 {
+  font-size: clamp(28px, 7vw, 42px);
+  font-weight: 900;
+  letter-spacing: -.025em;
+  line-height: 1.5;
+}
+.heading h2 bdi {
+  color: var(--story-red);
+}
+.heading p {
+  max-width: 530px;
+  margin: 16px auto 0;
+  font-size: 16px;
+  line-height: 1.9;
+  color: var(--story-muted);
+}
+.grid {
+  display: grid;
+  gap: 16px;
+}
+.reason {
+  min-width: 0;
+  padding: 24px;
+  border-radius: 22px;
+  /* Client reference: dark feature panels with subtle red outlines. */
+  border: 1px solid color-mix(in srgb, var(--story-red) 35%, var(--border));
+  background: var(--background);
+}
+.icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 20px;
+  place-items: center;
+  border-radius: 16px;
+  color: var(--story-red);
+  background: color-mix(in srgb, var(--story-red) 12%, transparent);
+}
+.icon svg {
+  width: 27px;
+  height: 27px;
+  stroke-width: 2.1;
+}
+.reason h3 {
+  margin-bottom: 12px;
+  color: var(--story-text);
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+.reason h3 bdi {
+  white-space: nowrap;
+}
+.reason p {
+  color: var(--story-muted);
+  font-size: 15px;
+  line-height: 1.95;
+}
+@media (min-width: 640px) {
+  .section { padding-block: 80px 88px; }
+  .heading { margin-bottom: 44px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .reason { padding: 30px; }
+  .reason h3 { font-size: 23px; }
+  .reason p { font-size: 16px; }
+}

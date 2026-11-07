@@ -9,6 +9,7 @@ import { Header } from './header'
 import { Marquee } from './marquee'
 import { Hero } from './hero'
 import { FabricComparison } from './fabric-comparison'
+import { WhyNoxwear } from './why-noxwear'
 import { CustomPrintView } from './custom-print-view'
 import { CategoriesSection } from './categories-section'
 import { CategoryHighlight } from './category-highlight'
@@ -71,6 +72,7 @@ export function StoreApp({
             />
             <FabricComparison />
             <div id="store-collections" className="scroll-mt-20"><CategoriesSection categories={categories} /></div>
+            <WhyNoxwear />
             <CategoryHighlight categories={categories} highlights={highlights} />
             <FeaturedProducts products={featured} />
             <DropsBanner />
