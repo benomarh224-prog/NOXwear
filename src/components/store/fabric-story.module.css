@@ -1,0 +1,100 @@
+.story {
+  --story-red: #c92820;
+  --story-red-fill: #d92c22;
+  --story-gold: #8b6008;
+  --story-surface: var(--card);
+  --story-text: var(--foreground);
+  --story-muted: var(--muted-foreground);
+  color: var(--story-text);
+}
+:global(.dark) .story {
+  --story-red: #ff5149;
+  --story-red-fill: #df3026;
+  --story-gold: #edbe46;
+  --story-surface: #121212;
+}
+.hero { padding: 48px 24px 64px; background: var(--background); }
+.heroLayout { max-width: 1216px; margin-inline: auto; display: grid; gap: 48px; align-items: center; }
+.copy { min-width: 0; }
+.drop { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 24px; color: var(--story-red); background: color-mix(in srgb, var(--story-red) 10%, transparent); border: 1px solid color-mix(in srgb, var(--story-red) 28%, transparent); font-size: 13px; font-weight: 700; }
+.headline { margin: 28px 0 24px; font-size: clamp(32px, 8.5vw, 52px); line-height: 1.4; font-weight: 900; letter-spacing: -.035em; }
+.headline span { color: var(--story-red); }
+.intro { max-width: 600px; font-size: 16px; line-height: 1.95; color: var(--story-muted); }
+.intro strong { color: var(--story-text); font-weight: 700; }
+.fabricLinks { margin-top: 28px; padding: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; border: 1px solid color-mix(in srgb, var(--story-red) 26%, var(--border)); border-radius: 16px; background: var(--story-surface); }
+.fabricLinks > p { font-size: 14px; font-weight: 700; line-height: 1.6; }
+.desktopBreak { display: none; }
+.fabricChoices { display: grid; grid-template-columns: 1fr 1fr; flex: 1; gap: 8px; }
+.fabricChip { min-height: 56px; padding: 8px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 10px; border: 1px solid currentColor; font-size: 14px; font-weight: 800; cursor: pointer; }
+.fabricChip > span:last-child { font-size: 13px; }
+.turkishChip { color: var(--story-red); background: color-mix(in srgb, var(--story-red) 12%, transparent); }
+.localChip { color: var(--story-gold); background: color-mix(in srgb, var(--story-gold) 12%, transparent); }
+.benefits { margin: 28px 0; padding: 22px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; border-block: 1px solid var(--border); }
+.benefits li { display: flex; align-items: center; flex-direction: column; gap: 10px; text-align: center; padding: 0 6px; font-size: 13px; font-weight: 700; line-height: 1.7; }
+.benefits li + li { border-inline-start: 1px solid var(--border); }
+.benefits svg { width: 25px; height: 25px; color: var(--story-red); stroke-width: 2.2; }
+.actions { display: grid; gap: 12px; }
+.primaryAction, .secondaryAction, .localAction { width: 100%; min-height: 56px; padding: 14px 18px; display: inline-flex; justify-content: center; align-items: center; gap: 12px; border-radius: 12px; font-size: 16px; line-height: 1.6; font-weight: 800; cursor: pointer; transition: background-color 160ms, transform 160ms; }
+.primaryAction { background: var(--story-red-fill); color: #fff; border: 1px solid transparent; }
+.primaryAction:hover { background: #bf241d; }
+.secondaryAction { border: 1px solid var(--border); background: var(--story-surface); color: var(--story-text); }
+.secondaryAction:hover, .localAction:hover { background: var(--muted); }
+.primaryAction:active, .secondaryAction:active, .localAction:active, .fabricChip:active { transform: translateY(1px); }
+.primaryAction svg, .localAction svg { width: 19px; height: 19px; flex-shrink: 0; }
+.collage { position: relative; width: 100%; max-width: 540px; aspect-ratio: 1 / 1; margin-inline: auto; }
+.mainImage { position: absolute; top: 0; left: 0; width: 76%; height: 85%; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); }
+.accentImage { position: absolute; bottom: 0; right: 0; width: 49%; height: 62%; border-radius: 16px; overflow: hidden; border: 2px solid var(--background); }
+.imageCaption { position: absolute; bottom: 0; left: 0; max-width: 48%; display: flex; flex-direction: column; gap: 4px; font-size: 16px; font-weight: 700; }
+.imageCaption span { color: var(--story-muted); font-size: 12px; }
+.comparison { padding: 64px 24px 80px; background: var(--background); border-block: 1px solid var(--border); scroll-margin-top: 88px; }
+.comparisonInner { max-width: 1060px; margin-inline: auto; }
+.sectionHeading { max-width: 640px; margin: 0 auto 40px; text-align: center; }
+.eyebrow { /* taste-skill-ignore: Keep the caption explicitly shown in the client reference. */ font-size: 15px; font-weight: 700; color: var(--story-red); }
+.sectionHeading h2 { margin: 10px 0 16px; font-size: clamp(28px, 6.8vw, 40px); line-height: 1.45; letter-spacing: -.025em; font-weight: 900; }
+.sectionHeading > p:last-child { color: var(--story-muted); line-height: 1.85; font-size: 16px; }
+.cardGrid { display: grid; gap: 24px; }
+.fabricCard { min-width: 0; padding: 24px; display: flex; flex-direction: column; background: var(--story-surface); border-radius: 24px; border: 1px solid; scroll-margin-top: 88px; }
+.premiumCard { border: 2px solid var(--story-red); --fabric-accent: var(--story-red); }
+.localCard { border-color: color-mix(in srgb, var(--story-gold) 55%, transparent); --fabric-accent: var(--story-gold); }
+.cardBadge { align-self: flex-end; display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 6px 12px; border-radius: 24px; background: color-mix(in srgb, var(--fabric-accent) 12%, transparent); color: var(--fabric-accent); font-size: 12px; font-weight: 800; line-height: 1.6; }
+.premiumCard .cardBadge { background: var(--story-red-fill); color: #fff; }
+.cardTitle { margin-top: 20px; display: flex; align-items: center; gap: 14px; }
+.fabricIcon { flex: 0 0 48px; height: 56px; display: grid; place-items: center; border-radius: 16px; background: color-mix(in srgb, var(--fabric-accent) 12%, transparent); color: var(--fabric-accent); }
+.fabricIcon svg { height: 28px; width: 28px; stroke-width: 2; }
+.cardTitle h3 { font-size: 25px; line-height: 1.45; font-weight: 900; }
+.cardTitle h3 span { display: block; font-size: 20px; letter-spacing: -.04em; }
+.cardTitle p { margin-top: 8px; color: var(--fabric-accent); font-size: 14px; line-height: 1.7; font-weight: 700; }
+.price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-top: 28px; }
+.price > bdi { font-size: 48px; font-weight: 900; line-height: 1.2; letter-spacing: -.04em; }
+.price > span { font-size: 16px; color: var(--story-muted); font-weight: 600; }
+.featureList { /* taste-skill-ignore: The client reference includes this separator above the specifications. */ margin: 26px 0 30px; padding: 24px 0 0; border-top: 1px solid var(--border); display: grid; gap: 22px; list-style: none; flex: 1; }
+.featureList li { display: flex; gap: 12px; align-items: flex-start; }
+.featureList svg { color: var(--fabric-accent); flex: 0 0 20px; width: 20px; height: 20px; margin-top: 4px; }
+.featureList p { color: var(--story-muted); font-size: 15px; line-height: 1.85; }
+.featureList strong { color: var(--story-text); font-weight: 700; }
+.localAction { background: var(--muted); color: var(--story-text); border: 1px solid var(--border); }
+.story button:focus-visible { outline: 3px solid var(--story-red); outline-offset: 4px; }
+@media (min-width: 640px) {
+  .hero { padding-block: 64px 80px; }
+  .headline { font-size: 56px; }
+  .intro { font-size: 18px; }
+  .fabricLinks { flex-wrap: nowrap; }
+  .desktopBreak { display: block; }
+  .fabricChoices { flex: 0 1 280px; }
+  .benefits li { font-size: 15px; }
+  .fabricCard { padding: 32px; }
+  .comparison { padding-block: 80px 96px; }
+}
+@media (min-width: 900px) {
+  .cardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .hero { padding-block: 72px 88px; }
+  .heroLayout { grid-template-columns: 1fr 1fr; gap: 64px; }
+  .headline { font-size: clamp(44px, 4.5vw, 62px); }
+  .intro { font-size: 17px; }
+  .collage { aspect-ratio: 9 / 10; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story button { transition: none; }
+}
