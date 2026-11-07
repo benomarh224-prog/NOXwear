@@ -1,4 +1,4 @@
-import { Layers3, MapPin, Printer, Shirt } from 'lucide-react'
+import { Layers3, Printer, Shirt } from 'lucide-react'
 import storyStyles from './fabric-story.module.css'
 import styles from './why-noxwear.module.css'
 
@@ -17,11 +17,6 @@ const REASONS = [
     icon: Shirt,
     title: 'قصة مريحة، هوية خاصة',
     description: <>قصة ستريت وير عصرية ومريحة، وتصاميم كتعبّر عليك. من الأنمي لعالم الشغف، اختار الستايل اللي كيشبه ليك.</>,
-  },
-  {
-    icon: MapPin,
-    title: 'من الدار البيضاء، ليك',
-    description: <>كل قطعة ننتجها في الدار البيضاء بعناية في التفاصيل، ونوصلها لباب دارك فابور لجميع مدن المغرب.</>,
   },
 ]
 
