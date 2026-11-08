@@ -43,7 +43,7 @@ const FOOTER_LINKS = [
 const PERKS = [
   { icon: Truck, title: 'توصيل فابور', sub: 'لجميع مدن المغرب' },
   { icon: Shield, title: 'ضمان الأصالة', sub: 'كل منتج موثق' },
-  { icon: RefreshCw, title: 'إرجاع خلال 30 يوم', sub: 'بدون أسئلة' },
+  { icon: RefreshCw, title: 'استبدال مجاني', sub: 'للمقاس خلال 3 أيام' },
   { icon: HeadphonesIcon, title: 'دعم 24/7 عبر واتساب', sub: 'نرد بسرعة' },
 ]
 

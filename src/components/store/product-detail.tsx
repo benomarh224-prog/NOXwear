@@ -120,7 +120,7 @@ export function ProductDetail({ product, related }: ProductDetailProps) {
             <div className="mt-4 grid grid-cols-3 gap-2">
               <Perk icon={Truck} label="توصيل مجاني لكل المغرب" />
               <Perk icon={Shield} label="أصلي مضمون" />
-              <Perk icon={RefreshCw} label="إرجاع 30 يوم" />
+              <Perk icon={RefreshCw} label="استبدال المقاس خلال 3 أيام" />
             </div>
           </div>
 

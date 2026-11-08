@@ -1,4 +1,4 @@
-import { Layers3, Printer, Shirt } from 'lucide-react'
+import { Layers3, PackageOpen, RotateCcw } from 'lucide-react'
 import storyStyles from './fabric-story.module.css'
 import styles from './why-noxwear.module.css'
 
@@ -9,14 +9,14 @@ const REASONS = [
     description: <>في الخيار التركي: قطن ممشوط <bdi>100%</bdi>، بملمس دافئ وناعم. ويتوفر أيضاً الثوب المغربي الممتاز بوزن <bdi>300 GSM</bdi>.</>,
   },
   {
-    icon: Printer,
-    title: <>طباعة <bdi>DTF</bdi> بتفاصيل دقيقة</>,
-    description: <>تصاميم واضحة وطباعة ثابتة، بنفس الجودة على الثوب التركي والمغربي. كل تفصيلة كتكمّل الستايل ديالك.</>,
+    icon: PackageOpen,
+    title: 'معاينة المنتج قبل الدفع',
+    description: <>ثقتنا في جودتنا مطلقة! يمكنك فتح الطرد وفحص الهودي والتأكد من المقاس والجودة قبل تسليم المبلغ للموزع.</>,
   },
   {
-    icon: Shirt,
-    title: 'قصة مريحة، هوية خاصة',
-    description: <>قصة ستريت وير عصرية ومريحة، وتصاميم كتعبّر عليك. من الأنمي لعالم الشغف، اختار الستايل اللي كيشبه ليك.</>,
+    icon: RotateCcw,
+    title: 'استبدال سهل ومجاني',
+    description: <>إذا كان المقاس غير مناسب، نوفر لك خدمة استبدال سريعة ودون أي تعقيدات خلال <bdi>3</bdi> أيام من استلام الطلب.</>,
   },
 ]
 

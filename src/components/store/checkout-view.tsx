@@ -397,7 +397,7 @@ export function CheckoutView() {
                 <span className="text-foreground">24–48 ساعة</span> بعد تأكيد الطلب، لجميع مدن المغرب.
               </p>
               <p className="text-muted-foreground mt-2">
-                إرجاع مجاني خلال 30 يوم. نتواصل معك عبر واتساب بخصوص طلبك.
+                استبدال المقاس مجاناً خلال 3 أيام من الاستلام. نتواصل معك عبر واتساب بخصوص طلبك.
               </p>
             </div>
           </div>
