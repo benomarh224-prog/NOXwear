@@ -37,7 +37,7 @@ export function FabricComparison() {
                   </div>
                 </div>
                 <p className={styles.price}><bdi>{fabric.price}</bdi><span>درهم مغربي</span></p>
-                <details className={styles.specifications}>
+                <details className={styles.specifications} open={!premium}>
                   <summary>تفاصيل القماش والطباعة <ChevronDown aria-hidden="true" /></summary>
                   <ul className={styles.featureList}>
                     {fabric.features.map((feature) => (
