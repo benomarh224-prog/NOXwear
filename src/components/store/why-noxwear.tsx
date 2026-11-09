@@ -1,4 +1,4 @@
-import { Layers3, PackageOpen, RotateCcw } from 'lucide-react'
+import { Layers3, Stamp, PackageOpen, RotateCcw } from 'lucide-react'
 import storyStyles from './fabric-story.module.css'
 import styles from './why-noxwear.module.css'
 
@@ -7,6 +7,11 @@ const REASONS = [
     icon: Layers3,
     title: <>قماش ثقيل <bdi>380 GSM</bdi></>,
     description: <>في الخيار التركي: قطن ممشوط <bdi>100%</bdi>، بملمس دافئ وناعم. ويتوفر أيضاً الثوب المغربي الممتاز بوزن <bdi>300 GSM</bdi>.</>,
+  },
+  {
+    icon: Stamp,
+    title: <>طباعة <bdi>DTF</bdi> احترافية</>,
+    description: <>أحدث تقنيات الطباعة المباشرة بألوان زاهية وتفاصيل حادة. الطباعة مرنة، لا تتشقق ولا تتأثر بالغسيل المتكرر.</>,
   },
   {
     icon: PackageOpen,
