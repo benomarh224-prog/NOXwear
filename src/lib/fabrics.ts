@@ -6,7 +6,7 @@ export const FABRICS = [
     shortName: 'تركي',
     englishName: 'Turkish Premium',
     flag: '🇹🇷',
-    price: 259,
+    price: 269,
     badge: 'المفضل لدى الزبناء',
     description: 'جودة فاخرة ممتازة للغاية',
     features: [

@@ -6,6 +6,8 @@ import { FABRICS } from '@/lib/fabrics'
 import { OptimizedImage } from './optimized-image'
 import styles from './fabric-story.module.css'
 
+const [turkishFabric, moroccanFabric] = FABRICS
+
 interface HeroProps {
   featuredImage: string
   accentImage: string
@@ -34,8 +36,8 @@ export function Hero({ featuredImage, accentImage }: HeroProps) {
           </h1>
           <p className={styles.intro}>
             هوديات ستريت وير بتصاميم استثنائية وطباعة <bdi>DTF</bdi> عالية الدقة.
-            متوفرة الآن بنوعين من الثوب: <strong>الثوب التركي الثقيل (259 د.م)</strong> أو{' '}
-            <strong>الثوب المغربي الممتاز (199 د.م).</strong>
+            متوفرة الآن بنوعين من الثوب: <strong>الثوب التركي الثقيل ({turkishFabric.price} د.م)</strong> أو{' '}
+            <strong>الثوب المغربي الممتاز ({moroccanFabric.price} د.م).</strong>
           </p>
 
           <div className={styles.fabricLinks}>
